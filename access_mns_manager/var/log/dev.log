@@ -15,3 +15,4 @@
 [2025-04-15T19:54:15.068383+00:00] http_client.INFO: Request: "GET https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.3.0/+esm" [] []
 [2025-04-15T19:54:15.111494+00:00] http_client.INFO: Response: "200 https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.3.0/+esm" 0.042963 seconds {"http_code":200,"url":"https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.3.0/+esm","total_time":0.042963} []
 [2025-04-19T14:38:45.144866+00:00] deprecation.INFO: Deprecated: trim(): Passing null to parameter #1 ($string) of type string is deprecated {"exception":"[object] (ErrorException(code: 0): Deprecated: trim(): Passing null to parameter #1 ($string) of type string is deprecated at /Users/guiback/Desktop/OpenClassrooms - MNS/MNS/DFS/MNS - Projet - ACCESS MNS/CODE/access_mns_manager/vendor/symfony/password-hasher/Command/UserPasswordHashCommand.php:176)"} []
+[2025-04-19T14:52:40.703698+00:00] console.DEBUG: Command "make:user" exited with code "1" {"command":"make:user","code":1} []
