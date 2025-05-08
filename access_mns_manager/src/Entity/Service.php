@@ -31,9 +31,16 @@ class Service
     #[ORM\OneToMany(targetEntity: ServiceZone::class, mappedBy: 'service')]
     private Collection $serviceZones;
 
+    /**
+     * @var Collection<int, Travailler>
+     */
+    #[ORM\OneToMany(targetEntity: Travailler::class, mappedBy: 'service')]
+    private Collection $travail;
+
     public function __construct()
     {
         $this->serviceZones = new ArrayCollection();
+        $this->travail = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -101,6 +108,36 @@ class Service
             // set the owning side to null (unless already changed)
             if ($serviceZone->getService() === $this) {
                 $serviceZone->setService(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Travailler>
+     */
+    public function getTravail(): Collection
+    {
+        return $this->travail;
+    }
+
+    public function addTravail(Travailler $travail): static
+    {
+        if (!$this->travail->contains($travail)) {
+            $this->travail->add($travail);
+            $travail->setService($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTravail(Travailler $travail): static
+    {
+        if ($this->travail->removeElement($travail)) {
+            // set the owning side to null (unless already changed)
+            if ($travail->getService() === $this) {
+                $travail->setService(null);
             }
         }
 
