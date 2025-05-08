@@ -386,6 +386,10 @@
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
+    <service id="App\Repository\GererRepository" class="App\Repository\GererRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
     <service id="App\Repository\OrganisationRepository" class="App\Repository\OrganisationRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
@@ -5289,7 +5293,7 @@
     <service id="doctrine.orm.configuration" class="Doctrine\ORM\Configuration" abstract="true"/>
     <service id="doctrine.orm.entity_manager.abstract" class="Doctrine\ORM\EntityManager" lazy="true" abstract="true"/>
     <service id="doctrine.orm.container_repository_factory" class="Doctrine\Bundle\DoctrineBundle\Repository\ContainerRepositoryFactory">
-      <argument type="service" id=".service_locator.HYBvfyy"/>
+      <argument type="service" id=".service_locator..BHoVRw"/>
     </service>
     <service id="doctrine.orm.manager_configurator.abstract" class="Doctrine\Bundle\DoctrineBundle\ManagerConfigurator" abstract="true">
       <argument type="collection"/>
@@ -7437,6 +7441,8 @@
     <service id=".abstract.instanceof.App\Repository\BadgeRepository" class="App\Repository\BadgeRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\BadgeuseRepository" class="App\Repository\BadgeuseRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\BadgeuseRepository" class="App\Repository\BadgeuseRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\GererRepository" class="App\Repository\GererRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\GererRepository" class="App\Repository\GererRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\OrganisationRepository" class="App\Repository\OrganisationRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\OrganisationRepository" class="App\Repository\OrganisationRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\PointageRepository" class="App\Repository\PointageRepository" autowire="true" abstract="true"/>
@@ -8341,12 +8347,13 @@
         <argument key="turbo.doctrine.event_listener" type="service_closure" id="turbo.doctrine.event_listener"/>
       </argument>
     </service>
-    <service id=".service_locator.HYBvfyy" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator..BHoVRw" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Repository\AccesRepository" type="service_closure" id="App\Repository\AccesRepository"/>
         <argument key="App\Repository\BadgeRepository" type="service_closure" id="App\Repository\BadgeRepository"/>
         <argument key="App\Repository\BadgeuseRepository" type="service_closure" id="App\Repository\BadgeuseRepository"/>
+        <argument key="App\Repository\GererRepository" type="service_closure" id="App\Repository\GererRepository"/>
         <argument key="App\Repository\OrganisationRepository" type="service_closure" id="App\Repository\OrganisationRepository"/>
         <argument key="App\Repository\PointageRepository" type="service_closure" id="App\Repository\PointageRepository"/>
         <argument key="App\Repository\ServiceRepository" type="service_closure" id="App\Repository\ServiceRepository"/>
