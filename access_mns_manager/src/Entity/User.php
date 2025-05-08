@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -64,6 +66,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $poste = null;
+
+    /**
+     * @var Collection<int, UserBadge>
+     */
+    #[ORM\OneToMany(targetEntity: UserBadge::class, mappedBy: 'Utilisateur')]
+    private Collection $userBadges;
+
+    public function __construct()
+    {
+        $this->userBadges = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -256,6 +269,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPoste(?string $poste): static
     {
         $this->poste = $poste;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserBadge>
+     */
+    public function getUserBadges(): Collection
+    {
+        return $this->userBadges;
+    }
+
+    public function addUserBadge(UserBadge $userBadge): static
+    {
+        if (!$this->userBadges->contains($userBadge)) {
+            $this->userBadges->add($userBadge);
+            $userBadge->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserBadge(UserBadge $userBadge): static
+    {
+        if ($this->userBadges->removeElement($userBadge)) {
+            // set the owning side to null (unless already changed)
+            if ($userBadge->getUtilisateur() === $this) {
+                $userBadge->setUtilisateur(null);
+            }
+        }
 
         return $this;
     }

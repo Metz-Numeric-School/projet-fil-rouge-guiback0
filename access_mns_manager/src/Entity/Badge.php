@@ -34,9 +34,16 @@ class Badge
     #[ORM\OneToMany(targetEntity: Pointage::class, mappedBy: 'badge')]
     private Collection $pointages;
 
+    /**
+     * @var Collection<int, UserBadge>
+     */
+    #[ORM\OneToMany(targetEntity: UserBadge::class, mappedBy: 'badge')]
+    private Collection $userBadges;
+
     public function __construct()
     {
         $this->pointages = new ArrayCollection();
+        $this->userBadges = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -116,6 +123,36 @@ class Badge
             // set the owning side to null (unless already changed)
             if ($pointage->getBadge() === $this) {
                 $pointage->setBadge(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserBadge>
+     */
+    public function getUserBadges(): Collection
+    {
+        return $this->userBadges;
+    }
+
+    public function addUserBadge(UserBadge $userBadge): static
+    {
+        if (!$this->userBadges->contains($userBadge)) {
+            $this->userBadges->add($userBadge);
+            $userBadge->setBadge($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserBadge(UserBadge $userBadge): static
+    {
+        if ($this->userBadges->removeElement($userBadge)) {
+            // set the owning side to null (unless already changed)
+            if ($userBadge->getBadge() === $this) {
+                $userBadge->setBadge(null);
             }
         }
 

@@ -30,9 +30,16 @@ class Zone
     #[ORM\OneToMany(targetEntity: Acces::class, mappedBy: 'zone')]
     private Collection $acces;
 
+    /**
+     * @var Collection<int, ServiceZone>
+     */
+    #[ORM\OneToMany(targetEntity: ServiceZone::class, mappedBy: 'zone')]
+    private Collection $serviceZones;
+
     public function __construct()
     {
         $this->acces = new ArrayCollection();
+        $this->serviceZones = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -100,6 +107,36 @@ class Zone
             // set the owning side to null (unless already changed)
             if ($acce->getZone() === $this) {
                 $acce->setZone(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ServiceZone>
+     */
+    public function getServiceZones(): Collection
+    {
+        return $this->serviceZones;
+    }
+
+    public function addServiceZone(ServiceZone $serviceZone): static
+    {
+        if (!$this->serviceZones->contains($serviceZone)) {
+            $this->serviceZones->add($serviceZone);
+            $serviceZone->setZone($this);
+        }
+
+        return $this;
+    }
+
+    public function removeServiceZone(ServiceZone $serviceZone): static
+    {
+        if ($this->serviceZones->removeElement($serviceZone)) {
+            // set the owning side to null (unless already changed)
+            if ($serviceZone->getZone() === $this) {
+                $serviceZone->setZone(null);
             }
         }
 

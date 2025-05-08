@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ServiceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
@@ -22,6 +24,17 @@ class Service
     #[ORM\ManyToOne(inversedBy: 'services')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Organisation $organisation = null;
+
+    /**
+     * @var Collection<int, ServiceZone>
+     */
+    #[ORM\OneToMany(targetEntity: ServiceZone::class, mappedBy: 'service')]
+    private Collection $serviceZones;
+
+    public function __construct()
+    {
+        $this->serviceZones = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -60,6 +73,36 @@ class Service
     public function setOrganisation(?Organisation $organisation): static
     {
         $this->organisation = $organisation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ServiceZone>
+     */
+    public function getServiceZones(): Collection
+    {
+        return $this->serviceZones;
+    }
+
+    public function addServiceZone(ServiceZone $serviceZone): static
+    {
+        if (!$this->serviceZones->contains($serviceZone)) {
+            $this->serviceZones->add($serviceZone);
+            $serviceZone->setService($this);
+        }
+
+        return $this;
+    }
+
+    public function removeServiceZone(ServiceZone $serviceZone): static
+    {
+        if ($this->serviceZones->removeElement($serviceZone)) {
+            // set the owning side to null (unless already changed)
+            if ($serviceZone->getService() === $this) {
+                $serviceZone->setService(null);
+            }
+        }
 
         return $this;
     }
