@@ -28,9 +28,16 @@ class Badgeuse
     #[ORM\OneToMany(targetEntity: Acces::class, mappedBy: 'badgeuse')]
     private Collection $acces;
 
+    /**
+     * @var Collection<int, Pointage>
+     */
+    #[ORM\OneToMany(targetEntity: Pointage::class, mappedBy: 'badgeuse')]
+    private Collection $pointages;
+
     public function __construct()
     {
         $this->acces = new ArrayCollection();
+        $this->pointages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -86,6 +93,36 @@ class Badgeuse
             // set the owning side to null (unless already changed)
             if ($acce->getBadgeuse() === $this) {
                 $acce->setBadgeuse(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Pointage>
+     */
+    public function getPointages(): Collection
+    {
+        return $this->pointages;
+    }
+
+    public function addPointage(Pointage $pointage): static
+    {
+        if (!$this->pointages->contains($pointage)) {
+            $this->pointages->add($pointage);
+            $pointage->setBadgeuse($this);
+        }
+
+        return $this;
+    }
+
+    public function removePointage(Pointage $pointage): static
+    {
+        if ($this->pointages->removeElement($pointage)) {
+            // set the owning side to null (unless already changed)
+            if ($pointage->getBadgeuse() === $this) {
+                $pointage->setBadgeuse(null);
             }
         }
 
