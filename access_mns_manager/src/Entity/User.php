@@ -79,10 +79,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Travailler::class, mappedBy: 'Utilisateur')]
     private Collection $travail;
 
+    /**
+     * @var Collection<int, Gerer>
+     */
+    #[ORM\OneToMany(targetEntity: Gerer::class, mappedBy: 'manageur')]
+    private Collection $manageur;
+
+    /**
+     * @var Collection<int, Gerer>
+     */
+    #[ORM\OneToMany(targetEntity: Gerer::class, mappedBy: 'employe')]
+    private Collection $employe;
+
     public function __construct()
     {
         $this->userBadges = new ArrayCollection();
         $this->travail = new ArrayCollection();
+        $this->manageur = new ArrayCollection();
+        $this->employe = new ArrayCollection();
     }
 
 
@@ -334,6 +348,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($travail->getUtilisateur() === $this) {
                 $travail->setUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Gerer>
+     */
+    public function getManageur(): Collection
+    {
+        return $this->manageur;
+    }
+
+    public function addManageur(Gerer $manageur): static
+    {
+        if (!$this->manageur->contains($manageur)) {
+            $this->manageur->add($manageur);
+            $manageur->setManageur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeManageur(Gerer $manageur): static
+    {
+        if ($this->manageur->removeElement($manageur)) {
+            // set the owning side to null (unless already changed)
+            if ($manageur->getManageur() === $this) {
+                $manageur->setManageur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Gerer>
+     */
+    public function getEmploye(): Collection
+    {
+        return $this->employe;
+    }
+
+    public function addEmploye(Gerer $employe): static
+    {
+        if (!$this->employe->contains($employe)) {
+            $this->employe->add($employe);
+            $employe->setEmploye($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmploye(Gerer $employe): static
+    {
+        if ($this->employe->removeElement($employe)) {
+            // set the owning side to null (unless already changed)
+            if ($employe->getEmploye() === $this) {
+                $employe->setEmploye(null);
             }
         }
 
