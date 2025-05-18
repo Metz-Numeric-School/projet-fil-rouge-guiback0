@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Organisation index{% endblock %}
+
+{% block body %}
+    <h1>Organisation index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom_organisation</th>
+                <th>Telephone</th>
+                <th>Email</th>
+                <th>Site_web</th>
+                <th>Date_creation</th>
+                <th>Siret</th>
+                <th>Ca</th>
+                <th>Numero_rue</th>
+                <th>Suffix_rue</th>
+                <th>Nom_rue</th>
+                <th>Code_postal</th>
+                <th>Ville</th>
+                <th>Pays</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for organisation in organisations %}
+            <tr>
+                <td>{{ organisation.id }}</td>
+                <td>{{ organisation.nomOrganisation }}</td>
+                <td>{{ organisation.telephone }}</td>
+                <td>{{ organisation.email }}</td>
+                <td>{{ organisation.siteWeb }}</td>
+                <td>{{ organisation.dateCreation ? organisation.dateCreation|date('Y-m-d') : '' }}</td>
+                <td>{{ organisation.siret }}</td>
+                <td>{{ organisation.ca }}</td>
+                <td>{{ organisation.numeroRue }}</td>
+                <td>{{ organisation.suffixRue }}</td>
+                <td>{{ organisation.nomRue }}</td>
+                <td>{{ organisation.codePostal }}</td>
+                <td>{{ organisation.ville }}</td>
+                <td>{{ organisation.pays }}</td>
+                <td>
+                    <a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">show</a>
+                    <a href="{{ path('app_organisation_edit', {'id': organisation.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="15">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_organisation_new') }}">Create new</a>
+{% endblock %}
