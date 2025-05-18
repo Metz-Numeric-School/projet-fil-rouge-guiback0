@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Badge{% endblock %}
+
+{% block body %}
+    <h1>Badge</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ badge.id }}</td>
+            </tr>
+            <tr>
+                <th>Numero_badge</th>
+                <td>{{ badge.numeroBadge }}</td>
+            </tr>
+            <tr>
+                <th>Type_badge</th>
+                <td>{{ badge.typeBadge }}</td>
+            </tr>
+            <tr>
+                <th>Date_creation</th>
+                <td>{{ badge.dateCreation ? badge.dateCreation|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Date_expiration</th>
+                <td>{{ badge.dateExpiration ? badge.dateExpiration|date('Y-m-d') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_badge_index') }}">back to list</a>
+
+    <a href="{{ path('app_badge_edit', {'id': badge.id}) }}">edit</a>
+
+    {{ include('badge/_delete_form.html.twig') }}
+{% endblock %}

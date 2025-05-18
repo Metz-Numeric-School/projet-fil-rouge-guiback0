@@ -385,6 +385,13 @@
         <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\SecurityController"/>
       </call>
     </service>
+    <service id="App\Controller\ServiceController" class="App\Controller\ServiceController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\ServiceController"/>
+      </call>
+    </service>
     <service id="App\Controller\UserController" class="App\Controller\UserController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
@@ -403,6 +410,9 @@
       <tag name="form.type" csrf_token_id="%.form.type_extension.csrf.token_id%"/>
     </service>
     <service id="App\Form\RegistrationFormType" class="App\Form\RegistrationFormType" autowire="true" autoconfigure="true">
+      <tag name="form.type" csrf_token_id="%.form.type_extension.csrf.token_id%"/>
+    </service>
+    <service id="App\Form\ServiceType" class="App\Form\ServiceType" autowire="true" autoconfigure="true">
       <tag name="form.type" csrf_token_id="%.form.type_extension.csrf.token_id%"/>
     </service>
     <service id="App\Form\UserType" class="App\Form\UserType" autowire="true" autoconfigure="true">
@@ -487,7 +497,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.KcNP6fP"/>
+      <argument type="service" id=".service_locator.aIUiyU5"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -1437,6 +1447,7 @@
       <argument type="collection">
         <argument>App\Form\OrganisationType</argument>
         <argument>App\Form\RegistrationFormType</argument>
+        <argument>App\Form\ServiceType</argument>
         <argument>App\Form\UserType</argument>
         <argument>App\Form\ZoneType</argument>
         <argument>Symfony\Component\Form\Extension\Core\Type\FormType</argument>
@@ -3460,7 +3471,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.KcNP6fP"/>
+      <argument type="service" id=".service_locator.aIUiyU5"/>
     </service>
     <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <tag name="kernel.reset" method="reset"/>
@@ -4030,7 +4041,7 @@
       <argument type="service" id="form.registry"/>
     </service>
     <service id="form.extension" class="Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension">
-      <argument type="service" id=".service_locator.h5XB4OX"/>
+      <argument type="service" id=".service_locator.ZcesbTE"/>
       <argument type="collection">
         <argument key="Symfony\Component\Form\Extension\Core\Type\FormType" type="iterator">
           <argument type="service" id="form.type_extension.form.transformation_failure_handling"/>
@@ -4130,6 +4141,7 @@
       <argument type="collection">
         <argument key="App\Form\OrganisationType">submit</argument>
         <argument key="App\Form\RegistrationFormType">submit</argument>
+        <argument key="App\Form\ServiceType">submit</argument>
         <argument key="App\Form\UserType">submit</argument>
         <argument key="App\Form\ZoneType">submit</argument>
       </argument>
@@ -7482,6 +7494,9 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\SecurityController" class="App\Controller\SecurityController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\SecurityController" class="App\Controller\SecurityController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\SecurityController" class="App\Controller\SecurityController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\ServiceController" class="App\Controller\ServiceController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\ServiceController" class="App\Controller\ServiceController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\ServiceController" class="App\Controller\ServiceController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\UserController" class="App\Controller\UserController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\UserController" class="App\Controller\UserController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\UserController" class="App\Controller\UserController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -7492,6 +7507,8 @@
     <service id=".abstract.instanceof.App\Form\OrganisationType" class="App\Form\OrganisationType" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\RegistrationFormType" class="App\Form\RegistrationFormType" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Form\RegistrationFormType" class="App\Form\RegistrationFormType" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\ServiceType" class="App\Form\ServiceType" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Form\ServiceType" class="App\Form\ServiceType" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\UserType" class="App\Form\UserType" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Form\UserType" class="App\Form\UserType" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\ZoneType" class="App\Form\ZoneType" autowire="true" abstract="true"/>
@@ -8135,6 +8152,55 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.3QECKYg" method="withContext"/>
     </service>
+    <service id=".service_locator..wKp6bH" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="serviceRepository" type="service_closure" id="App\Repository\ServiceRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator..wKp6bH.App\Controller\ServiceController::index()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\ServiceController::index()"/>
+      <argument>App\Controller\ServiceController::index()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator..wKp6bH" method="withContext"/>
+    </service>
+    <service id=".service_locator.egipcEH.App\Controller\ServiceController::new()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\ServiceController::new()"/>
+      <argument>App\Controller\ServiceController::new()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.egipcEH" method="withContext"/>
+    </service>
+    <service id=".service_locator.LXavkRP" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="service" type="service_closure" id=".errored..service_locator.LXavkRP.App\Entity\Service"/>
+      </argument>
+    </service>
+    <service id=".service_locator.LXavkRP.App\Controller\ServiceController::show()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\ServiceController::show()"/>
+      <argument>App\Controller\ServiceController::show()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.LXavkRP" method="withContext"/>
+    </service>
+    <service id=".service_locator.7gwO4lR" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="service" type="service_closure" id=".errored..service_locator.7gwO4lR.App\Entity\Service"/>
+        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+      </argument>
+    </service>
+    <service id=".service_locator.7gwO4lR.App\Controller\ServiceController::edit()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\ServiceController::edit()"/>
+      <argument>App\Controller\ServiceController::edit()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.7gwO4lR" method="withContext"/>
+    </service>
+    <service id=".service_locator.7gwO4lR.App\Controller\ServiceController::delete()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\ServiceController::delete()"/>
+      <argument>App\Controller\ServiceController::delete()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.7gwO4lR" method="withContext"/>
+    </service>
     <service id=".service_locator.OzEre6h" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -8233,7 +8299,7 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.wxYej41" method="withContext"/>
     </service>
-    <service id=".service_locator.KcNP6fP" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.aIUiyU5" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.zHyJIs5.kernel::registerContainerConfiguration()"/>
@@ -8247,6 +8313,11 @@
         <argument key="App\Controller\OrganisationController::delete" type="service_closure" id=".service_locator.pO_aEi_.App\Controller\OrganisationController::delete()"/>
         <argument key="App\Controller\RegistrationController::register" type="service_closure" id=".service_locator.tEL1pRK.App\Controller\RegistrationController::register()"/>
         <argument key="App\Controller\SecurityController::login" type="service_closure" id=".service_locator.3QECKYg.App\Controller\SecurityController::login()"/>
+        <argument key="App\Controller\ServiceController::index" type="service_closure" id=".service_locator..wKp6bH.App\Controller\ServiceController::index()"/>
+        <argument key="App\Controller\ServiceController::new" type="service_closure" id=".service_locator.egipcEH.App\Controller\ServiceController::new()"/>
+        <argument key="App\Controller\ServiceController::show" type="service_closure" id=".service_locator.LXavkRP.App\Controller\ServiceController::show()"/>
+        <argument key="App\Controller\ServiceController::edit" type="service_closure" id=".service_locator.7gwO4lR.App\Controller\ServiceController::edit()"/>
+        <argument key="App\Controller\ServiceController::delete" type="service_closure" id=".service_locator.7gwO4lR.App\Controller\ServiceController::delete()"/>
         <argument key="App\Controller\UserController::index" type="service_closure" id=".service_locator.OzEre6h.App\Controller\UserController::index()"/>
         <argument key="App\Controller\UserController::new" type="service_closure" id=".service_locator.egipcEH.App\Controller\UserController::new()"/>
         <argument key="App\Controller\UserController::show" type="service_closure" id=".service_locator.EWAQaZu.App\Controller\UserController::show()"/>
@@ -8266,6 +8337,11 @@
         <argument key="App\Controller\OrganisationController:delete" type="service_closure" id=".service_locator.pO_aEi_.App\Controller\OrganisationController::delete()"/>
         <argument key="App\Controller\RegistrationController:register" type="service_closure" id=".service_locator.tEL1pRK.App\Controller\RegistrationController::register()"/>
         <argument key="App\Controller\SecurityController:login" type="service_closure" id=".service_locator.3QECKYg.App\Controller\SecurityController::login()"/>
+        <argument key="App\Controller\ServiceController:index" type="service_closure" id=".service_locator..wKp6bH.App\Controller\ServiceController::index()"/>
+        <argument key="App\Controller\ServiceController:new" type="service_closure" id=".service_locator.egipcEH.App\Controller\ServiceController::new()"/>
+        <argument key="App\Controller\ServiceController:show" type="service_closure" id=".service_locator.LXavkRP.App\Controller\ServiceController::show()"/>
+        <argument key="App\Controller\ServiceController:edit" type="service_closure" id=".service_locator.7gwO4lR.App\Controller\ServiceController::edit()"/>
+        <argument key="App\Controller\ServiceController:delete" type="service_closure" id=".service_locator.7gwO4lR.App\Controller\ServiceController::delete()"/>
         <argument key="App\Controller\UserController:index" type="service_closure" id=".service_locator.OzEre6h.App\Controller\UserController::index()"/>
         <argument key="App\Controller\UserController:new" type="service_closure" id=".service_locator.egipcEH.App\Controller\UserController::new()"/>
         <argument key="App\Controller\UserController:show" type="service_closure" id=".service_locator.EWAQaZu.App\Controller\UserController::show()"/>
@@ -8455,11 +8531,12 @@
       <argument type="service" id="argument_resolver.query_parameter_value_resolver"/>
       <argument type="service" id="debug.stopwatch"/>
     </service>
-    <service id=".service_locator.h5XB4OX" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.ZcesbTE" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Form\OrganisationType" type="service_closure" id="App\Form\OrganisationType"/>
         <argument key="App\Form\RegistrationFormType" type="service_closure" id="App\Form\RegistrationFormType"/>
+        <argument key="App\Form\ServiceType" type="service_closure" id="App\Form\ServiceType"/>
         <argument key="App\Form\UserType" type="service_closure" id="App\Form\UserType"/>
         <argument key="App\Form\ZoneType" type="service_closure" id="App\Form\ZoneType"/>
         <argument key="Symfony\Component\Form\Extension\Core\Type\FormType" type="service_closure" id="form.type.form"/>
@@ -8885,6 +8962,12 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.ZyP9f7K" method="withContext"/>
     </service>
+    <service id=".service_locator.ZyP9f7K.App\Controller\ServiceController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\ServiceController"/>
+      <argument>App\Controller\ServiceController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.ZyP9f7K" method="withContext"/>
+    </service>
     <service id=".service_locator.ZyP9f7K.App\Controller\UserController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\UserController"/>
       <argument>App\Controller\UserController</argument>
@@ -9086,6 +9169,7 @@
           <argument>App\Controller\OrganisationController</argument>
           <argument>App\Controller\RegistrationController</argument>
           <argument>App\Controller\SecurityController</argument>
+          <argument>App\Controller\ServiceController</argument>
           <argument>App\Controller\UserController</argument>
           <argument>App\Controller\ZoneController</argument>
           <argument>Doctrine\Bundle\DoctrineBundle\Controller\ProfilerController</argument>
@@ -9316,6 +9400,12 @@
     </service>
     <service id=".errored..service_locator.pO_aEi_.App\Entity\Organisation" class="App\Entity\Organisation">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.pO_aEi_&quot;: it needs an instance of &quot;App\Entity\Organisation&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.LXavkRP.App\Entity\Service" class="App\Entity\Service">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.LXavkRP&quot;: it needs an instance of &quot;App\Entity\Service&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.7gwO4lR.App\Entity\Service" class="App\Entity\Service">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.7gwO4lR&quot;: it needs an instance of &quot;App\Entity\Service&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
     </service>
     <service id=".errored..service_locator.EWAQaZu.App\Entity\User" class="App\Entity\User">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.EWAQaZu&quot;: it needs an instance of &quot;App\Entity\User&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
@@ -10504,7 +10594,7 @@
     <service id="Psr\Log\LoggerInterface" alias="monolog.logger"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.pRu6x_4" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.KcNP6fP"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.aIUiyU5"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.BxSdgVt"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="Psr\Log\LoggerInterface $requestLogger" alias="monolog.logger.request"/>
@@ -10554,6 +10644,9 @@
     <service id=".service_locator.Re6zxxY" alias=".service_locator.pO_aEi_"/>
     <service id=".service_locator.o4KKgIJ" alias=".service_locator.tEL1pRK"/>
     <service id=".service_locator.Nrz07Zz" alias=".service_locator.3QECKYg"/>
+    <service id=".service_locator.te1JX0P" alias=".service_locator..wKp6bH"/>
+    <service id=".service_locator.SCeG18F" alias=".service_locator.LXavkRP"/>
+    <service id=".service_locator.qFSF1Hi" alias=".service_locator.7gwO4lR"/>
     <service id=".service_locator.hNMhKaf" alias=".service_locator.OzEre6h"/>
     <service id=".service_locator.gG4yR94" alias=".service_locator.EWAQaZu"/>
     <service id=".service_locator.uXwZemd" alias=".service_locator.WkfvUVe"/>
