@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pointage{% endblock %}
+
+{% block body %}
+    <h1>Pointage</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ pointage.id }}</td>
+            </tr>
+            <tr>
+                <th>Heure</th>
+                <td>{{ pointage.heure ? pointage.heure|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Type</th>
+                <td>{{ pointage.type }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_pointage_index') }}">back to list</a>
+
+    <a href="{{ path('app_pointage_edit', {'id': pointage.id}) }}">edit</a>
+
+    {{ include('pointage/_delete_form.html.twig') }}
+{% endblock %}
