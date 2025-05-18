@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Organisation{% endblock %}
+
+{% block body %}
+    <h1>Organisation</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ organisation.id }}</td>
+            </tr>
+            <tr>
+                <th>Nom_organisation</th>
+                <td>{{ organisation.nomOrganisation }}</td>
+            </tr>
+            <tr>
+                <th>Telephone</th>
+                <td>{{ organisation.telephone }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ organisation.email }}</td>
+            </tr>
+            <tr>
+                <th>Site_web</th>
+                <td>{{ organisation.siteWeb }}</td>
+            </tr>
+            <tr>
+                <th>Date_creation</th>
+                <td>{{ organisation.dateCreation ? organisation.dateCreation|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Siret</th>
+                <td>{{ organisation.siret }}</td>
+            </tr>
+            <tr>
+                <th>Ca</th>
+                <td>{{ organisation.ca }}</td>
+            </tr>
+            <tr>
+                <th>Numero_rue</th>
+                <td>{{ organisation.numeroRue }}</td>
+            </tr>
+            <tr>
+                <th>Suffix_rue</th>
+                <td>{{ organisation.suffixRue }}</td>
+            </tr>
+            <tr>
+                <th>Nom_rue</th>
+                <td>{{ organisation.nomRue }}</td>
+            </tr>
+            <tr>
+                <th>Code_postal</th>
+                <td>{{ organisation.codePostal }}</td>
+            </tr>
+            <tr>
+                <th>Ville</th>
+                <td>{{ organisation.ville }}</td>
+            </tr>
+            <tr>
+                <th>Pays</th>
+                <td>{{ organisation.pays }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_organisation_index') }}">back to list</a>
+
+    <a href="{{ path('app_organisation_edit', {'id': organisation.id}) }}">edit</a>
+
+    {{ include('organisation/_delete_form.html.twig') }}
+{% endblock %}
