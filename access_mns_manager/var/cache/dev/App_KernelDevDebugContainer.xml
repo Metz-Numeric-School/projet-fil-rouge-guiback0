@@ -364,6 +364,13 @@
         <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\BadgeController"/>
       </call>
     </service>
+    <service id="App\Controller\BadgeuseController" class="App\Controller\BadgeuseController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\BadgeuseController"/>
+      </call>
+    </service>
     <service id="App\Controller\DashboardController" class="App\Controller\DashboardController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
@@ -414,6 +421,9 @@
       </call>
     </service>
     <service id="App\Form\BadgeType" class="App\Form\BadgeType" autowire="true" autoconfigure="true">
+      <tag name="form.type" csrf_token_id="%.form.type_extension.csrf.token_id%"/>
+    </service>
+    <service id="App\Form\BadgeuseType" class="App\Form\BadgeuseType" autowire="true" autoconfigure="true">
       <tag name="form.type" csrf_token_id="%.form.type_extension.csrf.token_id%"/>
     </service>
     <service id="App\Form\OrganisationType" class="App\Form\OrganisationType" autowire="true" autoconfigure="true">
@@ -507,7 +517,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.rAhsd65"/>
+      <argument type="service" id=".service_locator.sp96xg."/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -1456,6 +1466,7 @@
       </argument>
       <argument type="collection">
         <argument>App\Form\BadgeType</argument>
+        <argument>App\Form\BadgeuseType</argument>
         <argument>App\Form\OrganisationType</argument>
         <argument>App\Form\RegistrationFormType</argument>
         <argument>App\Form\ServiceType</argument>
@@ -3482,7 +3493,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.rAhsd65"/>
+      <argument type="service" id=".service_locator.sp96xg."/>
     </service>
     <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <tag name="kernel.reset" method="reset"/>
@@ -4052,7 +4063,7 @@
       <argument type="service" id="form.registry"/>
     </service>
     <service id="form.extension" class="Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension">
-      <argument type="service" id=".service_locator.PSH4Txk"/>
+      <argument type="service" id=".service_locator.ZjiyYuv"/>
       <argument type="collection">
         <argument key="Symfony\Component\Form\Extension\Core\Type\FormType" type="iterator">
           <argument type="service" id="form.type_extension.form.transformation_failure_handling"/>
@@ -4151,6 +4162,7 @@
       <argument>%form.type_extension.csrf.field_attr%</argument>
       <argument type="collection">
         <argument key="App\Form\BadgeType">submit</argument>
+        <argument key="App\Form\BadgeuseType">submit</argument>
         <argument key="App\Form\OrganisationType">submit</argument>
         <argument key="App\Form\RegistrationFormType">submit</argument>
         <argument key="App\Form\ServiceType">submit</argument>
@@ -7497,6 +7509,9 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\BadgeController" class="App\Controller\BadgeController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\BadgeController" class="App\Controller\BadgeController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\BadgeController" class="App\Controller\BadgeController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\BadgeuseController" class="App\Controller\BadgeuseController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\BadgeuseController" class="App\Controller\BadgeuseController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\BadgeuseController" class="App\Controller\BadgeuseController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\DashboardController" class="App\Controller\DashboardController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\DashboardController" class="App\Controller\DashboardController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\DashboardController" class="App\Controller\DashboardController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -7520,6 +7535,8 @@
     <service id=".abstract.instanceof.App\Controller\ZoneController" class="App\Controller\ZoneController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\BadgeType" class="App\Form\BadgeType" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Form\BadgeType" class="App\Form\BadgeType" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\BadgeuseType" class="App\Form\BadgeuseType" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Form\BadgeuseType" class="App\Form\BadgeuseType" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\OrganisationType" class="App\Form\OrganisationType" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Form\OrganisationType" class="App\Form\OrganisationType" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\RegistrationFormType" class="App\Form\RegistrationFormType" autowire="true" abstract="true"/>
@@ -8143,6 +8160,55 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.BGy84Dx" method="withContext"/>
     </service>
+    <service id=".service_locator..hDjHWY" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="badgeuseRepository" type="service_closure" id="App\Repository\BadgeuseRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator..hDjHWY.App\Controller\BadgeuseController::index()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\BadgeuseController::index()"/>
+      <argument>App\Controller\BadgeuseController::index()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator..hDjHWY" method="withContext"/>
+    </service>
+    <service id=".service_locator.egipcEH.App\Controller\BadgeuseController::new()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\BadgeuseController::new()"/>
+      <argument>App\Controller\BadgeuseController::new()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.egipcEH" method="withContext"/>
+    </service>
+    <service id=".service_locator.D21ZqPi" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="badgeuse" type="service_closure" id=".errored..service_locator.D21ZqPi.App\Entity\Badgeuse"/>
+      </argument>
+    </service>
+    <service id=".service_locator.D21ZqPi.App\Controller\BadgeuseController::show()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\BadgeuseController::show()"/>
+      <argument>App\Controller\BadgeuseController::show()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.D21ZqPi" method="withContext"/>
+    </service>
+    <service id=".service_locator.belkTOm" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="badgeuse" type="service_closure" id=".errored..service_locator.belkTOm.App\Entity\Badgeuse"/>
+        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+      </argument>
+    </service>
+    <service id=".service_locator.belkTOm.App\Controller\BadgeuseController::edit()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\BadgeuseController::edit()"/>
+      <argument>App\Controller\BadgeuseController::edit()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.belkTOm" method="withContext"/>
+    </service>
+    <service id=".service_locator.belkTOm.App\Controller\BadgeuseController::delete()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\BadgeuseController::delete()"/>
+      <argument>App\Controller\BadgeuseController::delete()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.belkTOm" method="withContext"/>
+    </service>
     <service id=".service_locator.7i3.7Gt" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -8365,7 +8431,7 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.wxYej41" method="withContext"/>
     </service>
-    <service id=".service_locator.rAhsd65" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.sp96xg." class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.zHyJIs5.kernel::registerContainerConfiguration()"/>
@@ -8377,6 +8443,11 @@
         <argument key="App\Controller\BadgeController::show" type="service_closure" id=".service_locator.KutXhtj.App\Controller\BadgeController::show()"/>
         <argument key="App\Controller\BadgeController::edit" type="service_closure" id=".service_locator.BGy84Dx.App\Controller\BadgeController::edit()"/>
         <argument key="App\Controller\BadgeController::delete" type="service_closure" id=".service_locator.BGy84Dx.App\Controller\BadgeController::delete()"/>
+        <argument key="App\Controller\BadgeuseController::index" type="service_closure" id=".service_locator..hDjHWY.App\Controller\BadgeuseController::index()"/>
+        <argument key="App\Controller\BadgeuseController::new" type="service_closure" id=".service_locator.egipcEH.App\Controller\BadgeuseController::new()"/>
+        <argument key="App\Controller\BadgeuseController::show" type="service_closure" id=".service_locator.D21ZqPi.App\Controller\BadgeuseController::show()"/>
+        <argument key="App\Controller\BadgeuseController::edit" type="service_closure" id=".service_locator.belkTOm.App\Controller\BadgeuseController::edit()"/>
+        <argument key="App\Controller\BadgeuseController::delete" type="service_closure" id=".service_locator.belkTOm.App\Controller\BadgeuseController::delete()"/>
         <argument key="App\Controller\OrganisationController::index" type="service_closure" id=".service_locator.7i3.7Gt.App\Controller\OrganisationController::index()"/>
         <argument key="App\Controller\OrganisationController::new" type="service_closure" id=".service_locator.egipcEH.App\Controller\OrganisationController::new()"/>
         <argument key="App\Controller\OrganisationController::show" type="service_closure" id=".service_locator.7H9QsQ_.App\Controller\OrganisationController::show()"/>
@@ -8406,6 +8477,11 @@
         <argument key="App\Controller\BadgeController:show" type="service_closure" id=".service_locator.KutXhtj.App\Controller\BadgeController::show()"/>
         <argument key="App\Controller\BadgeController:edit" type="service_closure" id=".service_locator.BGy84Dx.App\Controller\BadgeController::edit()"/>
         <argument key="App\Controller\BadgeController:delete" type="service_closure" id=".service_locator.BGy84Dx.App\Controller\BadgeController::delete()"/>
+        <argument key="App\Controller\BadgeuseController:index" type="service_closure" id=".service_locator..hDjHWY.App\Controller\BadgeuseController::index()"/>
+        <argument key="App\Controller\BadgeuseController:new" type="service_closure" id=".service_locator.egipcEH.App\Controller\BadgeuseController::new()"/>
+        <argument key="App\Controller\BadgeuseController:show" type="service_closure" id=".service_locator.D21ZqPi.App\Controller\BadgeuseController::show()"/>
+        <argument key="App\Controller\BadgeuseController:edit" type="service_closure" id=".service_locator.belkTOm.App\Controller\BadgeuseController::edit()"/>
+        <argument key="App\Controller\BadgeuseController:delete" type="service_closure" id=".service_locator.belkTOm.App\Controller\BadgeuseController::delete()"/>
         <argument key="App\Controller\OrganisationController:index" type="service_closure" id=".service_locator.7i3.7Gt.App\Controller\OrganisationController::index()"/>
         <argument key="App\Controller\OrganisationController:new" type="service_closure" id=".service_locator.egipcEH.App\Controller\OrganisationController::new()"/>
         <argument key="App\Controller\OrganisationController:show" type="service_closure" id=".service_locator.7H9QsQ_.App\Controller\OrganisationController::show()"/>
@@ -8607,10 +8683,11 @@
       <argument type="service" id="argument_resolver.query_parameter_value_resolver"/>
       <argument type="service" id="debug.stopwatch"/>
     </service>
-    <service id=".service_locator.PSH4Txk" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.ZjiyYuv" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Form\BadgeType" type="service_closure" id="App\Form\BadgeType"/>
+        <argument key="App\Form\BadgeuseType" type="service_closure" id="App\Form\BadgeuseType"/>
         <argument key="App\Form\OrganisationType" type="service_closure" id="App\Form\OrganisationType"/>
         <argument key="App\Form\RegistrationFormType" type="service_closure" id="App\Form\RegistrationFormType"/>
         <argument key="App\Form\ServiceType" type="service_closure" id="App\Form\ServiceType"/>
@@ -9021,6 +9098,12 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.ZyP9f7K" method="withContext"/>
     </service>
+    <service id=".service_locator.ZyP9f7K.App\Controller\BadgeuseController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\BadgeuseController"/>
+      <argument>App\Controller\BadgeuseController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.ZyP9f7K" method="withContext"/>
+    </service>
     <service id=".service_locator.ZyP9f7K.App\Controller\DashboardController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\DashboardController"/>
       <argument>App\Controller\DashboardController</argument>
@@ -9249,6 +9332,7 @@
         <argument type="collection">
           <argument>App\Kernel</argument>
           <argument>App\Controller\BadgeController</argument>
+          <argument>App\Controller\BadgeuseController</argument>
           <argument>App\Controller\DashboardController</argument>
           <argument>App\Controller\OrganisationController</argument>
           <argument>App\Controller\RegistrationController</argument>
@@ -9484,6 +9568,12 @@
     </service>
     <service id=".errored..service_locator.BGy84Dx.App\Entity\Badge" class="App\Entity\Badge">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.BGy84Dx&quot;: it needs an instance of &quot;App\Entity\Badge&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.D21ZqPi.App\Entity\Badgeuse" class="App\Entity\Badgeuse">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.D21ZqPi&quot;: it needs an instance of &quot;App\Entity\Badgeuse&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.belkTOm.App\Entity\Badgeuse" class="App\Entity\Badgeuse">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.belkTOm&quot;: it needs an instance of &quot;App\Entity\Badgeuse&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
     </service>
     <service id=".errored..service_locator.7H9QsQ_.App\Entity\Organisation" class="App\Entity\Organisation">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.7H9QsQ_&quot;: it needs an instance of &quot;App\Entity\Organisation&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
@@ -10684,7 +10774,7 @@
     <service id="Psr\Log\LoggerInterface" alias="monolog.logger"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.pRu6x_4" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.rAhsd65"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.sp96xg."/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.BxSdgVt"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="Psr\Log\LoggerInterface $requestLogger" alias="monolog.logger.request"/>
@@ -10732,6 +10822,9 @@
     <service id=".service_locator.5Vd5JYV" alias=".service_locator.egipcEH"/>
     <service id=".service_locator.tagHzzT" alias=".service_locator.KutXhtj"/>
     <service id=".service_locator.k5YEw_j" alias=".service_locator.BGy84Dx"/>
+    <service id=".service_locator.IpjFGJ4" alias=".service_locator..hDjHWY"/>
+    <service id=".service_locator.9CPevfM" alias=".service_locator.D21ZqPi"/>
+    <service id=".service_locator.uiL75BG" alias=".service_locator.belkTOm"/>
     <service id=".service_locator.YxhrJ_." alias=".service_locator.7i3.7Gt"/>
     <service id=".service_locator.jYmui51" alias=".service_locator.7H9QsQ_"/>
     <service id=".service_locator.Re6zxxY" alias=".service_locator.pO_aEi_"/>
