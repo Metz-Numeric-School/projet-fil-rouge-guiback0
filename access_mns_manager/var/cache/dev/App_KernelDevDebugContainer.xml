@@ -392,6 +392,13 @@
         <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\OrganisationController"/>
       </call>
     </service>
+    <service id="App\Controller\PointageController" class="App\Controller\PointageController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\PointageController"/>
+      </call>
+    </service>
     <service id="App\Controller\RegistrationController" class="App\Controller\RegistrationController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
@@ -437,6 +444,9 @@
       <tag name="form.type" csrf_token_id="%.form.type_extension.csrf.token_id%"/>
     </service>
     <service id="App\Form\OrganisationType" class="App\Form\OrganisationType" autowire="true" autoconfigure="true">
+      <tag name="form.type" csrf_token_id="%.form.type_extension.csrf.token_id%"/>
+    </service>
+    <service id="App\Form\PointageType" class="App\Form\PointageType" autowire="true" autoconfigure="true">
       <tag name="form.type" csrf_token_id="%.form.type_extension.csrf.token_id%"/>
     </service>
     <service id="App\Form\RegistrationFormType" class="App\Form\RegistrationFormType" autowire="true" autoconfigure="true">
@@ -527,7 +537,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.wNdg1Vr"/>
+      <argument type="service" id=".service_locator.D79dnPF"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -1479,6 +1489,7 @@
         <argument>App\Form\BadgeType</argument>
         <argument>App\Form\BadgeuseType</argument>
         <argument>App\Form\OrganisationType</argument>
+        <argument>App\Form\PointageType</argument>
         <argument>App\Form\RegistrationFormType</argument>
         <argument>App\Form\ServiceType</argument>
         <argument>App\Form\UserType</argument>
@@ -3504,7 +3515,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.wNdg1Vr"/>
+      <argument type="service" id=".service_locator.D79dnPF"/>
     </service>
     <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <tag name="kernel.reset" method="reset"/>
@@ -4074,7 +4085,7 @@
       <argument type="service" id="form.registry"/>
     </service>
     <service id="form.extension" class="Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension">
-      <argument type="service" id=".service_locator.5suX7fC"/>
+      <argument type="service" id=".service_locator.45xGPZs"/>
       <argument type="collection">
         <argument key="Symfony\Component\Form\Extension\Core\Type\FormType" type="iterator">
           <argument type="service" id="form.type_extension.form.transformation_failure_handling"/>
@@ -4176,6 +4187,7 @@
         <argument key="App\Form\BadgeType">submit</argument>
         <argument key="App\Form\BadgeuseType">submit</argument>
         <argument key="App\Form\OrganisationType">submit</argument>
+        <argument key="App\Form\PointageType">submit</argument>
         <argument key="App\Form\RegistrationFormType">submit</argument>
         <argument key="App\Form\ServiceType">submit</argument>
         <argument key="App\Form\UserType">submit</argument>
@@ -6709,7 +6721,29 @@
         </service>
       </argument>
     </service>
-    <service id="security.access_map" class="Symfony\Component\Security\Http\AccessMap"/>
+    <service id="security.access_map" class="Symfony\Component\Security\Http\AccessMap">
+      <call method="add">
+        <argument type="service" id=".security.request_matcher.BhpRUZK"/>
+        <argument type="collection">
+          <argument>PUBLIC_ACCESS</argument>
+        </argument>
+        <argument>null</argument>
+      </call>
+      <call method="add">
+        <argument type="service" id=".security.request_matcher.7hffHUr"/>
+        <argument type="collection">
+          <argument>PUBLIC_ACCESS</argument>
+        </argument>
+        <argument>null</argument>
+      </call>
+      <call method="add">
+        <argument type="service" id=".security.request_matcher.CUDSgej"/>
+        <argument type="collection">
+          <argument>ROLE_USER</argument>
+        </argument>
+        <argument>null</argument>
+      </call>
+    </service>
     <service id="security.context_listener" class="Symfony\Component\Security\Http\Firewall\ContextListener">
       <tag name="monolog.logger" channel="security"/>
       <argument type="service" id="security.untracked_token_storage"/>
@@ -7245,6 +7279,30 @@
         <argument key="security.firewall.map.context.main" type="service_closure" id="security.firewall.map.context.main"/>
       </argument>
     </service>
+    <service id=".security.request_matcher.T8BdVIN" class="Symfony\Component\HttpFoundation\RequestMatcher\PathRequestMatcher">
+      <argument>^/login</argument>
+    </service>
+    <service id=".security.request_matcher.BhpRUZK" class="Symfony\Component\HttpFoundation\ChainRequestMatcher">
+      <argument type="collection">
+        <argument type="service" id=".security.request_matcher.T8BdVIN"/>
+      </argument>
+    </service>
+    <service id=".security.request_matcher.LORg6t3" class="Symfony\Component\HttpFoundation\RequestMatcher\PathRequestMatcher">
+      <argument>^/register</argument>
+    </service>
+    <service id=".security.request_matcher.7hffHUr" class="Symfony\Component\HttpFoundation\ChainRequestMatcher">
+      <argument type="collection">
+        <argument type="service" id=".security.request_matcher.LORg6t3"/>
+      </argument>
+    </service>
+    <service id=".security.request_matcher.SbN0Tkg" class="Symfony\Component\HttpFoundation\RequestMatcher\PathRequestMatcher">
+      <argument>^/</argument>
+    </service>
+    <service id=".security.request_matcher.CUDSgej" class="Symfony\Component\HttpFoundation\ChainRequestMatcher">
+      <argument type="collection">
+        <argument type="service" id=".security.request_matcher.SbN0Tkg"/>
+      </argument>
+    </service>
     <service id="security.command.user_password_hash" class="Symfony\Component\PasswordHasher\Command\UserPasswordHashCommand">
       <tag name="console.command"/>
       <tag name="container.no_preload"/>
@@ -7533,6 +7591,9 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\OrganisationController" class="App\Controller\OrganisationController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\OrganisationController" class="App\Controller\OrganisationController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\OrganisationController" class="App\Controller\OrganisationController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\PointageController" class="App\Controller\PointageController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\PointageController" class="App\Controller\PointageController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\PointageController" class="App\Controller\PointageController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\RegistrationController" class="App\Controller\RegistrationController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\RegistrationController" class="App\Controller\RegistrationController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\RegistrationController" class="App\Controller\RegistrationController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -7556,6 +7617,8 @@
     <service id=".abstract.instanceof.App\Form\BadgeuseType" class="App\Form\BadgeuseType" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\OrganisationType" class="App\Form\OrganisationType" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Form\OrganisationType" class="App\Form\OrganisationType" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\PointageType" class="App\Form\PointageType" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Form\PointageType" class="App\Form\PointageType" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\RegistrationFormType" class="App\Form\RegistrationFormType" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Form\RegistrationFormType" class="App\Form\RegistrationFormType" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\ServiceType" class="App\Form\ServiceType" autowire="true" abstract="true"/>
@@ -8324,6 +8387,55 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.pO_aEi_" method="withContext"/>
     </service>
+    <service id=".service_locator.wL3uK0b" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="pointageRepository" type="service_closure" id="App\Repository\PointageRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator.wL3uK0b.App\Controller\PointageController::index()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\PointageController::index()"/>
+      <argument>App\Controller\PointageController::index()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.wL3uK0b" method="withContext"/>
+    </service>
+    <service id=".service_locator.egipcEH.App\Controller\PointageController::new()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\PointageController::new()"/>
+      <argument>App\Controller\PointageController::new()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.egipcEH" method="withContext"/>
+    </service>
+    <service id=".service_locator.5s9Lt6G" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="pointage" type="service_closure" id=".errored..service_locator.5s9Lt6G.App\Entity\Pointage"/>
+      </argument>
+    </service>
+    <service id=".service_locator.5s9Lt6G.App\Controller\PointageController::show()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\PointageController::show()"/>
+      <argument>App\Controller\PointageController::show()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.5s9Lt6G" method="withContext"/>
+    </service>
+    <service id=".service_locator.tAHY1al" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="pointage" type="service_closure" id=".errored..service_locator.tAHY1al.App\Entity\Pointage"/>
+        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+      </argument>
+    </service>
+    <service id=".service_locator.tAHY1al.App\Controller\PointageController::edit()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\PointageController::edit()"/>
+      <argument>App\Controller\PointageController::edit()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.tAHY1al" method="withContext"/>
+    </service>
+    <service id=".service_locator.tAHY1al.App\Controller\PointageController::delete()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\PointageController::delete()"/>
+      <argument>App\Controller\PointageController::delete()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.tAHY1al" method="withContext"/>
+    </service>
     <service id=".service_locator.tEL1pRK" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -8497,7 +8609,7 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.wxYej41" method="withContext"/>
     </service>
-    <service id=".service_locator.wNdg1Vr" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.D79dnPF" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.zHyJIs5.kernel::registerContainerConfiguration()"/>
@@ -8524,6 +8636,11 @@
         <argument key="App\Controller\OrganisationController::show" type="service_closure" id=".service_locator.7H9QsQ_.App\Controller\OrganisationController::show()"/>
         <argument key="App\Controller\OrganisationController::edit" type="service_closure" id=".service_locator.pO_aEi_.App\Controller\OrganisationController::edit()"/>
         <argument key="App\Controller\OrganisationController::delete" type="service_closure" id=".service_locator.pO_aEi_.App\Controller\OrganisationController::delete()"/>
+        <argument key="App\Controller\PointageController::index" type="service_closure" id=".service_locator.wL3uK0b.App\Controller\PointageController::index()"/>
+        <argument key="App\Controller\PointageController::new" type="service_closure" id=".service_locator.egipcEH.App\Controller\PointageController::new()"/>
+        <argument key="App\Controller\PointageController::show" type="service_closure" id=".service_locator.5s9Lt6G.App\Controller\PointageController::show()"/>
+        <argument key="App\Controller\PointageController::edit" type="service_closure" id=".service_locator.tAHY1al.App\Controller\PointageController::edit()"/>
+        <argument key="App\Controller\PointageController::delete" type="service_closure" id=".service_locator.tAHY1al.App\Controller\PointageController::delete()"/>
         <argument key="App\Controller\RegistrationController::register" type="service_closure" id=".service_locator.tEL1pRK.App\Controller\RegistrationController::register()"/>
         <argument key="App\Controller\SecurityController::login" type="service_closure" id=".service_locator.3QECKYg.App\Controller\SecurityController::login()"/>
         <argument key="App\Controller\ServiceController::index" type="service_closure" id=".service_locator..wKp6bH.App\Controller\ServiceController::index()"/>
@@ -8563,6 +8680,11 @@
         <argument key="App\Controller\OrganisationController:show" type="service_closure" id=".service_locator.7H9QsQ_.App\Controller\OrganisationController::show()"/>
         <argument key="App\Controller\OrganisationController:edit" type="service_closure" id=".service_locator.pO_aEi_.App\Controller\OrganisationController::edit()"/>
         <argument key="App\Controller\OrganisationController:delete" type="service_closure" id=".service_locator.pO_aEi_.App\Controller\OrganisationController::delete()"/>
+        <argument key="App\Controller\PointageController:index" type="service_closure" id=".service_locator.wL3uK0b.App\Controller\PointageController::index()"/>
+        <argument key="App\Controller\PointageController:new" type="service_closure" id=".service_locator.egipcEH.App\Controller\PointageController::new()"/>
+        <argument key="App\Controller\PointageController:show" type="service_closure" id=".service_locator.5s9Lt6G.App\Controller\PointageController::show()"/>
+        <argument key="App\Controller\PointageController:edit" type="service_closure" id=".service_locator.tAHY1al.App\Controller\PointageController::edit()"/>
+        <argument key="App\Controller\PointageController:delete" type="service_closure" id=".service_locator.tAHY1al.App\Controller\PointageController::delete()"/>
         <argument key="App\Controller\RegistrationController:register" type="service_closure" id=".service_locator.tEL1pRK.App\Controller\RegistrationController::register()"/>
         <argument key="App\Controller\SecurityController:login" type="service_closure" id=".service_locator.3QECKYg.App\Controller\SecurityController::login()"/>
         <argument key="App\Controller\ServiceController:index" type="service_closure" id=".service_locator..wKp6bH.App\Controller\ServiceController::index()"/>
@@ -8759,13 +8881,14 @@
       <argument type="service" id="argument_resolver.query_parameter_value_resolver"/>
       <argument type="service" id="debug.stopwatch"/>
     </service>
-    <service id=".service_locator.5suX7fC" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.45xGPZs" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Form\AccesType" type="service_closure" id="App\Form\AccesType"/>
         <argument key="App\Form\BadgeType" type="service_closure" id="App\Form\BadgeType"/>
         <argument key="App\Form\BadgeuseType" type="service_closure" id="App\Form\BadgeuseType"/>
         <argument key="App\Form\OrganisationType" type="service_closure" id="App\Form\OrganisationType"/>
+        <argument key="App\Form\PointageType" type="service_closure" id="App\Form\PointageType"/>
         <argument key="App\Form\RegistrationFormType" type="service_closure" id="App\Form\RegistrationFormType"/>
         <argument key="App\Form\ServiceType" type="service_closure" id="App\Form\ServiceType"/>
         <argument key="App\Form\UserType" type="service_closure" id="App\Form\UserType"/>
@@ -9199,6 +9322,12 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.ZyP9f7K" method="withContext"/>
     </service>
+    <service id=".service_locator.ZyP9f7K.App\Controller\PointageController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\PointageController"/>
+      <argument>App\Controller\PointageController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.ZyP9f7K" method="withContext"/>
+    </service>
     <service id=".service_locator.ZyP9f7K.App\Controller\RegistrationController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\RegistrationController"/>
       <argument>App\Controller\RegistrationController</argument>
@@ -9419,6 +9548,7 @@
           <argument>App\Controller\BadgeuseController</argument>
           <argument>App\Controller\DashboardController</argument>
           <argument>App\Controller\OrganisationController</argument>
+          <argument>App\Controller\PointageController</argument>
           <argument>App\Controller\RegistrationController</argument>
           <argument>App\Controller\SecurityController</argument>
           <argument>App\Controller\ServiceController</argument>
@@ -9670,6 +9800,12 @@
     </service>
     <service id=".errored..service_locator.pO_aEi_.App\Entity\Organisation" class="App\Entity\Organisation">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.pO_aEi_&quot;: it needs an instance of &quot;App\Entity\Organisation&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.5s9Lt6G.App\Entity\Pointage" class="App\Entity\Pointage">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.5s9Lt6G&quot;: it needs an instance of &quot;App\Entity\Pointage&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.tAHY1al.App\Entity\Pointage" class="App\Entity\Pointage">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.tAHY1al&quot;: it needs an instance of &quot;App\Entity\Pointage&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
     </service>
     <service id=".errored..service_locator.LXavkRP.App\Entity\Service" class="App\Entity\Service">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.LXavkRP&quot;: it needs an instance of &quot;App\Entity\Service&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
@@ -10864,7 +11000,7 @@
     <service id="Psr\Log\LoggerInterface" alias="monolog.logger"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.pRu6x_4" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.wNdg1Vr"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.D79dnPF"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.BxSdgVt"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="Psr\Log\LoggerInterface $requestLogger" alias="monolog.logger.request"/>
@@ -10921,6 +11057,9 @@
     <service id=".service_locator.YxhrJ_." alias=".service_locator.7i3.7Gt"/>
     <service id=".service_locator.jYmui51" alias=".service_locator.7H9QsQ_"/>
     <service id=".service_locator.Re6zxxY" alias=".service_locator.pO_aEi_"/>
+    <service id=".service_locator.0SdB_TC" alias=".service_locator.wL3uK0b"/>
+    <service id=".service_locator.Xy8F222" alias=".service_locator.5s9Lt6G"/>
+    <service id=".service_locator._00tr10" alias=".service_locator.tAHY1al"/>
     <service id=".service_locator.o4KKgIJ" alias=".service_locator.tEL1pRK"/>
     <service id=".service_locator.Nrz07Zz" alias=".service_locator.3QECKYg"/>
     <service id=".service_locator.te1JX0P" alias=".service_locator..wKp6bH"/>
