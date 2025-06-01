@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Travailler{% endblock %}
+
+{% block body %}
+    <h1>Edit Travailler</h1>
+
+    {{ include('travailler/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_travailler_index') }}">back to list</a>
+
+    {{ include('travailler/_delete_form.html.twig') }}
+{% endblock %}

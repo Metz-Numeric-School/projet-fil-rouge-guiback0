@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Travailler{% endblock %}
+
+{% block body %}
+    <h1>Create new Travailler</h1>
+
+    {{ include('travailler/_form.html.twig') }}
+
+    <a href="{{ path('app_travailler_index') }}">back to list</a>
+{% endblock %}
