@@ -97,6 +97,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->travail = new ArrayCollection();
         $this->manageur = new ArrayCollection();
         $this->employe = new ArrayCollection();
+        $this->date_inscription = new \DateTime();
     }
 
 
