@@ -64,6 +64,7 @@ class Organisation
     public function __construct()
     {
         $this->services = new ArrayCollection();
+        $this->date_creation = new \DateTime();
     }
 
     public function getId(): ?int
