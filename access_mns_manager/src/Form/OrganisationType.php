@@ -16,9 +16,6 @@ class OrganisationType extends AbstractType
             ->add('telephone')
             ->add('email')
             ->add('site_web')
-            ->add('date_creation', null, [
-                'widget' => 'single_text'
-            ])
             ->add('siret')
             ->add('ca')
             ->add('numero_rue')

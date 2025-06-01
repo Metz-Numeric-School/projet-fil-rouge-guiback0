@@ -537,7 +537,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.D79dnPF"/>
+      <argument type="service" id=".service_locator.fVOp_Fk"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -3515,7 +3515,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.D79dnPF"/>
+      <argument type="service" id=".service_locator.fVOp_Fk"/>
     </service>
     <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <tag name="kernel.reset" method="reset"/>
@@ -6739,7 +6739,7 @@
       <call method="add">
         <argument type="service" id=".security.request_matcher.CUDSgej"/>
         <argument type="collection">
-          <argument>ROLE_USER</argument>
+          <argument>ROLE_ADMIN</argument>
         </argument>
         <argument>null</argument>
       </call>
@@ -8338,6 +8338,19 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.belkTOm" method="withContext"/>
     </service>
+    <service id=".service_locator.Gn6LSLA" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="userRepository" type="service_closure" id="App\Repository\UserRepository"/>
+        <argument key="organisationRepository" type="service_closure" id="App\Repository\OrganisationRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator.Gn6LSLA.App\Controller\DashboardController::index()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\DashboardController::index()"/>
+      <argument>App\Controller\DashboardController::index()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.Gn6LSLA" method="withContext"/>
+    </service>
     <service id=".service_locator.7i3.7Gt" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -8609,7 +8622,7 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.wxYej41" method="withContext"/>
     </service>
-    <service id=".service_locator.D79dnPF" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.fVOp_Fk" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.zHyJIs5.kernel::registerContainerConfiguration()"/>
@@ -8631,6 +8644,7 @@
         <argument key="App\Controller\BadgeuseController::show" type="service_closure" id=".service_locator.D21ZqPi.App\Controller\BadgeuseController::show()"/>
         <argument key="App\Controller\BadgeuseController::edit" type="service_closure" id=".service_locator.belkTOm.App\Controller\BadgeuseController::edit()"/>
         <argument key="App\Controller\BadgeuseController::delete" type="service_closure" id=".service_locator.belkTOm.App\Controller\BadgeuseController::delete()"/>
+        <argument key="App\Controller\DashboardController::index" type="service_closure" id=".service_locator.Gn6LSLA.App\Controller\DashboardController::index()"/>
         <argument key="App\Controller\OrganisationController::index" type="service_closure" id=".service_locator.7i3.7Gt.App\Controller\OrganisationController::index()"/>
         <argument key="App\Controller\OrganisationController::new" type="service_closure" id=".service_locator.egipcEH.App\Controller\OrganisationController::new()"/>
         <argument key="App\Controller\OrganisationController::show" type="service_closure" id=".service_locator.7H9QsQ_.App\Controller\OrganisationController::show()"/>
@@ -8675,6 +8689,7 @@
         <argument key="App\Controller\BadgeuseController:show" type="service_closure" id=".service_locator.D21ZqPi.App\Controller\BadgeuseController::show()"/>
         <argument key="App\Controller\BadgeuseController:edit" type="service_closure" id=".service_locator.belkTOm.App\Controller\BadgeuseController::edit()"/>
         <argument key="App\Controller\BadgeuseController:delete" type="service_closure" id=".service_locator.belkTOm.App\Controller\BadgeuseController::delete()"/>
+        <argument key="App\Controller\DashboardController:index" type="service_closure" id=".service_locator.Gn6LSLA.App\Controller\DashboardController::index()"/>
         <argument key="App\Controller\OrganisationController:index" type="service_closure" id=".service_locator.7i3.7Gt.App\Controller\OrganisationController::index()"/>
         <argument key="App\Controller\OrganisationController:new" type="service_closure" id=".service_locator.egipcEH.App\Controller\OrganisationController::new()"/>
         <argument key="App\Controller\OrganisationController:show" type="service_closure" id=".service_locator.7H9QsQ_.App\Controller\OrganisationController::show()"/>
@@ -11000,7 +11015,7 @@
     <service id="Psr\Log\LoggerInterface" alias="monolog.logger"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.pRu6x_4" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.D79dnPF"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.fVOp_Fk"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.BxSdgVt"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="Psr\Log\LoggerInterface $requestLogger" alias="monolog.logger.request"/>
@@ -11054,6 +11069,7 @@
     <service id=".service_locator.IpjFGJ4" alias=".service_locator..hDjHWY"/>
     <service id=".service_locator.9CPevfM" alias=".service_locator.D21ZqPi"/>
     <service id=".service_locator.uiL75BG" alias=".service_locator.belkTOm"/>
+    <service id=".service_locator.5o.n91v" alias=".service_locator.Gn6LSLA"/>
     <service id=".service_locator.YxhrJ_." alias=".service_locator.7i3.7Gt"/>
     <service id=".service_locator.jYmui51" alias=".service_locator.7H9QsQ_"/>
     <service id=".service_locator.Re6zxxY" alias=".service_locator.pO_aEi_"/>

@@ -76,7 +76,7 @@ class __TwigTemplate_050221e7ff7a4825ad7e3a215e869560 extends Template
         // line 19
         yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("app_dashboard");
         yield "\">
-                    <strong>MNS ACCESS Manager</strong>
+                    <strong>MNS Manager</strong>
                 </a>
                 
                 <button class=\"navbar-toggler\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#navbarNav\" aria-controls=\"navbarNav\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">
@@ -345,7 +345,7 @@ class __TwigTemplate_050221e7ff7a4825ad7e3a215e869560 extends Template
         <nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">
             <div class=\"container\">
                 <a class=\"navbar-brand\" href=\"{{ path('app_dashboard') }}\">
-                    <strong>MNS ACCESS Manager</strong>
+                    <strong>MNS Manager</strong>
                 </a>
                 
                 <button class=\"navbar-toggler\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#navbarNav\" aria-controls=\"navbarNav\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">
