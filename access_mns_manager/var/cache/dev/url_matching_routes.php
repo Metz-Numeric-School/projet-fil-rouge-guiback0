@@ -21,7 +21,7 @@ return [
         '/badge/new' => [[['_route' => 'app_badge_new', '_controller' => 'App\\Controller\\BadgeController::new'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
         '/badgeuse' => [[['_route' => 'app_badgeuse_index', '_controller' => 'App\\Controller\\BadgeuseController::index'], null, ['GET' => 0], null, false, false, null]],
         '/badgeuse/new' => [[['_route' => 'app_badgeuse_new', '_controller' => 'App\\Controller\\BadgeuseController::new'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        '/dashboard' => [[['_route' => 'app_dashboard', '_controller' => 'App\\Controller\\DashboardController::index'], null, null, null, false, false, null]],
+        '/' => [[['_route' => 'app_dashboard', '_controller' => 'App\\Controller\\DashboardController::index'], null, null, null, false, false, null]],
         '/organisation' => [[['_route' => 'app_organisation_index', '_controller' => 'App\\Controller\\OrganisationController::index'], null, ['GET' => 0], null, false, false, null]],
         '/organisation/new' => [[['_route' => 'app_organisation_new', '_controller' => 'App\\Controller\\OrganisationController::new'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
         '/pointage' => [[['_route' => 'app_pointage_index', '_controller' => 'App\\Controller\\PointageController::index'], null, ['GET' => 0], null, false, false, null]],
