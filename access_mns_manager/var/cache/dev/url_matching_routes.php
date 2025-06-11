@@ -31,6 +31,8 @@ return [
         '/logout' => [[['_route' => 'app_logout', '_controller' => 'App\\Controller\\SecurityController::logout'], null, null, null, false, false, null]],
         '/service' => [[['_route' => 'app_service_index', '_controller' => 'App\\Controller\\ServiceController::index'], null, ['GET' => 0], null, false, false, null]],
         '/service/new' => [[['_route' => 'app_service_new', '_controller' => 'App\\Controller\\ServiceController::new'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        '/travailler' => [[['_route' => 'app_travailler_index', '_controller' => 'App\\Controller\\TravaillerController::index'], null, ['GET' => 0], null, false, false, null]],
+        '/travailler/new' => [[['_route' => 'app_travailler_new', '_controller' => 'App\\Controller\\TravaillerController::new'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
         '/user' => [[['_route' => 'app_user_index', '_controller' => 'App\\Controller\\UserController::index'], null, ['GET' => 0], null, false, false, null]],
         '/user/new' => [[['_route' => 'app_user_new', '_controller' => 'App\\Controller\\UserController::new'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
         '/zone' => [[['_route' => 'app_zone_index', '_controller' => 'App\\Controller\\ZoneController::index'], null, ['GET' => 0], null, false, false, null]],
@@ -75,28 +77,36 @@ return [
                 .')'
                 .'|/organisation/([^/]++)(?'
                     .'|(*:372)'
-                    .'|/edit(*:385)'
-                    .'|(*:393)'
+                    .'|/(?'
+                        .'|service/new(*:395)'
+                        .'|edit(*:407)'
+                    .')'
+                    .'|(*:416)'
                 .')'
                 .'|/pointage/([^/]++)(?'
-                    .'|(*:423)'
-                    .'|/edit(*:436)'
-                    .'|(*:444)'
+                    .'|(*:446)'
+                    .'|/edit(*:459)'
+                    .'|(*:467)'
                 .')'
                 .'|/service/([^/]++)(?'
-                    .'|(*:473)'
-                    .'|/edit(*:486)'
-                    .'|(*:494)'
+                    .'|(*:496)'
+                    .'|/edit(*:509)'
+                    .'|(*:517)'
+                .')'
+                .'|/travailler/([^/]++)(?'
+                    .'|(*:549)'
+                    .'|/edit(*:562)'
+                    .'|(*:570)'
                 .')'
                 .'|/user/([^/]++)(?'
-                    .'|(*:520)'
-                    .'|/edit(*:533)'
-                    .'|(*:541)'
+                    .'|(*:596)'
+                    .'|/edit(*:609)'
+                    .'|(*:617)'
                 .')'
                 .'|/zone/([^/]++)(?'
-                    .'|(*:567)'
-                    .'|/edit(*:580)'
-                    .'|(*:588)'
+                    .'|(*:643)'
+                    .'|/edit(*:656)'
+                    .'|(*:664)'
                 .')'
             .')/?$}sDu',
     ],
@@ -119,20 +129,24 @@ return [
         329 => [[['_route' => 'app_badgeuse_edit', '_controller' => 'App\\Controller\\BadgeuseController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
         337 => [[['_route' => 'app_badgeuse_delete', '_controller' => 'App\\Controller\\BadgeuseController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
         372 => [[['_route' => 'app_organisation_show', '_controller' => 'App\\Controller\\OrganisationController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        385 => [[['_route' => 'app_organisation_edit', '_controller' => 'App\\Controller\\OrganisationController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        393 => [[['_route' => 'app_organisation_delete', '_controller' => 'App\\Controller\\OrganisationController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
-        423 => [[['_route' => 'app_pointage_show', '_controller' => 'App\\Controller\\PointageController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        436 => [[['_route' => 'app_pointage_edit', '_controller' => 'App\\Controller\\PointageController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        444 => [[['_route' => 'app_pointage_delete', '_controller' => 'App\\Controller\\PointageController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
-        473 => [[['_route' => 'app_service_show', '_controller' => 'App\\Controller\\ServiceController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        486 => [[['_route' => 'app_service_edit', '_controller' => 'App\\Controller\\ServiceController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        494 => [[['_route' => 'app_service_delete', '_controller' => 'App\\Controller\\ServiceController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
-        520 => [[['_route' => 'app_user_show', '_controller' => 'App\\Controller\\UserController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        533 => [[['_route' => 'app_user_edit', '_controller' => 'App\\Controller\\UserController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        541 => [[['_route' => 'app_user_delete', '_controller' => 'App\\Controller\\UserController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
-        567 => [[['_route' => 'app_zone_show', '_controller' => 'App\\Controller\\ZoneController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        580 => [[['_route' => 'app_zone_edit', '_controller' => 'App\\Controller\\ZoneController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        588 => [
+        395 => [[['_route' => 'app_organisation_service_new', '_controller' => 'App\\Controller\\OrganisationController::newService'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        407 => [[['_route' => 'app_organisation_edit', '_controller' => 'App\\Controller\\OrganisationController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        416 => [[['_route' => 'app_organisation_delete', '_controller' => 'App\\Controller\\OrganisationController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
+        446 => [[['_route' => 'app_pointage_show', '_controller' => 'App\\Controller\\PointageController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        459 => [[['_route' => 'app_pointage_edit', '_controller' => 'App\\Controller\\PointageController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        467 => [[['_route' => 'app_pointage_delete', '_controller' => 'App\\Controller\\PointageController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
+        496 => [[['_route' => 'app_service_show', '_controller' => 'App\\Controller\\ServiceController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        509 => [[['_route' => 'app_service_edit', '_controller' => 'App\\Controller\\ServiceController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        517 => [[['_route' => 'app_service_delete', '_controller' => 'App\\Controller\\ServiceController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
+        549 => [[['_route' => 'app_travailler_show', '_controller' => 'App\\Controller\\TravaillerController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        562 => [[['_route' => 'app_travailler_edit', '_controller' => 'App\\Controller\\TravaillerController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        570 => [[['_route' => 'app_travailler_delete', '_controller' => 'App\\Controller\\TravaillerController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
+        596 => [[['_route' => 'app_user_show', '_controller' => 'App\\Controller\\UserController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        609 => [[['_route' => 'app_user_edit', '_controller' => 'App\\Controller\\UserController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        617 => [[['_route' => 'app_user_delete', '_controller' => 'App\\Controller\\UserController::delete'], ['id'], ['POST' => 0], null, false, true, null]],
+        643 => [[['_route' => 'app_zone_show', '_controller' => 'App\\Controller\\ZoneController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        656 => [[['_route' => 'app_zone_edit', '_controller' => 'App\\Controller\\ZoneController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        664 => [
             [['_route' => 'app_zone_delete', '_controller' => 'App\\Controller\\ZoneController::delete'], ['id'], ['POST' => 0], null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],

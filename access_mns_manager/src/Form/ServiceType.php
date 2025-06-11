@@ -15,18 +15,22 @@ class ServiceType extends AbstractType
     {
         $builder
             ->add('nom_service')
-            ->add('niveau_service')
-            ->add('organisation', EntityType::class, [
+            ->add('niveau_service');
+            
+        // Only add organisation field if not creating from organisation context
+        if (!$options['hide_organisation']) {
+            $builder->add('organisation', EntityType::class, [
                 'class' => Organisation::class,
-'choice_label' => 'id',
-            ])
-        ;
+                'choice_label' => 'nom_organisation',
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Service::class,
+            'hide_organisation' => false,
         ]);
     }
 }
