@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Organisation - {{ organisation.nomOrganisation }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>{{ organisation.nomOrganisation }}</h1>
+                <div>
+                    <a href="{{ path('app_organisation_edit', {'id': organisation.id}) }}" class="btn btn-warning">
+                        Modifier
+                    </a>
+                    <a href="{{ path('app_organisation_index') }}" class="btn btn-secondary">
+                        Retour à la liste
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Organisation Details -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Informations de l'organisation</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Email:</strong> {{ organisation.email }}</p>
+                            <p><strong>Téléphone:</strong> {{ organisation.telephone ?? 'Non renseigné' }}</p>
+                            <p><strong>Site web:</strong> 
+                                {% if organisation.siteWeb %}
+                                    <a href="{{ organisation.siteWeb }}" target="_blank">{{ organisation.siteWeb }}</a>
+                                {% else %}
+                                    Non renseigné
+                                {% endif %}
+                            </p>
+                            <p><strong>SIRET:</strong> {{ organisation.siret ?? 'Non renseigné' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Date de création:</strong> {{ organisation.dateCreation|date('d/m/Y') }}</p>
+                            <p><strong>CA:</strong> {{ organisation.ca ? organisation.ca ~ ' €' : 'Non renseigné' }}</p>
+                            <p><strong>Adresse:</strong><br>
+                                {{ organisation.numeroRue ?? '' }} {{ organisation.suffixRue ?? '' }} {{ organisation.nomRue }}<br>
+                                {{ organisation.codePostal ?? '' }} {{ organisation.ville ?? '' }}<br>
+                                {{ organisation.pays ?? '' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nombre de services:</strong> {{ organisation.services|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Services</h5>
+                    <a href="{{ path('app_organisation_service_new', {'id': organisation.id}) }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Ajouter un service
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if organisation.services|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nom du service</th>
+                                        <th>Niveau</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for service in organisation.services %}
+                                    <tr>
+                                        <td>{{ service.nomService }}</td>
+                                        <td>
+                                            <span class="badge bg-primary">Niveau {{ service.niveauService }}</span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                Voir
+                                            </a>
+                                            <a href="{{ path('app_service_edit', {'id': service.id}) }}" class="btn btn-sm btn-outline-warning">
+                                                Modifier
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">Aucun service pour cette organisation.</p>
+                            <a href="{{ path('app_organisation_service_new', {'id': organisation.id}) }}" class="btn btn-success">
+                                Créer le premier service
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

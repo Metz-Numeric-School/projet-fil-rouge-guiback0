@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Badgeuse{% endblock %}
+
+{% block body %}
+    <h1>Create new Badgeuse</h1>
+
+    {{ include('badgeuse/_form.html.twig') }}
+
+    <a href="{{ path('app_badgeuse_index') }}">back to list</a>
+{% endblock %}

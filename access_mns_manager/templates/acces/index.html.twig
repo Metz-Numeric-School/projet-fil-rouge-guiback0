@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Acces index{% endblock %}
+
+{% block body %}
+    <h1>Acces index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Numero_badgeuse</th>
+                <th>Date_installation</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for acce in acces %}
+            <tr>
+                <td>{{ acce.id }}</td>
+                <td>{{ acce.numeroBadgeuse }}</td>
+                <td>{{ acce.dateInstallation ? acce.dateInstallation|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_acces_show', {'id': acce.id}) }}">show</a>
+                    <a href="{{ path('app_acces_edit', {'id': acce.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_acces_new') }}">Create new</a>
+{% endblock %}
