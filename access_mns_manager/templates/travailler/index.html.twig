@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Travailler index{% endblock %}
+
+{% block body %}
+    <h1>Travailler index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Date_debut</th>
+                <th>Date_fin</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for travailler in travaillers %}
+            <tr>
+                <td>{{ travailler.id }}</td>
+                <td>{{ travailler.dateDebut ? travailler.dateDebut|date('Y-m-d') : '' }}</td>
+                <td>{{ travailler.dateFin ? travailler.dateFin|date('Y-m-d') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_travailler_show', {'id': travailler.id}) }}">show</a>
+                    <a href="{{ path('app_travailler_edit', {'id': travailler.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_travailler_new') }}">Create new</a>
+{% endblock %}

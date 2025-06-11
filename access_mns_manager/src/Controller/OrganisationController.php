@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Organisation;
+use App\Entity\Service;
 use App\Form\OrganisationType;
+use App\Form\ServiceType;
 use App\Repository\OrganisationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,6 +48,30 @@ final class OrganisationController extends AbstractController{
     {
         return $this->render('organisation/show.html.twig', [
             'organisation' => $organisation,
+        ]);
+    }
+
+    #[Route('/{id}/service/new', name: 'app_organisation_service_new', methods: ['GET', 'POST'])]
+    public function newService(Request $request, Organisation $organisation, EntityManagerInterface $entityManager): Response
+    {
+        $service = new Service();
+        $service->setOrganisation($organisation);
+        
+        $form = $this->createForm(ServiceType::class, $service);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($service);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Service créé avec succès !');
+            return $this->redirectToRoute('app_organisation_show', ['id' => $organisation->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('organisation/new_service.html.twig', [
+            'organisation' => $organisation,
+            'service' => $service,
+            'form' => $form,
         ]);
     }
 
