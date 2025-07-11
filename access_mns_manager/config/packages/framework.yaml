@@ -1,9 +1,21 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
-    secret: '%env(APP_SECRET)%'
+    secret: "%env(APP_SECRET)%"
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true
+
+    # Configure trusted proxies and headers for reverse proxy setup
+    # Trust all Docker internal network addresses and localhost
+    trusted_proxies: "%env(TRUSTED_PROXIES)%"
+    trusted_headers:
+        [
+            "x-forwarded-for",
+            "x-forwarded-host",
+            "x-forwarded-proto",
+            "x-forwarded-port",
+            "x-forwarded-prefix",
+        ]
 
     #esi: true
     #fragments: true
@@ -13,3 +25,30 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+
+# Production configuration for framework when behind reverse proxy
+# This configuration is more restrictive than development
+when@prod:
+    framework:
+        # In production, be more specific about trusted proxies
+        # Replace these with your actual production proxy IPs
+        trusted_proxies: "%env(TRUSTED_PROXIES)%"
+
+        # Only trust necessary headers in production
+        trusted_headers:
+            [
+                "x-forwarded-for",
+                "x-forwarded-proto",
+                "x-forwarded-host",
+                "x-forwarded-port",
+                "x-forwarded-prefix",
+            ]
+
+        # Enable caching for better performance
+        http_cache: true
+
+        # Optimize sessions for production
+        session:
+            cookie_secure: auto
+            cookie_httponly: true
+            cookie_samesite: lax
