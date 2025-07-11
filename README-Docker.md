@@ -190,8 +190,6 @@ Pour un déploiement en production :
 
 3. Considérer l'utilisation d'une base de données externe et Redis pour le stockage de session
 
-## Dépannage
-
 ### Problèmes courants
 
 1. **Conflits de ports** : Changer les ports dans le fichier `.env` si nécessaire
