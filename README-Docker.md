@@ -22,12 +22,12 @@ Cette configuration docker-compose orchestre la pile complète de l'application 
    ```
 
 2. **Configurer les variables d'environnement :**
-   
+
    ```bash
    # Copier le fichier d'exemple vers .env
    copy .env.example .env
    ```
-   
+
    Ensuite, éditer le fichier `.env` pour personnaliser votre configuration selon vos besoins. Le fichier `.env.example` contient toutes les variables nécessaires avec des valeurs par défaut qui fonctionnent pour le développement.
 
 3. **Construire et démarrer tous les services :**
@@ -157,39 +157,13 @@ L'application Angular principale est servie à `http://localhost/` et fournit l'
 
 ### Variables d'environnement
 
-Un fichier `.env.example` est fourni avec toutes les variables d'environnement nécessaires et leurs valeurs par défaut. 
+Variables d'environnement clés dans `.env` :
 
-**Configuration initiale :**
-```bash
-# Copier le fichier d'exemple
-copy .env.example .env
-```
-
-**Variables d'environnement clés :**
-
-- **Ports** :
-  - `CLIENT_PORT` : Port frontend Angular (défaut : 4200)
-  - `MANAGER_PORT` : Port backend Symfony (défaut : 8000)
-  - `PROXY_HTTP_PORT` : Port HTTP du proxy (défaut : 80)
-  - `PROXY_HTTPS_PORT` : Port HTTPS du proxy (défaut : 443)
-
-- **Base de données** :
-  - `POSTGRES_DB` : Nom de la base de données (défaut : access_mns)
-  - `POSTGRES_USER` : Utilisateur PostgreSQL (défaut : access_mns_user)
-  - `POSTGRES_PASSWORD` : Mot de passe PostgreSQL (⚠️ **À changer en production !**)
-  - `DATABASE_URL` : URL de connexion complète à la base de données
-
-- **Symfony** :
-  - `APP_ENV` : Environnement Symfony (dev/prod/test)
-  - `APP_SECRET` : Secret d'application Symfony (⚠️ **À changer en production !**)
-  - `TRUSTED_PROXIES` : Adresses IP de confiance pour le proxy inverse
-
-- **Mercure (WebSocket)** :
-  - `MERCURE_PUBLISHER_JWT_KEY` : Clé JWT pour publisher (⚠️ **À changer en production !**)
-  - `MERCURE_SUBSCRIBER_JWT_KEY` : Clé JWT pour subscriber (⚠️ **À changer en production !**)
-  - `MERCURE_JWT_SECRET` : Secret JWT Mercure (⚠️ **À changer en production !**)
-
-⚠️ **Sécurité Production** : Changez TOUS les mots de passe et secrets avant le déploiement en production !
+- `CLIENT_PORT` : Port frontend (défaut : 4200)
+- `MANAGER_PORT` : Port backend (défaut : 8000)
+- `APP_ENV` : Environnement Symfony (dev/prod)
+- `POSTGRES_*` : Configuration base de données
+- `APP_SECRET` : Secret d'application Symfony
 
 ### Rechargement à chaud
 
