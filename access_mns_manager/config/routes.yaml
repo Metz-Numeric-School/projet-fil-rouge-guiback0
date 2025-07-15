@@ -4,3 +4,5 @@ controllers:
         namespace: App\Controller
     type: attribute
     prefix: /manager
+api_login_check:
+    path: /api/login_check
