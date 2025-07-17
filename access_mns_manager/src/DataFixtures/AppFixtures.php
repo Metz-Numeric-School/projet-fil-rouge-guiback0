@@ -124,6 +124,17 @@ class AppFixtures extends Fixture
         $user2->setDateInscription(new \DateTime('2021-06-01')); // Ajout de la date d'inscription
         $manager->persist($user2);
 
+        // Créer un utilisateur pour la deuxième organisation
+        $user3 = new User();
+        $user3->setEmail('pierre.durand@example.com');
+        $user3->setRoles(['ROLE_USER']);
+        $user3->setPassword($this->hasher->hashPassword($user3, 'password123'));
+        $user3->setNom('Durand');
+        $user3->setPrenom('Pierre');
+        $user3->setTelephone('01.99.88.77.66');
+        $user3->setDateInscription(new \DateTime('2021-08-01'));
+        $manager->persist($user3);
+
         // Créer des badges avec toutes les propriétés requises
         $badge1 = new Badge();
         $badge1->setNumeroBadge(100001);
@@ -183,7 +194,18 @@ class AppFixtures extends Fixture
         $userBadge2->setBadge($badge2);
         $manager->persist($userBadge2);
 
+        $userBadge3 = new UserBadge();
+        $userBadge3->setUtilisateur($user3);
+        $userBadge3->setBadge($badge3);
+        $manager->persist($userBadge3);
+
         // Créer des relations Travailler (basé sur votre entité Travailler)
+        $travaillerAdmin = new Travailler();
+        $travaillerAdmin->setUtilisateur($admin);
+        $travaillerAdmin->setService($service1);
+        $travaillerAdmin->setDateDebut(new \DateTime('2020-01-01'));
+        $manager->persist($travaillerAdmin);
+
         $travailler1 = new Travailler();
         $travailler1->setUtilisateur($user1);
         $travailler1->setService($service1);
@@ -192,9 +214,15 @@ class AppFixtures extends Fixture
 
         $travailler2 = new Travailler();
         $travailler2->setUtilisateur($user2);
-        $travailler2->setService($service2);
+        $travailler2->setService($service3); // Assigner Marie au Service RH (Ministère de l'Intérieur)
         $travailler2->setDateDebut(new \DateTime('2021-06-01'));
         $manager->persist($travailler2);
+
+        $travailler3 = new Travailler();
+        $travailler3->setUtilisateur($user3);
+        $travailler3->setService($service2); // Assigner Pierre au Service Sécurité (Ministère de la Défense)
+        $travailler3->setDateDebut(new \DateTime('2021-08-01'));
+        $manager->persist($travailler3);
 
         $manager->flush();
     }
