@@ -97,7 +97,7 @@
     </div>
 
     <!-- Main Content Row -->
-    <div class="row mx-0">
+    <div class="row">
         <!-- Recent Activity -->
         <div class="col-8 mb-4">
             <div class="card">
@@ -395,7 +395,19 @@
             </div>
         </div>
 
-        
+        <div class="col-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart"></i>
+                        Répartition des accès par zone
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="zoneChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
