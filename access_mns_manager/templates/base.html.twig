@@ -43,18 +43,46 @@
             border-color: #1e1359;
         }
 
+        body {
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container-fluid {
+            max-width: 100vw;
+            padding: 0;
+            margin: 0;
+        }
+
         .sidebar {
             background-color: var(--secondary-color);
             min-height: 100vh;
             padding-top: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            background-color: var(--light-bg);
+            min-height: 100vh;
+            padding: 30px;
+            margin-left: 280px;
+            max-width: calc(100vw - 280px);
+            overflow-x: hidden;
         }
 
         .sidebar .nav-link {
             color: white;
-            padding: 12px 20px;
-            margin-bottom: 5px;
+            padding: 15px 25px;
+            margin-bottom: 8px;
             border-radius: 8px;
             transition: all 0.3s ease;
+            font-size: 1rem;
         }
 
         .sidebar .nav-link:hover,
@@ -63,16 +91,9 @@
             color: white;
         }
 
-        .main-content {
-            background-color: var(--light-bg);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .sidebar .nav-link i {
+            margin-right: 12px;
+            font-size: 1.1rem;
         }
 
         .card-header {
@@ -147,14 +168,31 @@
             box-shadow: 0 0 0 0.2rem rgba(255, 93, 45, 0.25);
         }
 
-        .navbar-top {
-            background-color: white;
+        .table-responsive {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 100%;
+        }
+
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .col-3, .col-4, .col-6, .col-8, .col-12 {
+            padding-left: 15px;
+            padding-right: 15px;
         }
 
         .user-avatar {
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background-color: var(--primary-color);
             color: white;
@@ -162,84 +200,78 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            font-size: 1.2rem;
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: -250px;
-                width: 250px;
-                height: 100vh;
-                z-index: 1000;
-                transition: left 0.3s ease;
-            }
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
 
-            .sidebar.show {
-                left: 0;
-            }
+        .sidebar-header h4 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
 
-            .main-content {
-                margin-left: 0;
-            }
+        .sidebar-header small {
+            font-size: 0.9rem;
+        }
 
-            .sidebar-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-                z-index: 999;
-                display: none;
-            }
+        .nav-section {
+            margin-bottom: 30px;
+        }
 
-            .sidebar-overlay.show {
-                display: block;
-            }
+        .nav-section-title {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            padding: 0 25px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-footer .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-footer .user-details {
+            margin-left: 12px;
+            flex: 1;
+        }
+
+        .sidebar-footer .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-footer .user-role {
+            font-size: 0.85rem;
+            opacity: 0.7;
         }
     </style>
 
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-    <!-- Top Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-top d-lg-none">
-        <div class="container-fluid">
-            <button class="btn btn-link" type="button" id="sidebarToggle">
-                <i class="bi bi-list fs-4"></i>
-            </button>
-            <a class="navbar-brand" href="{{ path('app_dashboard') }}">
-                <i class="bi bi-shield-lock-fill"></i>
-                ACCESS MNS MANAGER
-            </a>
-            <div class="dropdown">
-                <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <div class="user-avatar">
-                        {% if app.user and app.user.email %}
-                            {{ app.user.email|first|upper }}
-                        {% else %}
-                            U
-                        {% endif %}
-                    </div>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-person-circle"></i> Profil</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Paramètres</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{{ path('app_logout') }}"><i class="bi bi-box-arrow-right"></i> Déconnexion</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-lg-3 col-xl-2 sidebar" id="sidebar">
-                <div class="d-flex flex-column">
+            <div class="col-12 sidebar" id="sidebar">
+                <div class="d-flex flex-column h-100">
                     <!-- Logo -->
-                    <div class="text-center mb-4 d-none d-lg-block">
+                    <div class="sidebar-header">
                         <h4 class="text-white">
                             <i class="bi bi-shield-lock-fill"></i>
                             ACCESS MNS
@@ -250,85 +282,82 @@
                     <!-- Navigation Menu -->
                     <nav class="nav flex-column">
                         <a class="nav-link {% if app.request.get('_route') == 'app_dashboard' %}active{% endif %}" href="{{ path('app_dashboard') }}">
-                            <i class="bi bi-speedometer2"></i> Tableau de bord
+                            <i class="bi bi-speedometer2"></i>Tableau de bord
                         </a>
                         
-                        <div class="nav-item">
-                            <div class="text-white-50 small px-3 py-2 text-uppercase">Gestion</div>
+                        <div class="nav-section">
+                            <div class="nav-section-title">Gestion</div>
+                            
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_user' %}active{% endif %}" href="{{ path('app_user_index') }}">
+                                <i class="bi bi-people"></i>Utilisateurs
+                            </a>
+                            
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_organisation' %}active{% endif %}" href="{{ path('app_organisation_index') }}">
+                                <i class="bi bi-building"></i>Organisations
+                            </a>
+                            
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_service' %}active{% endif %}" href="{{ path('app_service_index') }}">
+                                <i class="bi bi-briefcase"></i>Services
+                            </a>
+                            
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_zone' %}active{% endif %}" href="{{ path('app_zone_index') }}">
+                                <i class="bi bi-geo-alt"></i>Zones
+                            </a>
                         </div>
-                        
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_user' %}active{% endif %}" href="{{ path('app_user_index') }}">
-                            <i class="bi bi-people"></i> Utilisateurs
-                        </a>
-                        
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_organisation' %}active{% endif %}" href="{{ path('app_organisation_index') }}">
-                            <i class="bi bi-building"></i> Organisations
-                        </a>
-                        
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_service' %}active{% endif %}" href="{{ path('app_service_index') }}">
-                            <i class="bi bi-briefcase"></i> Services
-                        </a>
-                        
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_zone' %}active{% endif %}" href="{{ path('app_zone_index') }}">
-                            <i class="bi bi-geo-alt"></i> Zones
-                        </a>
 
-                        <div class="nav-item">
-                            <div class="text-white-50 small px-3 py-2 text-uppercase">Contrôle d'accès</div>
+                        <div class="nav-section">
+                            <div class="nav-section-title">Contrôle d'accès</div>
+                            
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_badge' %}active{% endif %}" href="{{ path('app_badge_index') }}">
+                                <i class="bi bi-credit-card"></i>Badges
+                            </a>
+                            
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_badgeuse' %}active{% endif %}" href="{{ path('app_badgeuse_index') }}">
+                                <i class="bi bi-tablet"></i>Badgeuses
+                            </a>
+                            
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_acces' %}active{% endif %}" href="{{ path('app_acces_index') }}">
+                                <i class="bi bi-key"></i>Accès
+                            </a>
                         </div>
-                        
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_badge' %}active{% endif %}" href="{{ path('app_badge_index') }}">
-                            <i class="bi bi-credit-card"></i> Badges
-                        </a>
-                        
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_badgeuse' %}active{% endif %}" href="{{ path('app_badgeuse_index') }}">
-                            <i class="bi bi-tablet"></i> Badgeuses
-                        </a>
-                        
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_acces' %}active{% endif %}" href="{{ path('app_acces_index') }}">
-                            <i class="bi bi-key"></i> Accès
-                        </a>
 
-                        <div class="nav-item">
-                            <div class="text-white-50 small px-3 py-2 text-uppercase">Suivi</div>
+                        <div class="nav-section">
+                            <div class="nav-section-title">Suivi</div>
+                            
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_pointage' %}active{% endif %}" href="{{ path('app_pointage_index') }}">
+                                <i class="bi bi-clock"></i>Pointages
+                            </a>
+                            
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_travailler' %}active{% endif %}" href="{{ path('app_travailler_index') }}">
+                                <i class="bi bi-calendar-check"></i>Temps de travail
+                            </a>
                         </div>
-                        
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_pointage' %}active{% endif %}" href="{{ path('app_pointage_index') }}">
-                            <i class="bi bi-clock"></i> Pointages
-                        </a>
-                        
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_travailler' %}active{% endif %}" href="{{ path('app_travailler_index') }}">
-                            <i class="bi bi-calendar-check"></i> Temps de travail
-                        </a>
                     </nav>
 
-                    <!-- User Info (Desktop) -->
-                    <div class="mt-auto p-3 d-none d-lg-block">
-                        <div class="d-flex align-items-center">
-                            <div class="user-avatar me-3">
+                    <!-- User Info -->
+                    <div class="sidebar-footer">
+                        <div class="user-info">
+                            <div class="user-avatar">
                                 {% if app.user and app.user.email %}
                                     {{ app.user.email|first|upper }}
                                 {% else %}
                                     U
                                 {% endif %}
                             </div>
-                            <div class="text-white">
-                                <div class="small">{{ app.user ? app.user.email : 'Utilisateur' }}</div>
-                                <div class="text-white-50 small">Super Admin</div>
+                            <div class="user-details text-white">
+                                <div class="user-name">{{ app.user ? app.user.email : 'Utilisateur' }}</div>
+                                <div class="user-role">Super Admin</div>
                             </div>
                         </div>
-                        <a href="{{ path('app_logout') }}" class="btn btn-outline-light btn-sm mt-2 w-100">
+                        <a href="{{ path('app_logout') }}" class="btn btn-outline-light btn-sm w-100">
                             <i class="bi bi-box-arrow-right"></i> Déconnexion
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Overlay for mobile -->
-            <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
             <!-- Main Content -->
-            <div class="col-lg-9 col-xl-10 main-content">
+            <div class="col-12 main-content">
                 {% block breadcrumb %}{% endblock %}
 
                 <!-- Flash Messages -->
@@ -350,34 +379,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Sidebar toggle for mobile
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', function() {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebarOverlay');
-                
-                if (sidebar && overlay) {
-                    sidebar.classList.toggle('show');
-                    overlay.classList.toggle('show');
-                }
-            });
-        }
-
-        // Close sidebar when clicking overlay
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', function() {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebarOverlay');
-                
-                if (sidebar && overlay) {
-                    sidebar.classList.remove('show');
-                    overlay.classList.remove('show');
-                }
-            });
-        }
-
         // Auto-dismiss alerts
         setTimeout(function() {
             const alerts = document.querySelectorAll('.alert');
