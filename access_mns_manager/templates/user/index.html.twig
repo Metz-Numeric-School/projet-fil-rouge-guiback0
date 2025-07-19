@@ -1,59 +1,603 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}User index{% endblock %}
+{% block title %}Gestion des utilisateurs - ACCESS MNS MANAGER{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{{ path('app_dashboard') }}">
+                <i class="bi bi-house-door"></i> Tableau de bord
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="bi bi-people"></i> Utilisateurs
+        </li>
+    </ol>
+</nav>
+{% endblock %}
 
 {% block body %}
-    <h1>User index</h1>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="bi bi-people text-primary"></i>
+                        Gestion des utilisateurs
+                    </h1>
+                    <p class="text-muted">Gérez les comptes utilisateurs et leurs permissions</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary" onclick="exportUsers()">
+                        <i class="bi bi-download"></i>
+                        Exporter
+                    </button>
+                    <a href="{{ path('app_user_new') }}" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i>
+                        Nouvel utilisateur
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Email</th>
-                <th>Roles</th>
-                <th>Password</th>
-                <th>Nom</th>
-                <th>Prenom</th>
-                <th>Date_naissance</th>
-                <th>Telephone</th>
-                <th>Date_inscription</th>
-                <th>Adresse</th>
-                <th>Horraire</th>
-                <th>Heure_debut</th>
-                <th>Jours_semaine_travaille</th>
-                <th>Poste</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-                <td>{{ user.password }}</td>
-                <td>{{ user.nom }}</td>
-                <td>{{ user.prenom }}</td>
-                <td>{{ user.dateNaissance ? user.dateNaissance|date('Y-m-d') : '' }}</td>
-                <td>{{ user.telephone }}</td>
-                <td>{{ user.dateInscription ? user.dateInscription|date('Y-m-d') : '' }}</td>
-                <td>{{ user.adresse }}</td>
-                <td>{{ user.horraire ? user.horraire|date('H:i:s') : '' }}</td>
-                <td>{{ user.heureDebut ? user.heureDebut|date('H:i:s') : '' }}</td>
-                <td>{{ user.joursSemaineTravaille }}</td>
-                <td>{{ user.poste }}</td>
-                <td>
-                    <a href="{{ path('app_user_show', {'id': user.id}) }}">show</a>
-                    <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="15">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0 text-primary">{{ users|length }}</h3>
+                            <p class="text-muted mb-0">Total utilisateurs</p>
+                        </div>
+                        <div class="text-primary">
+                            <i class="bi bi-people fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% set admins = 0 %}
+                            {% for user in users %}
+                                {% if user.roles and 'ROLE_ADMIN' in user.roles %}
+                                    {% set admins = admins + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            <h3 class="mb-0 text-success">{{ admins }}</h3>
+                            <p class="text-muted mb-0">Administrateurs</p>
+                        </div>
+                        <div class="text-success">
+                            <i class="bi bi-shield-check fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% set newToday = 0 %}
+                            {% for user in users %}
+                                {% if user.dateInscription and user.dateInscription|date('Y-m-d') == 'now'|date('Y-m-d') %}
+                                    {% set newToday = newToday + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            <h3 class="mb-0 text-warning">{{ newToday }}</h3>
+                            <p class="text-muted mb-0">Nouveaux aujourd'hui</p>
+                        </div>
+                        <div class="text-warning">
+                            <i class="bi bi-person-plus fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% set withPhone = 0 %}
+                            {% for user in users %}
+                                {% if user.telephone %}
+                                    {% set withPhone = withPhone + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            <h3 class="mb-0 text-info">{{ withPhone }}</h3>
+                            <p class="text-muted mb-0">Avec téléphone</p>
+                        </div>
+                        <div class="text-info">
+                            <i class="bi bi-telephone fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <a href="{{ path('app_user_new') }}">Create new</a>
+    <!-- Filters and Search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="searchUsers" placeholder="Rechercher un utilisateur...">
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <select class="form-select" id="filterRole">
+                                <option value="">Tous les rôles</option>
+                                <option value="ROLE_ADMIN">Administrateur</option>
+                                <option value="ROLE_USER">Utilisateur</option>
+                                <option value="ROLE_MANAGER">Manager</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <select class="form-select" id="filterStatus">
+                                <option value="">Tous les statuts</option>
+                                <option value="active">Actif</option>
+                                <option value="inactive">Inactif</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <select class="form-select" id="sortBy">
+                                <option value="nom">Nom</option>
+                                <option value="email">Email</option>
+                                <option value="dateInscription">Date d'inscription</option>
+                                <option value="poste">Poste</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="applyFilters()">
+                                    <i class="bi bi-funnel"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table"></i>
+                        Liste des utilisateurs
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" class="form-check-input" id="selectAll">
+                                    </th>
+                                    <th>Utilisateur</th>
+                                    <th>Contact</th>
+                                    <th>Rôle</th>
+                                    <th>Poste</th>
+                                    <th>Horaires</th>
+                                    <th>Date d'inscription</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr class="user-row" data-user-id="{{ user.id }}">
+                                    <td>
+                                        <input type="checkbox" class="form-check-input user-checkbox" value="{{ user.id }}">
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar me-3">
+                                                {% if user.prenom and user.nom %}
+                                                    {{ user.prenom|first|upper }}{{ user.nom|first|upper }}
+                                                {% elseif user.email %}
+                                                    {{ user.email|first|upper }}
+                                                {% else %}
+                                                    U
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">
+                                                    {{ user.prenom ?? 'Prénom' }} {{ user.nom ?? 'Nom' }}
+                                                </div>
+                                                <small class="text-muted">{{ user.email ?? 'email@example.com' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            {% if user.telephone %}
+                                                <div>
+                                                    <i class="bi bi-telephone me-1"></i>
+                                                    {{ user.telephone }}
+                                                </div>
+                                            {% endif %}
+                                            {% if user.adresse %}
+                                                <small class="text-muted">
+                                                    <i class="bi bi-geo-alt me-1"></i>
+                                                    {{ user.adresse|length > 30 ? user.adresse|slice(0, 30) ~ '...' : user.adresse }}
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if user.roles %}
+                                            {% for role in user.roles %}
+                                                <span class="badge 
+                                                    {% if role == 'ROLE_ADMIN' %}bg-danger
+                                                    {% elseif role == 'ROLE_MANAGER' %}bg-warning
+                                                    {% else %}bg-secondary
+                                                    {% endif %} me-1">
+                                                    {% if role == 'ROLE_ADMIN' %}Admin
+                                                    {% elseif role == 'ROLE_MANAGER' %}Manager
+                                                    {% elseif role == 'ROLE_USER' %}Utilisateur
+                                                    {% else %}{{ role }}
+                                                    {% endif %}
+                                                </span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="badge bg-secondary">Utilisateur</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            {{ user.poste ?? 'Non défini' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if user.heureDebut and user.horraire %}
+                                            <div class="small">
+                                                <i class="bi bi-clock me-1"></i>
+                                                {{ user.heureDebut|date('H:i') }} - {{ user.horraire|date('H:i') }}
+                                            </div>
+                                        {% endif %}
+                                        {% if user.joursSemaineTravaille %}
+                                            <small class="text-muted">
+                                                {{ user.joursSemaineTravaille }}j/sem
+                                            </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="small">
+                                            {{ user.dateInscription ? user.dateInscription|date('d/m/Y') : 'Non définie' }}
+                                        </div>
+                                        {% if user.dateNaissance %}
+                                            <small class="text-muted">
+                                                Né le {{ user.dateNaissance|date('d/m/Y') }}
+                                            </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-status status-active">
+                                            <i class="bi bi-check-circle"></i>
+                                            Actif
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('app_user_show', {'id': user.id}) }}" 
+                                               class="btn btn-sm btn-outline-primary" 
+                                               title="Voir le profil">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{{ path('app_user_edit', {'id': user.id}) }}" 
+                                               class="btn btn-sm btn-outline-secondary" 
+                                               title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    onclick="confirmDelete({{ user.id }}, '{{ user.prenom ~ ' ' ~ user.nom }}')" 
+                                                    title="Supprimer">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                                        <p class="text-muted mt-2">Aucun utilisateur trouvé</p>
+                                        <a href="{{ path('app_user_new') }}" class="btn btn-primary">
+                                            <i class="bi bi-person-plus"></i>
+                                            Créer le premier utilisateur
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" id="bulkActionsCard" style="display: none;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong id="selectedCount">0</strong> utilisateur(s) sélectionné(s)
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-outline-primary" onclick="bulkExport()">
+                                <i class="bi bi-download"></i>
+                                Exporter
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="bulkDeactivate()">
+                                <i class="bi bi-pause-circle"></i>
+                                Désactiver
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="bulkDelete()">
+                                <i class="bi bi-trash"></i>
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle text-danger"></i>
+                    Confirmer la suppression
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer l'utilisateur <strong id="userToDelete"></strong> ?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Cette action est irréversible et supprimera toutes les données associées.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <input type="hidden" name="_token" id="deleteToken">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                        Supprimer définitivement
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables globales
+    const usersTable = document.getElementById('usersTable');
+    const searchInput = document.getElementById('searchUsers');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const bulkActionsCard = document.getElementById('bulkActionsCard');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    
+    // Recherche en temps réel
+    searchInput.addEventListener('input', function() {
+        applyAllFilters();
+    });
+    
+    // Appliquer les filtres quand les selects changent
+    document.getElementById('filterRole').addEventListener('change', applyAllFilters);
+    document.getElementById('filterStatus').addEventListener('change', applyAllFilters);
+    document.getElementById('sortBy').addEventListener('change', applyAllFilters);
+    
+    function applyAllFilters() {
+        const query = searchInput.value.toLowerCase();
+        const roleFilter = document.getElementById('filterRole').value;
+        const statusFilter = document.getElementById('filterStatus').value;
+        const sortBy = document.getElementById('sortBy').value;
+        
+        const rows = Array.from(document.querySelectorAll('#usersTable tbody tr.user-row'));
+        
+        rows.forEach(row => {
+            let showRow = true;
+            
+            // Filtrage par recherche textuelle
+            if (query) {
+                const text = row.textContent.toLowerCase();
+                if (!text.includes(query)) showRow = false;
+            }
+            
+            // Filtrage par rôle
+            if (roleFilter && showRow) {
+                const roleBadges = row.querySelectorAll('.badge');
+                let hasRole = false;
+                roleBadges.forEach(badge => {
+                    const badgeText = badge.textContent.trim();
+                    if (roleFilter === 'ROLE_ADMIN' && badgeText === 'Admin') hasRole = true;
+                    if (roleFilter === 'ROLE_MANAGER' && badgeText === 'Manager') hasRole = true;
+                    if (roleFilter === 'ROLE_USER' && badgeText === 'Utilisateur') hasRole = true;
+                });
+                if (!hasRole) showRow = false;
+            }
+            
+            // Filtrage par statut
+            if (statusFilter === 'inactive' && showRow) {
+                showRow = false; // Aucun utilisateur inactif dans les données actuelles
+            }
+            
+            row.style.display = showRow ? '' : 'none';
+        });
+        
+        // Tri des résultats visibles
+        if (sortBy) {
+            sortTable(sortBy);
+        }
+    }
+    
+    // Sélection multiple
+    selectAllCheckbox.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkActions();
+    });
+    
+    // Gestion des checkboxes individuelles
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('user-checkbox')) {
+            updateBulkActions();
+        }
+    });
+    
+    function updateBulkActions() {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        const count = checkedBoxes.length;
+        
+        selectedCountSpan.textContent = count;
+        bulkActionsCard.style.display = count > 0 ? 'block' : 'none';
+        
+        // Mettre à jour le checkbox "Tout sélectionner"
+        const allCheckboxes = document.querySelectorAll('.user-checkbox');
+        selectAllCheckbox.checked = count === allCheckboxes.length;
+        selectAllCheckbox.indeterminate = count > 0 && count < allCheckboxes.length;
+    }
+});
+
+// Fonction de confirmation de suppression
+function confirmDelete(userId, userName) {
+    document.getElementById('userToDelete').textContent = userName;
+    document.getElementById('deleteForm').action = `{{ path('app_user_delete', {'id': 'USER_ID'}) }}`.replace('USER_ID', userId);
+    document.getElementById('deleteToken').value = '{{ csrf_token('delete') }}';
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+
+// Fonctions de filtrage
+function applyFilters() {
+    // Déclencher l'application de tous les filtres
+    document.querySelector('#usersTable').dispatchEvent(new Event('filterChange'));
+    applyAllFilters();
+}
+
+function clearFilters() {
+    document.getElementById('filterRole').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('sortBy').value = 'nom';
+    document.getElementById('searchUsers').value = '';
+    
+    // Réappliquer tous les filtres (maintenant vides)
+    applyAllFilters();
+}
+
+function sortTable(sortBy) {
+    const tbody = document.querySelector('#usersTable tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr.user-row'));
+    
+    rows.sort((a, b) => {
+        let aVal, bVal;
+        
+        switch(sortBy) {
+            case 'nom':
+                aVal = a.cells[1].textContent.trim();
+                bVal = b.cells[1].textContent.trim();
+                break;
+            case 'email':
+                aVal = a.cells[1].querySelector('small').textContent.trim();
+                bVal = b.cells[1].querySelector('small').textContent.trim();
+                break;
+            case 'poste':
+                aVal = a.cells[4].textContent.trim();
+                bVal = b.cells[4].textContent.trim();
+                break;
+            case 'dateInscription':
+                aVal = a.cells[6].textContent.trim();
+                bVal = b.cells[6].textContent.trim();
+                // Convertir les dates pour le tri
+                aVal = aVal !== 'Non définie' ? new Date(aVal.split('/').reverse().join('-')) : new Date(0);
+                bVal = bVal !== 'Non définie' ? new Date(bVal.split('/').reverse().join('-')) : new Date(0);
+                break;
+            default:
+                aVal = a.cells[1].textContent.trim();
+                bVal = b.cells[1].textContent.trim();
+        }
+        
+        if (sortBy === 'dateInscription') {
+            return bVal - aVal; // Tri décroissant pour les dates
+        } else {
+            return aVal.localeCompare(bVal, 'fr', { sensitivity: 'base' });
+        }
+    });
+    
+    // Réorganiser les lignes dans le tableau
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// Fonctions d'export
+function exportUsers() {
+    // Implémentation de l'export
+    console.log('Export des utilisateurs');
+    // Ici, vous pourriez déclencher le téléchargement d'un fichier CSV
+}
+
+function bulkExport() {
+    const selectedIds = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+        .map(cb => cb.value);
+    console.log('Export des utilisateurs sélectionnés:', selectedIds);
+}
+
+function bulkDeactivate() {
+    const selectedIds = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (confirm(`Désactiver ${selectedIds.length} utilisateur(s) sélectionné(s) ?`)) {
+        console.log('Désactivation des utilisateurs:', selectedIds);
+        // Implémentation de la désactivation en lot
+    }
+}
+
+function bulkDelete() {
+    const selectedIds = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (confirm(`Supprimer définitivement ${selectedIds.length} utilisateur(s) sélectionné(s) ?`)) {
+        console.log('Suppression des utilisateurs:', selectedIds);
+        // Implémentation de la suppression en lot
+    }
+}
+</script>
 {% endblock %}

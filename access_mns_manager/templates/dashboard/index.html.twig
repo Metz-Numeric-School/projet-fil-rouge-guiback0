@@ -1,138 +1,522 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Tableau de bord{% endblock %}
+{% block title %}Tableau de bord - ACCESS MNS MANAGER{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="bi bi-house-door"></i>
+            Tableau de bord
+        </li>
+    </ol>
+</nav>
+{% endblock %}
 
 {% block body %}
-<div class="container mt-4">
-    <div class="row">
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
         <div class="col-12">
-            <h1 class="mb-4">Tableau de bord</h1>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">Tableau de bord</h1>
+                    <p class="text-muted">Vue d'ensemble du système ACCESS MNS</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="window.location.reload()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Actualiser
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
-        <!-- Users Widget -->
-        <div class="col-md-6 col-lg-3 mb-3">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title text-uppercase mb-1">Utilisateurs</h6>
-                            <h2 class="mb-0">{{ total_users }}</h2>
-                            <small class="text-white-50">Total des utilisateurs</small>
-                        </div>
-                        <div class="text-white-50">
-                            <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                                <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
-                                <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
-                            </svg>
-                        </div>
+        <div class="col-3 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>{{ total_users }}</h3>
+                        <p class="mb-0">Utilisateurs</p>
+                        <small class="text-white-50">Total enregistrés</small>
                     </div>
-                </div>
-                <div class="card-footer bg-primary border-0">
-                    <a href="{{ path('app_user_index') }}" class="text-white text-decoration-none">
-                        <small>Voir tous les utilisateurs <i class="fas fa-arrow-right"></i></small>
-                    </a>
+                    <div class="text-end">
+                        <i class="bi bi-people fs-1 opacity-50"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Organisations Widget -->
-        <div class="col-md-6 col-lg-3 mb-3">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title text-uppercase mb-1">Organisations</h6>
-                            <h2 class="mb-0">{{ total_organisations }}</h2>
-                            <small class="text-white-50">Total des organisations</small>
-                        </div>
-                        <div class="text-white-50">
-                            <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1ZM4 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM7.5 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM4.5 8a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Z"/>
-                                <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V1Zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3V1Z"/>
-                            </svg>
-                        </div>
+        <div class="col-3 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>{{ total_organisations }}</h3>
+                        <p class="mb-0">Organisations</p>
+                        <small class="text-white-50">Actives</small>
                     </div>
-                </div>
-                <div class="card-footer bg-success border-0">
-                    <a href="{{ path('app_organisation_index') }}" class="text-white text-decoration-none">
-                        <small>Voir toutes les organisations <i class="fas fa-arrow-right"></i></small>
-                    </a>
+                    <div class="text-end">
+                        <i class="bi bi-building fs-1 opacity-50"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions Widget -->
-        <div class="col-md-6 col-lg-3 mb-3">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title text-uppercase mb-1">Actions rapides</h6>
-                            <p class="mb-0">Créer rapidement</p>
-                        </div>
-                        <div class="text-white-50">
-                            <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                            </svg>
-                        </div>
+        <div class="col-3 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>{{ total_badges ?? 0 }}</h3>
+                        <p class="mb-0">Badges actifs</p>
+                        <small class="text-white-50">En circulation</small>
+                    </div>
+                    <div class="text-end">
+                        <i class="bi bi-credit-card fs-1 opacity-50"></i>
                     </div>
                 </div>
-                <div class="card-footer bg-info border-0">
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ path('app_user_new') }}" class="text-white text-decoration-none">
-                            <small>+ Utilisateur</small>
-                        </a>
-                        <a href="{{ path('app_organisation_new') }}" class="text-white text-decoration-none">
-                            <small>+ Organisation</small>
-                        </a>
+            </div>
+        </div>
+
+        <div class="col-3 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>{{ total_zones ?? 0 }}</h3>
+                        <p class="mb-0">Zones</p>
+                        <small class="text-white-50">Contrôlées</small>
+                    </div>
+                    <div class="text-end">
+                        <i class="bi bi-geo-alt fs-1 opacity-50"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Organisations Table -->
-    {% if recent_organisations|length > 0 %}
+    <!-- Main Content Row -->
     <div class="row">
-        <div class="col-12">
+        <!-- Recent Activity -->
+        <div class="col-8 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Organisations récentes</h5>
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i>
+                        Activité récente
+                    </h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Nom</th>
-                                    <th>Date de création</th>
-                                    <th>Actions</th>
+                                    <th>Heure</th>
+                                    <th>Type</th>
+                                    <th>Utilisateur</th>
+                                    <th>Zone</th>
+                                    <th>Statut</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for organisation in recent_organisations %}
                                 <tr>
-                                    <td>{{ organisation.nomOrganisation }}</td>
-                                    <td>{{ organisation.dateCreation|date('d/m/Y') }}</td>
                                     <td>
-                                        <a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-sm btn-outline-primary">
-                                            Voir
-                                        </a>
+                                        <small class="text-muted">{{ "now"|date("H:i") }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-box-arrow-in-right"></i>
+                                            Entrée
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                                M
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">Marie Dubois</div>
+                                                <small class="text-muted">Développeuse</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Bureau R&D</td>
+                                    <td>
+                                        <span class="badge badge-status status-active">
+                                            <i class="bi bi-check-circle"></i>
+                                            Autorisé
+                                        </span>
                                     </td>
                                 </tr>
-                                {% endfor %}
+                                <tr>
+                                    <td>
+                                        <small class="text-muted">{{ "now"|date_modify("-5 minutes")|date("H:i") }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                            Tentative
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                                J
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">Jean Martin</div>
+                                                <small class="text-muted">Comptable</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Salle serveurs</td>
+                                    <td>
+                                        <span class="badge badge-status status-inactive">
+                                            <i class="bi bi-x-circle"></i>
+                                            Refusé
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <small class="text-muted">{{ "now"|date_modify("-12 minutes")|date("H:i") }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-box-arrow-left"></i>
+                                            Sortie
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                                A
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">Alice Bernard</div>
+                                                <small class="text-muted">RH</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Accueil</td>
+                                    <td>
+                                        <span class="badge badge-status status-active">
+                                            <i class="bi bi-check-circle"></i>
+                                            Autorisé
+                                        </span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ path('app_pointage_index') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-right"></i>
+                            Voir tous les pointages
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts & Quick Actions -->
+        <div class="col-4 mb-4">
+            <!-- System Alerts -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Alertes système
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>
+                            <i class="bi bi-wifi-off"></i>
+                            Badgeuse hors ligne
+                        </strong>
+                        <p class="mb-1">Badgeuse "Entrée principale" déconnectée</p>
+                        <small class="text-muted">Il y a 15 minutes</small>
+                    </div>
+                    
+                    <div class="alert alert-danger" role="alert">
+                        <strong>
+                            <i class="bi bi-shield-exclamation"></i>
+                            Tentative d'accès suspect
+                        </strong>
+                        <p class="mb-1">3 tentatives d'accès refusées consécutives</p>
+                        <small class="text-muted">Il y a 32 minutes</small>
+                    </div>
+                    
+                    <div class="alert alert-info" role="alert">
+                        <strong>
+                            <i class="bi bi-calendar-event"></i>
+                            Maintenance programmée
+                        </strong>
+                        <p class="mb-1">Mise à jour système prévue demain 2h-4h</p>
+                        <small class="text-muted">Notification</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning"></i>
+                        Actions rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_user_new') }}" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i>
+                            Nouvel utilisateur
+                        </a>
+                        <a href="{{ path('app_organisation_new') }}" class="btn btn-secondary">
+                            <i class="bi bi-building-add"></i>
+                            Nouvelle organisation
+                        </a>
+                        <a href="{{ path('app_badge_new') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-credit-card"></i>
+                            Nouveau badge
+                        </a>
+                        <a href="{{ path('app_zone_new') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-geo-alt"></i>
+                            Nouvelle zone
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    {% endif %}
+
+    <!-- Recent Organizations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-building"></i>
+                        Organisations récentes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_organisations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Type</th>
+                                        <th>Date de création</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for organisation in recent_organisations %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-avatar me-3" style="width: 40px; height: 40px; background-color: var(--secondary-color);">
+                                                    {% if organisation.nomOrganisation %}
+                                                        {{ organisation.nomOrganisation|first|upper }}
+                                                    {% else %}
+                                                        O
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium">{{ organisation.nomOrganisation ?? 'Organisation sans nom' }}</div>
+                                                    <small class="text-muted">{{ organisation.email ?? 'Email non renseigné' }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">
+                                                Entreprise
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ organisation.dateCreation ? organisation.dateCreation|date('d/m/Y') : 'Non renseignée' }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-status status-active">
+                                                <i class="bi bi-check-circle"></i>
+                                                Active
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_organisation_edit', {'id': organisation.id}) }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-building text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">Aucune organisation récente</p>
+                            <a href="{{ path('app_organisation_new') }}" class="btn btn-primary">
+                                <i class="bi bi-plus"></i>
+                                Créer une organisation
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mt-4">
+        <div class="col-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart"></i>
+                        Accès par jour (7 derniers jours)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="accessChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart"></i>
+                        Répartition des accès par zone
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="zoneChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Vérifier si Chart.js est chargé
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js n\'est pas chargé');
+        return;
+    }
+
+    // Graphique des accès par jour
+    const accessCtx = document.getElementById('accessChart');
+    if (accessCtx) {
+        const accessChart = new Chart(accessCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                datasets: [{
+                    label: 'Accès autorisés',
+                    data: [120, 190, 300, 250, 280, 50, 30],
+                    borderColor: '#FF5D2D',
+                    backgroundColor: 'rgba(255, 93, 45, 0.1)',
+                    tension: 0.3
+                }, {
+                    label: 'Accès refusés',
+                    data: [5, 8, 12, 6, 9, 2, 1],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Graphique des zones
+    const zoneCtx = document.getElementById('zoneChart');
+    if (zoneCtx) {
+        const zoneChart = new Chart(zoneCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Bureaux', 'Salles de réunion', 'Accueil', 'Parking', 'Autres'],
+                datasets: [{
+                    data: [45, 25, 15, 10, 5],
+                    backgroundColor: [
+                        '#FF5D2D',
+                        '#25176E',
+                        '#28a745',
+                        '#ffc107',
+                        '#6c757d'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Auto-refresh data every 30 seconds
+    setInterval(function() {
+        // Ici vous pouvez ajouter du code pour actualiser les données
+        console.log('Actualisation des données...');
+        // Exemple : fetchAndUpdateDashboardData();
+    }, 30000);
+});
+
+// Fonction pour actualiser les données du dashboard via AJAX
+function fetchAndUpdateDashboardData() {
+    // Cette fonction pourrait être utilisée pour mettre à jour les données sans recharger la page
+    // fetch('/api/dashboard/stats')
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         // Mise à jour des statistiques
+    //     })
+    //     .catch(error => console.error('Erreur lors de l\'actualisation:', error));
+}
+</script>
 {% endblock %}
