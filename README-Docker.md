@@ -11,6 +11,7 @@ Cette configuration docker-compose orchestre la pile complète de l'application 
 
 - Docker et Docker Compose installés
 - Git (pour cloner le dépôt)
+- Un fichier `.env` configuré (voir `.env.example` pour le modèle)
 
 ## Démarrage Rapide
 
@@ -21,7 +22,13 @@ Cette configuration docker-compose orchestre la pile complète de l'application 
    ```
 
 2. **Configurer les variables d'environnement :**
-   Éditer le fichier `.env` pour personnaliser votre configuration. Les valeurs par défaut devraient fonctionner pour le développement.
+
+   ```bash
+   # Copier le fichier d'exemple vers .env
+   copy .env.example .env
+   ```
+
+   Ensuite, éditer le fichier `.env` pour personnaliser votre configuration selon vos besoins. Le fichier `.env.example` contient toutes les variables nécessaires avec des valeurs par défaut qui fonctionnent pour le développement.
 
 3. **Construire et démarrer tous les services :**
 

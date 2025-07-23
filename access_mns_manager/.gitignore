@@ -1,5 +1,11 @@
 
 ###> symfony/framework-bundle ###
+.env
+.env.dev
+.env.test
+/.env
+/.env.dev
+/.env.test
 /.env.local
 /.env.local.php
 /.env.*.local
@@ -25,3 +31,6 @@
 ###< symfony/asset-mapper ###
 
 .history
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
