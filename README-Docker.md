@@ -11,24 +11,48 @@ Cette configuration docker-compose orchestre la pile complète de l'application 
 
 - Docker et Docker Compose installés
 - Git (pour cloner le dépôt)
-- Un fichier `.env` configuré (voir `.env.example` pour le modèle)
+- Des fichiers `.env` configuré (voir `.env.example` pour le modèle)
 
 ## Démarrage Rapide
 
 1. **Cloner le dépôt et naviguer vers la racine du projet :**
 
    ```bash
-   cd c:\Users\gzimmer\Projet Alternance\CODE\projet-fil-rouge-guiback0
+   # Cloner le dépôt depuis GitHub
+   git clone https://github.com/Metz-Numeric-School/projet-fil-rouge-guiback0.git
+   
+   # Naviguer vers la racine du projet
+   cd projet-fil-rouge-guiback0
    ```
 
 2. **Configurer les variables d'environnement :**
 
+   **Configuration globale du projet :**
+
    ```bash
-   # Copier le fichier d'exemple vers .env
+   # Copier le fichier d'exemple vers .env (racine du projet)
    copy .env.example .env
    ```
 
-   Ensuite, éditer le fichier `.env` pour personnaliser votre configuration selon vos besoins. Le fichier `.env.example` contient toutes les variables nécessaires avec des valeurs par défaut qui fonctionnent pour le développement.
+   **Configuration spécifique au backend Symfony :**
+
+   ```bash
+   # Naviguer vers le dossier backend
+   cd access_mns_manager
+
+   # Copier le fichier d'exemple vers .env (backend)
+   copy .env.example .env
+
+   # Retourner à la racine du projet
+   cd ..
+   ```
+
+   Ensuite, éditer les fichiers `.env` pour personnaliser votre configuration selon vos besoins :
+
+   - **`.env` (racine)** : Configuration Docker Compose et variables globales
+   - **`access_mns_manager/.env`** : Configuration spécifique à l'application Symfony (base de données, JWT, etc.)
+
+   Les fichiers `.env.example` contiennent toutes les variables nécessaires avec des valeurs par défaut qui fonctionnent pour le développement.
 
 3. **Construire et démarrer tous les services :**
 
@@ -123,8 +147,15 @@ docker-compose exec backend bash
 docker-compose exec backend php bin/console cache:clear
 docker-compose exec backend php bin/console doctrine:migrations:migrate
 
+# Générer des clés/secrets sécurisés
+docker-compose exec backend php -r "echo bin2hex(random_bytes(32));"
+
 # Accéder à la base de données
 docker-compose exec database psql -U access_mns_user -d access_mns
+
+# Vérifier la configuration Symfony
+docker-compose exec backend php bin/console debug:config
+docker-compose exec backend php bin/console debug:router
 ```
 
 ## Utilisation de l'Application
@@ -157,13 +188,50 @@ L'application Angular principale est servie à `http://localhost/` et fournit l'
 
 ### Variables d'environnement
 
-Variables d'environnement clés dans `.env` :
+Le projet utilise plusieurs fichiers de configuration d'environnement :
+
+**Variables globales (fichier `.env` à la racine) :**
 
 - `CLIENT_PORT` : Port frontend (défaut : 4200)
 - `MANAGER_PORT` : Port backend (défaut : 8000)
+- `POSTGRES_*` : Configuration base de données PostgreSQL pour Docker
+
+**Variables backend Symfony (fichier `access_mns_manager/.env`) :**
+
 - `APP_ENV` : Environnement Symfony (dev/prod)
-- `POSTGRES_*` : Configuration base de données
-- `APP_SECRET` : Secret d'application Symfony
+- `APP_SECRET` : Secret d'application Symfony (générer une clé sécurisée)
+- `DATABASE_URL` : URL de connexion à la base de données
+- `JWT_SECRET_KEY` / `JWT_PUBLIC_KEY` : Clés pour l'authentification JWT
+- `JWT_PASSPHRASE` : Phrase de passe pour les clés JWT
+- `MAILER_DSN` : Configuration du service de mail
+- `TRUSTED_PROXIES` : IPs de confiance pour le proxy inverse
+
+**Configuration initiale requise :**
+
+1. **Génération des clés JWT (première installation) :**
+
+   ```bash
+   # Accéder au conteneur backend
+   docker-compose exec backend bash
+
+   # Générer les clés JWT
+   php bin/console lexik:jwt:generate-keypair
+
+   # Ou manuellement :
+   mkdir -p config/jwt
+   openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
+   openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
+   ```
+
+2. **Migration de la base de données :**
+
+   ```bash
+   # Exécuter les migrations
+   docker-compose exec backend php bin/console doctrine:migrations:migrate
+
+   # Charger les données de test (optionnel)
+   docker-compose exec backend php bin/console doctrine:fixtures:load
+   ```
 
 ### Rechargement à chaud
 
@@ -204,6 +272,12 @@ Pour un déploiement en production :
 3. **Problèmes de construction** : Vider le cache de construction Docker : `docker-compose build --no-cache`
 4. **Redirection de connexion vers le frontend** : Ce problème courant a été résolu en mettant à jour la configuration de sécurité Symfony
 5. **Erreurs 404 sur les routes backend** : S'assurer d'accéder aux routes backend via le proxy (http://localhost/manager/) et non directement
+6. **Erreurs JWT** : Vérifier que les clés JWT ont été générées et que `JWT_PASSPHRASE` correspond à la phrase de passe utilisée
+7. **Variables d'environnement manquantes** :
+   - Vérifier que les fichiers `.env` existent dans la racine ET dans `access_mns_manager/`
+   - S'assurer que `APP_SECRET` et `JWT_PASSPHRASE` sont définis
+   - Copier les fichiers `.env.example` si nécessaire
+8. **Problèmes de permissions** : Sur Linux/macOS, s'assurer que les dossiers `var/` et `config/jwt/` ont les bonnes permissions
 
 ### Statut des conteneurs
 
