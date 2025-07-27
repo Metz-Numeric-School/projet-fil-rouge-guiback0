@@ -1,0 +1,65 @@
+<div class="dashboard-container">
+  <mat-toolbar color="primary" class="dashboard-toolbar">
+    <mat-icon>security</mat-icon>
+    <span class="toolbar-title">ACCESS MNS - Dashboard</span>
+    <span class="spacer"></span>
+    <span *ngIf="currentUser" class="user-info">
+      Bonjour {{ currentUser.prenom }} {{ currentUser.nom }}
+    </span>
+    <button mat-icon-button (click)="logout()" class="logout-button">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="dashboard-content">
+    <div class="welcome-section">
+      <mat-card class="welcome-card">
+        <mat-card-header>
+          <mat-card-title>Bienvenue dans votre espace ACCESS MNS</mat-card-title>
+          <mat-card-subtitle>Tableau de bord personnel</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="currentUser" class="user-details">
+            <h3>Informations personnelles</h3>
+            <p><strong>Email:</strong> {{ currentUser.email }}</p>
+            <p><strong>Nom:</strong> {{ currentUser.nom }}</p>
+            <p><strong>Prénom:</strong> {{ currentUser.prenom }}</p>
+            <p><strong>Rôles:</strong> {{ currentUser.roles.join(', ') }}</p>
+            <p *ngIf="currentUser.poste"><strong>Poste:</strong> {{ currentUser.poste }}</p>
+          </div>
+          <div class="dashboard-actions">
+            <button mat-raised-button color="primary" disabled>
+              <mat-icon>badge</mat-icon>
+              Mes Badges
+            </button>
+            <button mat-raised-button color="accent" disabled>
+              <mat-icon>access_time</mat-icon>
+              Mes Pointages
+            </button>
+            <button mat-raised-button disabled>
+              <mat-icon>warning</mat-icon>
+              Alertes
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="info-section">
+      <mat-card class="info-card">
+        <mat-card-content>
+          <h3>🚧 En développement</h3>
+          <p>Cette interface est actuellement en cours de développement. Les fonctionnalités suivantes seront bientôt
+            disponibles :</p>
+          <ul>
+            <li>Gestion des badges d'accès</li>
+            <li>Historique des pointages</li>
+            <li>Consultation des zones autorisées</li>
+            <li>Gestion des alertes</li>
+            <li>Profil utilisateur complet</li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

@@ -4,336 +4,279 @@ namespace App\Controller\API;
 
 use App\Entity\User;
 use App\Service\OrganisationService;
-use App\Service\PresenceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/users', name: 'api_users_')]
-#[IsGranted('IS_AUTHENTICATED_FULLY')]
+#[Route('/api/user', name: 'api_user_')]
 class APIUserController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private OrganisationService $organisationService,
-        private PresenceService $presenceService,
-        private ValidatorInterface $validator
+        private OrganisationService $organisationService
     ) {}
 
     /**
-     * Liste des utilisateurs de l'organisation
+     * Récupère toutes les informations complètes d'un utilisateur
      */
-    #[Route('', name: 'list', methods: ['GET'])]
-    public function list(Request $request): JsonResponse
+    #[Route('/profile/complete', name: 'profile_complete', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function getCompleteProfile(): JsonResponse
     {
-        try {
-            $users = $this->organisationService->getOrganisationUsers();
+        $user = $this->getUser();
 
-            $page = max(1, $request->query->getInt('page', 1));
-            $limit = min(100, max(1, $request->query->getInt('limit', 20)));
-            $offset = ($page - 1) * $limit;
-
-            $totalUsers = count($users);
-            $paginatedUsers = array_slice($users, $offset, $limit);
-
-            $userData = [];
-            foreach ($paginatedUsers as $user) {
-                $userData[] = $this->formatUserData($user);
-            }
-
-            return new JsonResponse([
-                'success' => true,
-                'data' => $userData,
-                'pagination' => [
-                    'page' => $page,
-                    'limit' => $limit,
-                    'total' => $totalUsers,
-                    'total_pages' => ceil($totalUsers / $limit)
-                ]
-            ]);
-        } catch (\Exception $e) {
+        if (!$user instanceof User) {
             return new JsonResponse([
                 'success' => false,
-                'error' => 'FETCH_ERROR',
-                'message' => 'Erreur lors de la récupération des utilisateurs'
-            ], 500);
+                'error' => 'INVALID_USER',
+                'message' => 'Utilisateur invalide'
+            ], 401);
         }
-    }
 
-    /**
-     * Détails d'un utilisateur
-     */
-    #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id): JsonResponse
-    {
         try {
-            $user = $this->entityManager->getRepository(User::class)->find($id);
+            // Récupération des informations de base de l'utilisateur (sans mot de passe)
+            $userData = [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'telephone' => $user->getTelephone(),
+                'date_naissance' => $user->getDateNaissance()?->format('Y-m-d'),
+                'date_inscription' => $user->getDateInscription()->format('Y-m-d'),
+                'adresse' => $user->getAdresse(),
+                'poste' => $user->getPoste(),
+                'horraire' => $user->getHorraire()?->format('H:i'),
+                'heure_debut' => $user->getHeureDebut()?->format('H:i'),
+                'jours_semaine_travaille' => $user->getJoursSemaineTravaille(),
+                'roles' => $user->getRoles()
+            ];
 
-            if (!$user) {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'USER_NOT_FOUND',
-                    'message' => 'Utilisateur non trouvé'
-                ], 404);
-            }
-
-            // Vérification des permissions
-            if (!$this->organisationService->canAccessUserData($user)) {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'ACCESS_DENIED',
-                    'message' => 'Accès refusé'
-                ], 403);
-            }
-
-            $userData = $this->formatUserData($user, true);
-
-            return new JsonResponse([
-                'success' => true,
-                'data' => $userData
-            ]);
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'FETCH_ERROR',
-                'message' => 'Erreur lors de la récupération de l\'utilisateur'
-            ], 500);
-        }
-    }
-
-    /**
-     * Modifier un utilisateur (managers uniquement)
-     */
-    #[Route('/{id}', name: 'update', methods: ['PUT'])]
-    #[IsGranted('ROLE_MANAGER')]
-    public function update(int $id, Request $request): JsonResponse
-    {
-        try {
-            $user = $this->entityManager->getRepository(User::class)->find($id);
-
-            if (!$user) {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'USER_NOT_FOUND',
-                    'message' => 'Utilisateur non trouvé'
-                ], 404);
-            }
-
-            // Vérification des permissions
-            if (!$this->organisationService->canAccessUserData($user)) {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'ACCESS_DENIED',
-                    'message' => 'Accès refusé'
-                ], 403);
-            }
-
-            $data = json_decode($request->getContent(), true);
-
-            // Mise à jour des champs autorisés
-            if (isset($data['nom'])) {
-                $user->setNom($data['nom']);
-            }
-            if (isset($data['prenom'])) {
-                $user->setPrenom($data['prenom']);
-            }
-            if (isset($data['telephone'])) {
-                $user->setTelephone($data['telephone']);
-            }
-            if (isset($data['adresse'])) {
-                $user->setAdresse($data['adresse']);
-            }
-            if (isset($data['poste'])) {
-                $user->setPoste($data['poste']);
-            }
-            if (isset($data['date_naissance'])) {
-                $user->setDateNaissance(new \DateTime($data['date_naissance']));
-            }
-
-            // Validation
-            $errors = $this->validator->validate($user);
-            if (count($errors) > 0) {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'VALIDATION_ERROR',
-                    'message' => 'Données invalides',
-                    'details' => $this->formatValidationErrors($errors)
-                ], 400);
-            }
-
-            $this->entityManager->flush();
-
-            return new JsonResponse([
-                'success' => true,
-                'data' => $this->formatUserData($user),
-                'message' => 'Utilisateur mis à jour avec succès'
-            ]);
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'UPDATE_ERROR',
-                'message' => 'Erreur lors de la mise à jour de l\'utilisateur'
-            ], 500);
-        }
-    }
-
-    /**
-     * Présence d'un utilisateur (managers uniquement)
-     */
-    #[Route('/{id}/presence', name: 'presence', methods: ['GET'])]
-    #[IsGranted('ROLE_MANAGER')]
-    public function presence(int $id, Request $request): JsonResponse
-    {
-        try {
-            $user = $this->entityManager->getRepository(User::class)->find($id);
-
-            if (!$user) {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'USER_NOT_FOUND',
-                    'message' => 'Utilisateur non trouvé'
-                ], 404);
-            }
-
-            // Vérification des permissions
-            if (!$this->organisationService->canAccessUserData($user)) {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'ACCESS_DENIED',
-                    'message' => 'Accès refusé'
-                ], 403);
-            }
-
-            $startDate = $request->query->get('start_date', date('Y-m-d', strtotime('-30 days')));
-            $endDate = $request->query->get('end_date', date('Y-m-d'));
-
-            $presence = $this->presenceService->getPresenceSummary($user, $startDate, $endDate);
-
-            return new JsonResponse([
-                'success' => true,
-                'data' => $presence
-            ]);
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'FETCH_ERROR',
-                'message' => 'Erreur lors de la récupération des données de présence'
-            ], 500);
-        }
-    }
-
-    /**
-     * Recherche d'utilisateurs
-     */
-    #[Route('/search', name: 'search', methods: ['GET'])]
-    public function search(Request $request): JsonResponse
-    {
-        try {
-            $query = $request->query->get('q', '');
-
-            if (strlen($query) < 2) {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'QUERY_TOO_SHORT',
-                    'message' => 'La recherche doit contenir au moins 2 caractères'
-                ], 400);
-            }
-
-            $organisation = $this->organisationService->getCurrentUserOrganisation();
-
-            if (!$organisation) {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'NO_ORGANISATION',
-                    'message' => 'Aucune organisation trouvée'
-                ], 403);
-            }
-
-            $users = $this->entityManager->getRepository(User::class)
-                ->createQueryBuilder('u')
-                ->join('u.travail', 't')
-                ->join('t.service', 's')
-                ->where('s.organisation = :organisation')
-                ->andWhere('t.date_fin IS NULL')
-                ->andWhere('(u.nom LIKE :query OR u.prenom LIKE :query OR u.email LIKE :query)')
-                ->setParameter('organisation', $organisation)
-                ->setParameter('query', '%' . $query . '%')
-                ->setMaxResults(20)
-                ->getQuery()
-                ->getResult();
-
-            $userData = [];
-            foreach ($users as $user) {
-                $userData[] = $this->formatUserData($user);
-            }
-
-            return new JsonResponse([
-                'success' => true,
-                'data' => $userData,
-                'query' => $query
-            ]);
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'SEARCH_ERROR',
-                'message' => 'Erreur lors de la recherche'
-            ], 500);
-        }
-    }
-
-    /**
-     * Formate les données d'un utilisateur
-     */
-    private function formatUserData(User $user, bool $detailed = false): array
-    {
-        $data = [
-            'id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'nom' => $user->getNom(),
-            'prenom' => $user->getPrenom(),
-            'telephone' => $user->getTelephone(),
-            'poste' => $user->getPoste(),
-            'date_inscription' => $user->getDateInscription()->format('Y-m-d')
-        ];
-
-        if ($detailed) {
-            $data['date_naissance'] = $user->getDateNaissance()?->format('Y-m-d');
-            $data['adresse'] = $user->getAdresse();
-            $data['roles'] = $user->getRoles();
-
-            // Récupération du service actuel
-            $travailler = $this->entityManager->getRepository(\App\Entity\Travailler::class)
-                ->findOneBy(['Utilisateur' => $user, 'date_fin' => null]);
-
-            if ($travailler && $travailler->getService()) {
-                $service = $travailler->getService();
-                $data['service'] = [
-                    'id' => $service->getId(),
-                    'nom' => $service->getNomService(),
-                    'niveau' => $service->getNiveauService()
+            // Récupération de l'organisation
+            $organisation = $this->organisationService->getUserOrganisation($user);
+            $organisationData = null;
+            if ($organisation) {
+                $organisationData = [
+                    'id' => $organisation->getId(),
+                    'nom_organisation' => $organisation->getNomOrganisation(),
+                    'email' => $organisation->getEmail(),
+                    'telephone' => $organisation->getTelephone(),
+                    'site_web' => $organisation->getSiteWeb(),
+                    'siret' => $organisation->getSiret(),
+                    'adresse' => [
+                        'numero_rue' => $organisation->getNumeroRue(),
+                        'suffix_rue' => $organisation->getSuffixRue(),
+                        'nom_rue' => $organisation->getNomRue(),
+                        'code_postal' => $organisation->getCodePostal(),
+                        'ville' => $organisation->getVille(),
+                        'pays' => $organisation->getPays()
+                    ]
                 ];
             }
-        }
 
-        return $data;
+            // Récupération du service actuel et historique
+            $servicesData = [];
+            $currentService = null;
+            foreach ($user->getTravail() as $travailler) {
+                $service = $travailler->getService();
+                if ($service) {
+                    $serviceInfo = [
+                        'id' => $service->getId(),
+                        'nom_service' => $service->getNomService(),
+                        'niveau_service' => $service->getNiveauService(),
+                        'date_debut' => $travailler->getDateDebut()->format('Y-m-d'),
+                        'date_fin' => $travailler->getDateFin()?->format('Y-m-d'),
+                        'is_current' => $travailler->getDateFin() === null
+                    ];
+                    
+                    if ($travailler->getDateFin() === null) {
+                        $currentService = $serviceInfo;
+                    }
+                    
+                    $servicesData[] = $serviceInfo;
+                }
+            }
+
+            // Récupération des zones accessibles via le service actuel
+            $zonesData = [];
+            if ($currentService && isset($currentService['id'])) {
+                $currentServiceEntity = $this->entityManager->getRepository(\App\Entity\Service::class)
+                    ->find($currentService['id']);
+                
+                if ($currentServiceEntity) {
+                    foreach ($currentServiceEntity->getServiceZones() as $serviceZone) {
+                        $zone = $serviceZone->getZone();
+                        if ($zone) {
+                            $zonesData[] = [
+                                'id' => $zone->getId(),
+                                'nom_zone' => $zone->getNomZone(),
+                                'description' => $zone->getDescription(),
+                                'capacite' => $zone->getCapacite()
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // Récupération des badges de l'utilisateur
+            $badgesData = [];
+            foreach ($user->getUserBadges() as $userBadge) {
+                $badge = $userBadge->getBadge();
+                if ($badge) {
+                    $badgesData[] = [
+                        'id' => $badge->getId(),
+                        'numero_badge' => $badge->getNumeroBadge(),
+                        'type_badge' => $badge->getTypeBadge(),
+                        'date_creation' => $badge->getDateCreation()->format('Y-m-d'),
+                        'date_expiration' => $badge->getDateExpiration()?->format('Y-m-d'),
+                        'is_active' => $badge->getDateExpiration() === null || $badge->getDateExpiration() > new \DateTime()
+                    ];
+                }
+            }
+
+            // Récupération des accès et badgeuses autorisées
+            $accesData = [];
+            $badgeusesData = [];
+            $uniqueBadgeuses = [];
+
+            // Pour chaque zone accessible, récupérer les accès
+            if ($currentService && isset($currentService['id'])) {
+                $currentServiceEntity = $this->entityManager->getRepository(\App\Entity\Service::class)
+                    ->find($currentService['id']);
+                
+                if ($currentServiceEntity) {
+                    foreach ($currentServiceEntity->getServiceZones() as $serviceZone) {
+                        $zone = $serviceZone->getZone();
+                        if ($zone) {
+                            foreach ($zone->getAcces() as $acces) {
+                                $badgeuse = $acces->getBadgeuse();
+                                
+                                $accesInfo = [
+                                    'id' => $acces->getId(),
+                                    'numero_badgeuse' => $acces->getNumeroBadgeuse(),
+                                    'date_installation' => $acces->getDateInstallation()->format('Y-m-d H:i:s'),
+                                    'zone' => [
+                                        'id' => $zone->getId(),
+                                        'nom_zone' => $zone->getNomZone()
+                                    ]
+                                ];
+
+                                if ($badgeuse) {
+                                    $accesInfo['badgeuse'] = [
+                                        'id' => $badgeuse->getId(),
+                                        'reference' => $badgeuse->getReference(),
+                                        'date_installation' => $badgeuse->getDateInstallation()->format('Y-m-d')
+                                    ];
+
+                                    // Ajouter la badgeuse à la liste unique
+                                    if (!isset($uniqueBadgeuses[$badgeuse->getId()])) {
+                                        $uniqueBadgeuses[$badgeuse->getId()] = [
+                                            'id' => $badgeuse->getId(),
+                                            'reference' => $badgeuse->getReference(),
+                                            'date_installation' => $badgeuse->getDateInstallation()->format('Y-m-d'),
+                                            'zones_accessibles' => []
+                                        ];
+                                    }
+
+                                    // Ajouter la zone à cette badgeuse
+                                    $uniqueBadgeuses[$badgeuse->getId()]['zones_accessibles'][] = [
+                                        'id' => $zone->getId(),
+                                        'nom_zone' => $zone->getNomZone()
+                                    ];
+                                }
+
+                                $accesData[] = $accesInfo;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Convertir le tableau associatif des badgeuses en tableau indexé
+            $badgeusesData = array_values($uniqueBadgeuses);
+
+            // Dédoublonner les zones dans chaque badgeuse
+            foreach ($badgeusesData as &$badgeuse) {
+                $badgeuse['zones_accessibles'] = array_unique($badgeuse['zones_accessibles'], SORT_REGULAR);
+                $badgeuse['zones_accessibles'] = array_values($badgeuse['zones_accessibles']);
+            }
+
+            return new JsonResponse([
+                'success' => true,
+                'data' => [
+                    'user' => $userData,
+                    'organisation' => $organisationData,
+                    'services' => [
+                        'current' => $currentService,
+                        'history' => $servicesData
+                    ],
+                    'zones_accessibles' => $zonesData,
+                    'badges' => $badgesData,
+                    'acces_autorises' => $accesData,
+                    'badgeuses_autorisees' => $badgeusesData
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'SERVER_ERROR',
+                'message' => 'Erreur lors de la récupération des informations utilisateur',
+                'details' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * Formate les erreurs de validation
+     * Récupère les informations d'un utilisateur spécifique (pour les administrateurs)
      */
-    private function formatValidationErrors($errors): array
+    #[Route('/profile/{id}', name: 'profile_by_id', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function getUserProfileById(int $id): JsonResponse
     {
-        $formattedErrors = [];
-        foreach ($errors as $error) {
-            $formattedErrors[] = [
-                'field' => $error->getPropertyPath(),
-                'message' => $error->getMessage()
-            ];
+        $user = $this->entityManager->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'USER_NOT_FOUND',
+                'message' => 'Utilisateur non trouvé'
+            ], 404);
         }
-        return $formattedErrors;
+
+        // Utiliser la même logique que getCompleteProfile mais pour un utilisateur spécifique
+        // Pour des raisons de sécurité, on retourne les mêmes informations
+        try {
+            // Code similaire à getCompleteProfile mais adapté pour un utilisateur spécifique
+            $userData = [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'telephone' => $user->getTelephone(),
+                'date_naissance' => $user->getDateNaissance()?->format('Y-m-d'),
+                'date_inscription' => $user->getDateInscription()->format('Y-m-d'),
+                'adresse' => $user->getAdresse(),
+                'poste' => $user->getPoste(),
+                'roles' => $user->getRoles()
+            ];
+
+            return new JsonResponse([
+                'success' => true,
+                'data' => [
+                    'user' => $userData,
+                    'message' => 'Informations utilisateur récupérées avec succès'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'SERVER_ERROR',
+                'message' => 'Erreur lors de la récupération des informations utilisateur'
+            ], 500);
+        }
     }
-}
+} 
