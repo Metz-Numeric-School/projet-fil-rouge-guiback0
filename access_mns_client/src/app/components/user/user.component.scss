@@ -1,115 +1,274 @@
-// Brand Colors
-$primary-orange: #ff5d2d;
-$secondary-blue: #25176e;
-$light-blue: #4a3a9b; // Lighter blue instead of sass function
-
-.dashboard-container {
+.user-dashboard {
   min-height: 100vh;
-  background-color: #f5f5f5;
-}
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 0;
 
-.dashboard-toolbar {
-  background: linear-gradient(45deg, $secondary-blue, $light-blue) !important;
-  color: white !important;
-
-  .toolbar-title {
-    margin-left: 10px;
-    font-weight: 600;
-  }
-
-  .spacer {
-    flex: 1 1 auto;
-  }
-
-  .user-info {
-    margin-right: 15px;
-    font-size: 0.9rem;
-  }
-
-  .logout-button {
-    color: white;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-  }
-}
-
-.dashboard-content {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-
-  @media (max-width: 768px) {
-    padding: 15px;
-  }
-}
-
-.welcome-section {
-  margin-bottom: 30px;
-}
-
-.welcome-card {
-  .user-details {
-    margin-bottom: 20px;
-
-    h3 {
-      color: $secondary-blue;
-      margin-bottom: 15px;
-    }
+  // Loading container
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
 
     p {
-      margin-bottom: 8px;
-
-      strong {
-        color: $secondary-blue;
-      }
-    }
-  }
-
-  .dashboard-actions {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-
-    @media (max-width: 600px) {
-      flex-direction: column;
-    }
-
-    button {
-      flex: 1;
-      min-width: 150px;
-
-      mat-icon {
-        margin-right: 8px;
-      }
-    }
-  }
-}
-
-.info-card {
-  h3 {
-    color: $primary-orange;
-    margin-bottom: 15px;
-  }
-
-  ul {
-    padding-left: 20px;
-
-    li {
-      margin-bottom: 8px;
+      margin-top: 16px;
+      font-size: 16px;
       color: #666;
     }
   }
-}
 
-// Material Design Customization
-::ng-deep {
-  .mat-mdc-raised-button.mat-primary {
-    background-color: $primary-orange !important;
+  // Dashboard content
+  .dashboard-content {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
-  .mat-mdc-raised-button.mat-accent {
-    background-color: $secondary-blue !important;
+  // Header styling
+  .dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+
+    h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 2.5rem;
+      font-weight: 300;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+
+      .dashboard-icon {
+        font-size: 2.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+    }
+
+    .dashboard-subtitle {
+      font-size: 1.1rem;
+      color: #7f8c8d;
+      font-weight: 300;
+      margin: 0 0 1rem 0;
+    }
+
+  }
+
+  // Dashboard grid layout
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+
+  // Dashboard cards
+  .dashboard-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+    background: white;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    &.disabled-card {
+      cursor: default;
+      opacity: 0.6;
+
+      &:hover {
+        transform: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+      }
+    }
+
+    mat-card-header {
+      padding: 1.5rem 1.5rem 0.5rem;
+
+      mat-card-title {
+        font-size: 1.3rem;
+        font-weight: 500;
+        color: #2c3e50;
+      }
+
+      mat-card-subtitle {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+      }
+    }
+
+    mat-card-content {
+      padding: 0.5rem 1.5rem 1rem;
+
+      p {
+        color: #5a6c7d;
+        line-height: 1.5;
+        margin: 0;
+      }
+    }
+
+    mat-card-actions {
+      padding: 0 1.5rem 1.5rem;
+
+      button {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+  }
+
+  // Card avatars
+  .card-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      color: white;
+    }
+
+    &.personal-avatar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    &.organisation-avatar {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    }
+
+    &.services-avatar {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    }
+
+    &.access-avatar {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    }
+
+    &.badges-avatar {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    &.dashboard-avatar {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    &.disabled-avatar {
+      background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+    }
+  }
+
+  // Component content
+  .component-content {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .back-button-container {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: flex-start;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  // Error state styling
+  .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+    padding: 32px;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #f44336;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    p {
+      margin-bottom: 24px;
+      color: #666;
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    .dashboard-content {
+      padding: 1rem;
+    }
+
+    .dashboard-header h1 {
+      font-size: 2rem;
+
+      .dashboard-icon {
+        font-size: 2rem;
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .dashboard-content {
+      padding: 0.5rem;
+    }
+
+    .dashboard-header {
+      margin-bottom: 2rem;
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .dashboard-subtitle {
+        font-size: 1rem;
+      }
+
+      .user-welcome h2 {
+        font-size: 1.3rem;
+      }
+    }
+  }
+}
+
+// Fade in animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

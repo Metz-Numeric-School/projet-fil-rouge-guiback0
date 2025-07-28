@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\Acces;
 use App\Entity\Badgeuse;
-use App\Entity\zone;
+use App\Entity\Zone;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -20,7 +20,7 @@ class AccesType extends AbstractType
                 'widget' => 'single_text'
             ])
             ->add('zone', EntityType::class, [
-                'class' => zone::class,
+                'class' => Zone::class,
 'choice_label' => 'id',
             ])
             ->add('badgeuse', EntityType::class, [

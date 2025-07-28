@@ -1,1 +1,66 @@
-<router-outlet />
+<div class="app-container">
+  <!-- Navigation Bar (hidden on login page) -->
+  <nav *ngIf="shouldShowNavbar" class="app-navbar">
+    <mat-toolbar color="primary" class="navbar-toolbar">
+      <div class="navbar-brand">
+        <mat-icon class="brand-icon">security</mat-icon>
+        <span class="brand-text">ACCESS MNS</span>
+      </div>
+
+      <div class="navbar-nav">
+        <button mat-button routerLink="/dashboard" routerLinkActive="active-link" class="nav-button">
+          <mat-icon>dashboard</mat-icon>
+          <span>Tableau de bord</span>
+        </button>
+
+        <button mat-button routerLink="/user" routerLinkActive="active-link" class="nav-button">
+          <mat-icon>person</mat-icon>
+          <span>Mon Profil</span>
+        </button>
+
+
+      </div>
+
+      <div class="navbar-actions">
+        <button mat-icon-button (click)="logout()" class="logout-button" title="Se déconnecter">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar>
+  </nav>
+
+  <main class="main-content" [class.with-navbar]="shouldShowNavbar">
+    <router-outlet />
+  </main>
+
+  <!-- Enhanced Footer -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4 class="footer-title">ACCESS MNS</h4>
+        <p class="footer-description">Système de Gestion d'Accès Sécurisé</p>
+      </div>
+
+      <div class="footer-section">
+        <h5>Contact</h5>
+        <p>support&#64;access-mns.com</p>
+        <p>+33 1 23 45 67 89</p>
+      </div>
+
+      <div class="footer-section">
+        <h5>Informations</h5>
+        <p><a href="#" class="footer-link">Conditions d'utilisation</a></p>
+        <p><a href="#" class="footer-link">Politique de confidentialité</a></p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copyright">
+        <p>&copy; {{ currentYear }} ACCESS MNS - Tous droits réservés</p>
+      </div>
+      <div class="footer-version">
+        <p>Version 1.0.0</p>
+      </div>
+    </div>
+  </footer>
+</div>

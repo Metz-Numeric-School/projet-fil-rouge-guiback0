@@ -1,30 +1,6 @@
-export interface User {
-  id: number;
-  email: string;
-  nom: string;
-  prenom: string;
-  telephone?: string;
-  date_naissance?: string;
-  date_inscription: string;
-  adresse?: string;
-  poste?: string;
-  roles: string[];
-}
+import { User, Organisation } from './user.interface';
 
-export interface Organisation {
-  id: number;
-  nom: string;
-  email?: string;
-  telephone?: string;
-  site_web?: string;
-}
-
-export interface Service {
-  id: number;
-  nom: string;
-  niveau: number;
-}
-
+// Login interfaces
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -57,16 +33,7 @@ export interface RefreshResponse {
   message: string;
 }
 
-export interface UserProfileResponse {
-  success: boolean;
-  data?: User & {
-    organisation: Organisation | null;
-    service: Service | null;
-  };
-  error?: string;
-  message?: string;
-}
-
+// Generic API Response interface
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;

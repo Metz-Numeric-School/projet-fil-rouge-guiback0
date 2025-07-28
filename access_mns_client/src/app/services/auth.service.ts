@@ -13,9 +13,12 @@ import {
   LoginCredentials,
   LoginResponse,
   RefreshResponse,
-  UserProfileResponse,
-  User,
 } from '../interfaces/auth.interface';
+import {
+  User,
+  CompleteUserProfile,
+  UserProfileResponse,
+} from '../interfaces/user.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -26,9 +29,12 @@ export class AuthService {
   private readonly REMEMBER_ME_KEY = 'access_mns_remember';
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private completeProfileSubject =
+    new BehaviorSubject<CompleteUserProfile | null>(null);
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
 
   public currentUser$ = this.currentUserSubject.asObservable();
+  public completeProfile$ = this.completeProfileSubject.asObservable();
   public isLoading$ = this.isLoadingSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
@@ -136,7 +142,7 @@ export class AuthService {
   }
 
   /**
-   * Load user profile from server
+   * Load basic user profile from server
    */
   loadUserProfile(): Observable<User> {
     const headers = this.getAuthHeaders();
@@ -161,6 +167,47 @@ export class AuthService {
   }
 
   /**
+   * Load complete user profile with all related data
+   */
+  loadCompleteProfile(): Observable<CompleteUserProfile> {
+    const headers = this.getAuthHeaders();
+
+    return this.http
+      .get<any>(`${this.API_BASE_URL}/user/profile/complete`, { headers })
+      .pipe(
+        map((response) => {
+          if (response.success && response.data) {
+            // Update both current user and complete profile
+            this.currentUserSubject.next(response.data.user);
+            this.completeProfileSubject.next(response.data);
+            return response.data;
+          }
+          throw new Error(
+            response.message || 'Erreur lors du chargement du profil complet'
+          );
+        }),
+        catchError((error) => {
+          let errorMessage = 'Erreur lors du chargement du profil complet';
+
+          if (error.error) {
+            switch (error.error.error) {
+              case 'INVALID_USER':
+                errorMessage = 'Utilisateur invalide';
+                break;
+              case 'SERVER_ERROR':
+                errorMessage = 'Erreur serveur lors du chargement du profil';
+                break;
+              default:
+                errorMessage = error.error.message || errorMessage;
+            }
+          }
+
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+
+  /**
    * Get current user value
    */
   getCurrentUser(): User | null {
@@ -168,10 +215,33 @@ export class AuthService {
   }
 
   /**
+   * Get complete profile value
+   */
+  getCompleteProfile(): CompleteUserProfile | null {
+    return this.completeProfileSubject.value;
+  }
+
+  /**
    * Check if user is authenticated
    */
   isAuthenticated(): boolean {
     return !!this.getToken() && !!this.currentUserSubject.value;
+  }
+
+  /**
+   * Check if current user has admin role
+   */
+  isAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user?.roles?.includes('ROLE_ADMIN') || false;
+  }
+
+  /**
+   * Check if current user has super admin role
+   */
+  isSuperAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user?.roles?.includes('ROLE_SUPER_ADMIN') || false;
   }
 
   /**
@@ -216,6 +286,7 @@ export class AuthService {
     sessionStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REMEMBER_ME_KEY);
     this.currentUserSubject.next(null);
+    this.completeProfileSubject.next(null);
     this.router.navigate(['/login']);
   }
 

@@ -1,0 +1,117 @@
+<div class="personal-info-container">
+  <div class="dashboard-header">
+    <h1>
+      <mat-icon class="dashboard-icon">person</mat-icon>
+      Informations Personnelles
+    </h1>
+    <p class="dashboard-subtitle">Consultez vos informations personnelles et vos horaires de travail</p>
+  </div>
+
+  <div class="dashboard-grid" *ngIf="currentUser">
+    <!-- Basic Information Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <div mat-card-avatar class="card-avatar personal-avatar">
+          <mat-icon>account_circle</mat-icon>
+        </div>
+        <mat-card-title>Informations de Base</mat-card-title>
+        <mat-card-subtitle>Données personnelles principales</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Nom complet:</strong>
+            <span>{{ getFullName(currentUser) }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Email:</strong>
+            <span>{{ currentUser.email }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Téléphone:</strong>
+            <span>{{ currentUser.telephone || 'Non défini' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Date de naissance:</strong>
+            <span>{{ formatDate(currentUser.date_naissance) }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Contact Information Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <div mat-card-avatar class="card-avatar contact-avatar">
+          <mat-icon>contact_mail</mat-icon>
+        </div>
+        <mat-card-title>Informations de Contact</mat-card-title>
+        <mat-card-subtitle>Adresse et informations professionnelles</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Adresse:</strong>
+            <span>{{ currentUser.adresse || 'Non définie' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Poste:</strong>
+            <span>{{ currentUser.poste || 'Non défini' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Date d'inscription:</strong>
+            <span>{{ formatDate(currentUser.date_inscription) }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Working Schedule Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <div mat-card-avatar class="card-avatar schedule-avatar">
+          <mat-icon>schedule</mat-icon>
+        </div>
+        <mat-card-title>Horaires de Travail</mat-card-title>
+        <mat-card-subtitle>Planning et jours travaillés</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Horaires:</strong>
+            <span>{{ getWorkingHours() }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Jours travaillés:</strong>
+            <div class="working-days">
+              <mat-chip-listbox *ngIf="getWorkingDays().length > 0; else noWorkingDays">
+                <mat-chip *ngFor="let day of getWorkingDays()">{{ day }}</mat-chip>
+              </mat-chip-listbox>
+              <ng-template #noWorkingDays>
+                <span>Non défini</span>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Roles and Permissions Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <div mat-card-avatar class="card-avatar security-avatar">
+          <mat-icon>security</mat-icon>
+        </div>
+        <mat-card-title>Rôles et Permissions</mat-card-title>
+        <mat-card-subtitle>Droits d'accès et autorisations</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-chip-listbox>
+          <mat-chip *ngFor="let role of currentUser.roles" [color]="role.includes('ADMIN') ? 'warn' : 'primary'">
+            {{ role }}
+          </mat-chip>
+        </mat-chip-listbox>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

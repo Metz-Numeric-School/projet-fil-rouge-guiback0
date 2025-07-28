@@ -1,0 +1,108 @@
+<div class="services-container">
+  <div class="dashboard-header">
+    <h1>
+      <mat-icon class="dashboard-icon">work</mat-icon>
+      Services
+    </h1>
+    <p class="dashboard-subtitle">Consultez votre service actuel et l'historique de vos affectations</p>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Current Service Card -->
+    <div *ngIf="hasCurrentService(); else noCurrentService">
+      <mat-card class="dashboard-card current-service-card">
+        <mat-card-header>
+          <div mat-card-avatar class="card-avatar current-service-avatar">
+            <mat-icon>work</mat-icon>
+          </div>
+          <mat-card-title>Service Actuel</mat-card-title>
+          <mat-card-subtitle>Votre affectation en cours</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <strong>Nom du service:</strong>
+              <span>{{ getCurrentService()?.nom_service || 'Non défini' }}</span>
+            </div>
+            <div class="info-item">
+              <strong>Niveau:</strong>
+              <span>{{ getCurrentService()?.niveau_service || 'Non défini' }}</span>
+            </div>
+            <div class="info-item">
+              <strong>Depuis le:</strong>
+              <span>{{ formatDate(getCurrentService()?.date_debut) }}</span>
+            </div>
+          </div>
+          <div class="service-status">
+            <mat-chip [color]="getServiceStatusColor(getCurrentService())">ACTUEL</mat-chip>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- No Current Service Template -->
+    <ng-template #noCurrentService>
+      <mat-card class="dashboard-card no-service-card">
+        <mat-card-header>
+          <div mat-card-avatar class="card-avatar no-service-avatar">
+            <mat-icon>work_off</mat-icon>
+          </div>
+          <mat-card-title>Aucun Service Actuel</mat-card-title>
+          <mat-card-subtitle>Pas d'affectation en cours</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Aucun service n'est actuellement assigné à votre profil.</p>
+        </mat-card-content>
+      </mat-card>
+    </ng-template>
+
+    <!-- Service History -->
+    <div *ngIf="hasServiceHistory()" class="service-history-section">
+      <h2 class="section-title">
+        <mat-icon>history</mat-icon>
+        Historique des Services
+      </h2>
+
+      <div class="services-history-grid">
+        <mat-card *ngFor="let service of getServiceHistory()" class="dashboard-card service-history-card">
+          <mat-card-header>
+            <div mat-card-avatar class="card-avatar service-history-avatar">
+              <mat-icon>assignment</mat-icon>
+            </div>
+            <mat-card-title>{{ service.nom_service }}</mat-card-title>
+            <mat-card-subtitle>{{ service.niveau_service }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-grid">
+              <div class="info-item">
+                <strong>Période:</strong>
+                <span>{{ formatDate(service.date_debut) }} - {{ formatDate(service.date_fin) }}</span>
+              </div>
+            </div>
+            <div class="service-status">
+              <mat-chip [color]="getServiceStatusColor(service)">
+                {{ service.is_current ? 'ACTUEL' : 'TERMINÉ' }}
+              </mat-chip>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- No Service History -->
+    <div *ngIf="!hasServiceHistory()" class="no-history-section">
+      <mat-card class="dashboard-card no-history-card">
+        <mat-card-header>
+          <div mat-card-avatar class="card-avatar no-history-avatar">
+            <mat-icon>history</mat-icon>
+          </div>
+          <mat-card-title>Aucun Historique</mat-card-title>
+          <mat-card-subtitle>Pas d'historique de services</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Aucun historique de services n'est disponible.</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
