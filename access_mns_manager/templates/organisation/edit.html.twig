@@ -1,13 +1,92 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Organisation{% endblock %}
+{% block title %}Modifier {{ organisation.nomOrganisation }} - ACCESS MNS MANAGER{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('app_organisation_index') }}">Organisations</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Modifier</li>
+    </ol>
+</nav>
+{% endblock %}
 
 {% block body %}
-    <h1>Edit Organisation</h1>
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">Modifier l'organisation</h1>
+                    <p class="text-muted">{{ organisation.nomOrganisation }}</p>
+                </div>
+                <div>
+                    <a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour aux détails
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    {{ include('organisation/_form.html.twig', {'button_label': 'Update'}) }}
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                <i class="bi bi-{{ type == 'success' ? 'check-circle' : type == 'error' ? 'exclamation-triangle' : 'info-circle' }}"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
 
-    <a href="{{ path('app_organisation_index') }}">back to list</a>
+    <!-- Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil"></i>
+                        Modification des informations
+                    </h5>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="bi bi-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {{ include('organisation/_form.html.twig', {'button_label': 'Enregistrer les modifications'}) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    {{ include('organisation/_delete_form.html.twig') }}
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Attention !</strong> Cette action est irréversible.
+                </div>
+                <p>Êtes-vous sûr de vouloir supprimer l'organisation <strong>{{ organisation.nomOrganisation }}</strong> ?</p>
+                <p class="text-muted small">Tous les services, utilisateurs et données associés seront également supprimés.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                {{ include('organisation/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

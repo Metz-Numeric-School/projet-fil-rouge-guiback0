@@ -26,6 +26,9 @@ class Travailler
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date_fin = null;
 
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $is_principal = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +78,18 @@ class Travailler
     public function setDateFin(?\DateTimeInterface $date_fin): static
     {
         $this->date_fin = $date_fin;
+
+        return $this;
+    }
+
+    public function isIsPrincipal(): bool
+    {
+        return $this->is_principal;
+    }
+
+    public function setIsPrincipal(bool $is_principal): static
+    {
+        $this->is_principal = $is_principal;
 
         return $this;
     }

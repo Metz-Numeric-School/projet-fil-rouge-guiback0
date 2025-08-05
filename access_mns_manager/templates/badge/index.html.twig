@@ -1,41 +1,94 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Badge index{% endblock %}
+{% block title %}Badges index{% endblock %}
 
 {% block body %}
-    <h1>Badge index</h1>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-credit-card"></i>
+            Badges ({{ badges|length }})
+        </h5>
+        <a href="{{ path('app_badge_new') }}" class="btn btn-sm btn-outline-light">
+            <i class="bi bi-plus-circle"></i> Nouveau badge
+        </a>
+    </div>
+    {% if badges|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Numéro badge</th>
+                        <th>Type badge</th>
+                        <th>Date création</th>
+                        <th>Date expiration</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for badge in badges %}
+                    <tr class="clickable-row" data-href="{{ path('app_badge_show', {'id': badge.id}) }}">
+                        <td>{{ badge.id }}</td>
+                        <td>{{ badge.numeroBadge }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ badge.typeBadge }}</span>
+                        </td>
+                        <td>{{ badge.dateCreation ? badge.dateCreation|date('d/m/Y') : '' }}</td>
+                        <td>{{ badge.dateExpiration ? badge.dateExpiration|date('d/m/Y') : '' }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ path('app_badge_show', {'id': badge.id}) }}" class="btn btn-sm btn-primary" title="Voir">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ path('app_badge_edit', {'id': badge.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-credit-card text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-2">Aucun badge</p>
+            <a href="{{ path('app_badge_new') }}" class="btn btn-primary">
+                <i class="bi bi-plus"></i>
+                Créer un badge
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Numero_badge</th>
-                <th>Type_badge</th>
-                <th>Date_creation</th>
-                <th>Date_expiration</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for badge in badges %}
-            <tr>
-                <td>{{ badge.id }}</td>
-                <td>{{ badge.numeroBadge }}</td>
-                <td>{{ badge.typeBadge }}</td>
-                <td>{{ badge.dateCreation ? badge.dateCreation|date('Y-m-d') : '' }}</td>
-                <td>{{ badge.dateExpiration ? badge.dateExpiration|date('Y-m-d') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_badge_show', {'id': badge.id}) }}">show</a>
-                    <a href="{{ path('app_badge_edit', {'id': badge.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+{% block stylesheets %}
+<style>
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.clickable-row:hover {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+</style>
+{% endblock %}
 
-    <a href="{{ path('app_badge_new') }}">Create new</a>
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Make table rows clickable
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', (e) => {
+            // Don't trigger if clicking on buttons or links
+            if (e.target.closest('a, button')) {
+                return;
+            }
+            window.location.href = row.dataset.href;
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Acces;
+use App\Entity\Badgeuse;
 use App\Form\AccesType;
 use App\Repository\AccesRepository;
+use App\Repository\OrganisationRepository;
+use App\Repository\ZoneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,22 +25,85 @@ final class AccesController extends AbstractController{
     }
 
     #[Route('/new', name: 'app_acces_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $acce = new Acces();
-        $form = $this->createForm(AccesType::class, $acce);
-        $form->handleRequest($request);
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        OrganisationRepository $organisationRepository,
+        ZoneRepository $zoneRepository
+    ): Response {
+        $organisations = $organisationRepository->findAll();
+        $selectedOrganisation = null;
+        $zones = [];
+        
+        // Handle organisation selection
+        $organisationId = $request->query->get('organisation') ?: $request->request->get('organisation');
+        if ($organisationId) {
+            $selectedOrganisation = $organisationRepository->find($organisationId);
+            if ($selectedOrganisation) {
+                $zones = $zoneRepository->findBy(['organisation' => $selectedOrganisation]);
+            }
+        }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($acce);
-            $entityManager->flush();
+        // Handle form submission
+        if ($request->isMethod('POST') && $selectedOrganisation) {
+            $selectedZones = $request->request->all('zones');
+            $numeroBadgeuse = (int) $request->request->get('numero_badgeuse');
+            $referenceBadgeuse = $request->request->get('reference_badgeuse');
 
-            return $this->redirectToRoute('app_acces_index', [], Response::HTTP_SEE_OTHER);
+            if (empty($selectedZones)) {
+                $this->addFlash('error', 'Veuillez sélectionner au moins une zone.');
+            } elseif (!$numeroBadgeuse || !$referenceBadgeuse) {
+                $this->addFlash('error', 'Veuillez renseigner le numéro et la référence de la badgeuse.');
+            } else {
+                try {
+                    $entityManager->beginTransaction();
+
+                    // Create new badgeuse
+                    $badgeuse = new Badgeuse();
+                    $badgeuse->setReference($referenceBadgeuse);
+                    $badgeuse->setDateInstallation(new \DateTime());
+                    $entityManager->persist($badgeuse);
+                    $entityManager->flush(); // Get badgeuse ID
+
+                    $createdAccess = [];
+
+                    // Create access for each selected zone
+                    foreach ($selectedZones as $zoneId) {
+                        $zone = $zoneRepository->find((int)$zoneId);
+                        if ($zone && $zone->getOrganisation() === $selectedOrganisation) {
+                            $acces = new Acces();
+                            $acces->setNumeroBadgeuse($numeroBadgeuse);
+                            $acces->setDateInstallation(new \DateTime());
+                            $acces->setZone($zone);
+                            $acces->setBadgeuse($badgeuse);
+                            
+                            $entityManager->persist($acces);
+                            $createdAccess[] = $zone->getNomZone();
+                        }
+                    }
+
+                    $entityManager->flush();
+                    $entityManager->commit();
+
+                    $this->addFlash('success', 
+                        'Badgeuse "' . $referenceBadgeuse . '" créée avec succès. ' .
+                        count($createdAccess) . ' accès configuré(s) pour les zones: ' . 
+                        implode(', ', $createdAccess)
+                    );
+
+                    return $this->redirectToRoute('app_acces_index');
+
+                } catch (\Exception) {
+                    $entityManager->rollback();
+                    $this->addFlash('error', 'Erreur lors de la création des accès. Veuillez réessayer.');
+                }
+            }
         }
 
         return $this->render('acces/new.html.twig', [
-            'acce' => $acce,
-            'form' => $form,
+            'organisations' => $organisations,
+            'selectedOrganisation' => $selectedOrganisation,
+            'zones' => $zones,
         ]);
     }
 

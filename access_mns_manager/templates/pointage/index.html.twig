@@ -1,37 +1,92 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Pointage index{% endblock %}
+{% block title %}Pointages index{% endblock %}
 
 {% block body %}
-    <h1>Pointage index</h1>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-clock"></i>
+            Pointages ({{ pointages|length }})
+        </h5>
+        <a href="{{ path('app_pointage_new') }}" class="btn btn-sm btn-outline-light">
+            <i class="bi bi-plus-circle"></i> Nouveau pointage
+        </a>
+    </div>
+    {% if pointages|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Heure</th>
+                        <th>Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for pointage in pointages %}
+                    <tr class="clickable-row" data-href="{{ path('app_pointage_show', {'id': pointage.id}) }}">
+                        <td>{{ pointage.id }}</td>
+                        <td>{{ pointage.heure ? pointage.heure|date('d/m/Y H:i:s') : '' }}</td>
+                        <td>
+                            <span class="badge bg-{% if pointage.type == 'entree' %}success{% else %}warning{% endif %}">
+                                {{ pointage.type|capitalize }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ path('app_pointage_show', {'id': pointage.id}) }}" class="btn btn-sm btn-primary" title="Voir">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ path('app_pointage_edit', {'id': pointage.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-clock text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-2">Aucun pointage</p>
+            <a href="{{ path('app_pointage_new') }}" class="btn btn-primary">
+                <i class="bi bi-plus"></i>
+                Créer un pointage
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Heure</th>
-                <th>Type</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for pointage in pointages %}
-            <tr>
-                <td>{{ pointage.id }}</td>
-                <td>{{ pointage.heure ? pointage.heure|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ pointage.type }}</td>
-                <td>
-                    <a href="{{ path('app_pointage_show', {'id': pointage.id}) }}">show</a>
-                    <a href="{{ path('app_pointage_edit', {'id': pointage.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+{% block stylesheets %}
+<style>
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.clickable-row:hover {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+</style>
+{% endblock %}
 
-    <a href="{{ path('app_pointage_new') }}">Create new</a>
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Make table rows clickable
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', (e) => {
+            // Don't trigger if clicking on buttons or links
+            if (e.target.closest('a, button')) {
+                return;
+            }
+            window.location.href = row.dataset.href;
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -1,30 +1,593 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Service{% endblock %}
+{% block title %}{{ service.nomService }} - ACCESS MNS MANAGER{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('app_organisation_index') }}">Organisations</a></li>
+        {% if service.organisation %}
+            <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': service.organisation.id}) }}">{{ service.organisation.nomOrganisation }}</a></li>
+        {% endif %}
+        <li class="breadcrumb-item active" aria-current="page">{{ service.nomService }}</li>
+    </ol>
+</nav>
+{% endblock %}
 
 {% block body %}
-    <h1>Service</h1>
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="h3 mb-1">{{ service.nomService }}</h1>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-briefcase"></i> Service
+                        {% if service.organisation %}
+                            • {{ service.organisation.nomOrganisation }}
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ path('app_service_edit', {'id': service.id}) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                    {% if service.nomService != 'Service principal' %}
+                        <button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ service.id }}, '{{ service.nomService|e('js') }}', '{{ csrf_token('delete' ~ service.id) }}')">
+                            <i class="bi bi-trash"></i> Supprimer
+                        </button>
+                    {% else %}
+                        <button type="button" class="btn btn-outline-secondary" disabled title="Le Service principal ne peut pas être supprimé">
+                            <i class="bi bi-shield-lock"></i> Service protégé
+                        </button>
+                    {% endif %}
+                    <a href="{{ path('app_organisation_show', {'id': service.organisation.id}) }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ service.id }}</td>
-            </tr>
-            <tr>
-                <th>Nom_service</th>
-                <td>{{ service.nomService }}</td>
-            </tr>
-            <tr>
-                <th>Niveau_service</th>
-                <td>{{ service.niveauService }}</td>
-            </tr>
-        </tbody>
-    </table>
 
-    <a href="{{ path('app_service_index') }}">back to list</a>
+    <!-- Service Details -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Informations du service
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Détails généraux</h6>
+                            <div class="mb-3">
+                                <label class="text-muted small">Nom du service</label>
+                                <div><i class="bi bi-briefcase me-2"></i>{{ service.nomService }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small">Niveau de service</label>
+                                <div><span class="badge bg-primary">Niveau {{ service.niveauService }}</span></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small">ID du service</label>
+                                <div><code>{{ service.id }}</code></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Organisation</h6>
+                            {% if service.organisation %}
+                                <div class="mb-3">
+                                    <label class="text-muted small">Organisation</label>
+                                    <div>
+                                        <i class="bi bi-building me-2"></i>
+                                        <a href="{{ path('app_organisation_show', {'id': service.organisation.id}) }}">
+                                            {{ service.organisation.nomOrganisation }}
+                                        </a>
+                                    </div>
+                                </div>
+                                {% if service.organisation.ville %}
+                                <div class="mb-3">
+                                    <label class="text-muted small">Localisation</label>
+                                    <div><i class="bi bi-geo-alt me-2"></i>{{ service.organisation.ville }}</div>
+                                </div>
+                                {% endif %}
+                                {% if service.organisation.email %}
+                                <div class="mb-3">
+                                    <label class="text-muted small">Contact</label>
+                                    <div><i class="bi bi-envelope me-2"></i>{{ service.organisation.email }}</div>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="text-muted">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    Aucune organisation assignée
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <a href="{{ path('app_service_edit', {'id': service.id}) }}">edit</a>
 
-    {{ include('service/_delete_form.html.twig') }}
+<!-- Zones Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">
+                            <i class="bi bi-geo-alt"></i>
+                            Zones d'accès ({{ service.serviceZones|length }})
+                        </h5>
+                        <small class="text-muted">Zones accessibles par ce service</small>
+                    </div>
+                    <div>
+                        <a href="{{ path('app_zone_new', {'service': service.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-plus-square"></i> Créer une nouvelle zone
+                        </a>
+                    </div>
+                </div>
+                {% if service.serviceZones|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Zone</th>
+                                        <th>Description</th>
+                                        <th>Capacité</th>
+                                        <th>Accès installés</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for serviceZone in service.serviceZones %}
+                                    <tr class="clickable-row" data-href="{{ path('app_zone_show', {'id': serviceZone.zone.id}) }}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="zone-icon me-3">
+                                                    <i class="bi bi-geo-alt text-info fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium">{{ serviceZone.zone.nomZone ?? 'Zone sans nom' }}</div>
+                                                    <small class="text-muted">ID: {{ serviceZone.zone.id }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if serviceZone.zone.description %}
+                                                {{ serviceZone.zone.description }}
+                                            {% else %}
+                                                <span class="text-muted">Non définie</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if serviceZone.zone.capacite %}
+                                                <span class="badge bg-info">{{ serviceZone.zone.capacite }} pers.</span>
+                                            {% else %}
+                                                <span class="text-muted">Non définie</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-key text-success me-2"></i>
+                                                <span>{{ serviceZone.zone.acces|length }} accès</span>
+                                            </div>
+                                        </td>
+                                        <td onclick="event.stopPropagation();">
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_zone_show', {'id': serviceZone.zone.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="confirmRemoveZone({{ serviceZone.zone.id }}, '{{ serviceZone.zone.nomZone|e('js') }}', '{{ csrf_token('remove_zone' ~ service.id ~ '_' ~ serviceZone.zone.id) }}')" title="Retirer du service">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-geo-alt text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">Aucune zone d'accès</h4>
+                            <p class="text-muted">Ce service n'a pas encore de zones d'accès configurées.</p>
+                            <a href="{{ path('app_zone_new', {'service': service.id}) }}" class="btn btn-primary">
+                                <i class="bi bi-plus-square"></i>
+                                Créer la première zone
+                            </a>
+                        </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Employees Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                {% set users = [] %}
+                {% for travail in service.travail %}
+                    {% if travail.utilisateur %}
+                        {% set users = users|merge([travail.utilisateur]) %}
+                    {% endif %}
+                {% endfor %}
+                
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">
+                            <i class="bi bi-people"></i>
+                            Employés ({{ users|length }})
+                        </h5>
+                        <small class="text-muted">Personnes travaillant dans ce service</small>
+                    </div>
+                    <div>
+                        {% if available_users is defined and available_users|length > 0 %}
+                            <button type="button" class="btn btn-primary" onclick="showUserModal()">
+                                <i class="bi bi-plus-square"></i> Ajouter un employé
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn btn-outline-secondary" disabled title="Aucun utilisateur disponible">
+                                <i class="bi bi-info-circle"></i> Aucun utilisateur disponible
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if users|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Employé</th>
+                                        <th>Email</th>
+                                        <th>Période</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr class="clickable-row" data-href="{{ path('app_user_show', {'id': user.id}) }}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle me-3">
+                                                    <i class="bi bi-person fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium">{{ user.prenom }} {{ user.nom }}</div>
+                                                    <small class="text-muted">ID: {{ user.id }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-envelope text-muted me-2"></i>
+                                            {{ user.email }}
+                                        </td>
+                                        <td>
+                                            {% for travail in service.travail %}
+                                                {% if travail.utilisateur == user %}
+                                                    {% if travail.dateDebut %}
+                                                        <small class="text-muted d-block">
+                                                            <i class="bi bi-calendar me-1"></i>
+                                                            Depuis le {{ travail.dateDebut|date('d/m/Y') }}
+                                                        </small>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for travail in service.travail %}
+                                                {% if travail.utilisateur == user %}
+                                                    <span class="badge bg-success">Actif</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td onclick="event.stopPropagation();">
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_user_show', {'id': user.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                {% set isPrincipal = false %}
+                                                {% for travail in service.travail %}
+                                                    {% if travail.utilisateur == user and travail.isPrincipal %}
+                                                        {% set isPrincipal = true %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if not isPrincipal %}
+                                                    <button class="btn btn-sm btn-outline-danger" onclick="confirmRemoveUser({{ user.id }}, '{{ user.prenom|e('js') }} {{ user.nom|e('js') }}', '{{ csrf_token('remove_user' ~ service.id ~ '_' ~ user.id) }}')" title="Retirer du service">
+                                                        <i class="bi bi-person-dash"></i>
+                                                    </button>
+                                                {% else %}
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled title="Service principal - impossible de retirer">
+                                                        <i class="bi bi-shield-lock"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">Aucun employé</h4>
+                            <p class="text-muted">Ce service n'a pas encore d'employés assignés.</p>
+                        </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+
+<!-- Add User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajouter un employé</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {% if available_users is empty %}
+                    <div class="text-center py-3">
+                        <i class="bi bi-info-circle text-muted" style="font-size: 2rem;"></i>
+                        <p class="text-muted mt-2">Aucun utilisateur disponible pour attribution.</p>
+                    </div>
+                {% else %}
+                    <div class="row g-3">
+                        {% for user in available_users %}
+                        <div class="col-12">
+                            <div class="card user-option">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle me-3">
+                                            <i class="bi bi-person fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-medium">{{ user.prenom }} {{ user.nom }}</div>
+                                            <small class="text-muted">
+                                                {{ user.email }} • ID: {{ user.id }}
+                                                {% if user.poste %}
+                                                    • {{ user.poste }}
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <form method="POST" action="{{ path('app_service_user_add', {'id': service.id, 'userId': user.id}) }}" style="display: inline;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('add_user' ~ service.id ~ '_' ~ user.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-plus-circle"></i> Ajouter
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remove User Confirmation Modal -->
+<div class="modal fade" id="removeUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Retirer l'employé du service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir retirer <strong id="removeUserName"></strong> de ce service ?</p>
+                <p class="text-muted"><small>Cette action terminera l'affectation de l'employé à ce service.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="removeUserForm" method="post" style="display: inline;">
+                    <input type="hidden" name="_token" id="removeUserToken">
+                    <button type="submit" class="btn btn-danger">Retirer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Zone Confirmation Modal -->
+<div class="modal fade" id="removeZoneModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Retirer la zone du service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir retirer la zone <strong id="removeZoneName"></strong> de ce service ?</p>
+                <p class="text-muted"><small>Cette action ne supprimera pas la zone, elle la retirera seulement de ce service.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="removeZoneForm" method="post" style="display: inline;">
+                    <input type="hidden" name="_token" id="removeZoneToken">
+                    <button type="submit" class="btn btn-danger">Retirer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="deleteWarning" class="alert alert-warning d-none">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Attention !</strong>
+                    <p class="mb-0">Ce service ne peut pas être supprimé car des utilisateurs y sont assignés. Veuillez d'abord réassigner les utilisateurs à un autre service.</p>
+                </div>
+                <div id="deleteConfirmation">
+                    <p>Êtes-vous sûr de vouloir supprimer le service <strong id="serviceName"></strong> ?</p>
+                    <div id="zoneWarning" class="alert alert-info d-none">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Information :</strong>
+                        <span id="zoneCount"></span> zone(s) d'accès associée(s) seront également supprimée(s).
+                    </div>
+                    <p class="text-danger"><small>Cette action est irréversible.</small></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <input type="hidden" name="_token" id="deleteToken">
+                    <button type="submit" class="btn btn-danger" id="deleteButton">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.clickable-row:hover {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+.zone-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e1f5fe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.user-option {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+}
+.user-option:hover {
+    background-color: #f8f9fa;
+    border-color: #6c757d;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Make user table rows clickable
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', (e) => {
+            if (e.target.closest('a, button')) {
+                return;
+            }
+            window.location.href = row.dataset.href;
+        });
+    });
+});
+
+function confirmRemoveZone(zoneId, zoneName, csrfToken) {
+    document.getElementById('removeZoneName').textContent = zoneName;
+    document.getElementById('removeZoneForm').action = `/manager/service/{{ service.id }}/zone/${zoneId}/remove`;
+    document.getElementById('removeZoneToken').value = csrfToken;
+    
+    new bootstrap.Modal(document.getElementById('removeZoneModal')).show();
+}
+
+function confirmDelete(serviceId, serviceName, csrfToken) {
+    document.getElementById('serviceName').textContent = serviceName;
+    document.getElementById('deleteForm').action = `/manager/service/${serviceId}`;
+    
+    // Set CSRF token for deletion
+    document.getElementById('deleteToken').value = csrfToken;
+    document.getElementById('deleteToken').name = '_token';
+    
+    // Check if service has assigned users
+    const hasUsers = {{ service.travail|length }} > 0;
+    const zoneCount = {{ service.serviceZones|length }};
+    const deleteWarning = document.getElementById('deleteWarning');
+    const deleteConfirmation = document.getElementById('deleteConfirmation');
+    const zoneWarning = document.getElementById('zoneWarning');
+    const zoneCountSpan = document.getElementById('zoneCount');
+    const deleteButton = document.getElementById('deleteButton');
+    
+    if (hasUsers) {
+        deleteWarning.classList.remove('d-none');
+        deleteConfirmation.classList.add('d-none');
+        deleteButton.disabled = true;
+        deleteButton.textContent = 'Suppression impossible';
+    } else {
+        deleteWarning.classList.add('d-none');
+        deleteConfirmation.classList.remove('d-none');
+        deleteButton.disabled = false;
+        deleteButton.textContent = 'Supprimer';
+        
+        // Show zone deletion warning if there are zones
+        if (zoneCount > 0) {
+            zoneWarning.classList.remove('d-none');
+            zoneCountSpan.textContent = zoneCount;
+        } else {
+            zoneWarning.classList.add('d-none');
+        }
+    }
+    
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+function showUserModal() {
+    new bootstrap.Modal(document.getElementById('userModal')).show();
+}
+
+function confirmRemoveUser(userId, userName, csrfToken) {
+    document.getElementById('removeUserName').textContent = userName;
+    document.getElementById('removeUserForm').action = `/manager/service/{{ service.id }}/user/${userId}/remove`;
+    document.getElementById('removeUserToken').value = csrfToken;
+    
+    new bootstrap.Modal(document.getElementById('removeUserModal')).show();
+}
+</script>
 {% endblock %}

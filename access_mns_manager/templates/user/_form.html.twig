@@ -1,4 +1,305 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'userForm', 'class': 'needs-validation'}}) }}
+    <div class="row g-4">
+        <!-- Informations personnelles -->
+        <div class="col-12">
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-person"></i>
+                Informations personnelles
+            </h6>
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.prenom, {
+                'label': 'Prénom *',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Jean'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.nom, {
+                'label': 'Nom *',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Dupont'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.email, {
+                'label': 'Email *',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'jean.dupont@example.com'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.password, {
+                'label': 'Mot de passe *',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Mot de passe sécurisé'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.date_naissance, {
+                'label': 'Date de naissance',
+                'attr': {
+                    'class': 'form-control'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.telephone, {
+                'label': 'Téléphone',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': '01 23 45 67 89'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-12">
+            {{ form_row(form.adresse, {
+                'label': 'Adresse',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': '12 rue de la République, 75001 Paris'
+                }
+            }) }}
+        </div>
+        
+        <!-- Séparateur -->
+        <div class="col-12">
+            <hr>
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-briefcase"></i>
+                Informations professionnelles
+            </h6>
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.poste, {
+                'label': 'Poste',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Développeur Senior'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.jours_semaine_travaille, {
+                'label': 'Jours de travail/semaine',
+                'attr': {
+                    'class': 'form-control',
+                    'min': '1',
+                    'max': '7',
+                    'placeholder': '5'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.heure_debut, {
+                'label': 'Heure de début',
+                'attr': {
+                    'class': 'form-control'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.horraire, {
+                'label': 'Durée journalière',
+                'attr': {
+                    'class': 'form-control'
+                }
+            }) }}
+        </div>
+        
+        <!-- Séparateur -->
+        <div class="col-12">
+            <hr>
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-shield-check"></i>
+                Permissions et accès
+            </h6>
+        </div>
+        
+        <div class="col-12">
+            {{ form_row(form.roles, {
+                'label': 'Rôles'
+            }) }}
+        </div>
+
+        {% if organisation is defined %}
+        <div class="col-12">
+            <div class="alert alert-success">
+                <i class="bi bi-star-fill text-warning me-2"></i>
+                <strong>Service principal :</strong> {{ organisation.nomOrganisation }}
+                <div class="form-text mt-1">Assignation automatique et immuable</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if form.secondary_services is defined %}
+        <div class="col-12">
+            {{ form_row(form.secondary_services, {
+                'label': 'Services secondaires'
+            }) }}
+        </div>
+        {% endif %}
+
+        {% if form.date_inscription is defined %}
+        <div class="col-md-6">
+            {{ form_row(form.date_inscription, {
+                'label': 'Date d\'inscription',
+                'attr': {
+                    'class': 'form-control'
+                }
+            }) }}
+        </div>
+        {% endif %}
+        
+        {{ form_rest(form) }}
+        
+        <div class="col-12">
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{{ organisation is defined ? path('app_organisation_show', {'id': organisation.id}) : path('app_user_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Annuler
+                </a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <i class="bi bi-check-circle"></i> {{ button_label|default('Enregistrer') }}
+                </button>
+            </div>
+        </div>
+    </div>
 {{ form_end(form) }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('userForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    
+    // Real-time validation
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        
+        if (isValid) {
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            
+            // Submit form
+            this.submit();
+        } else {
+            // Scroll to first error
+            const firstError = form.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+    
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldName = field.name;
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Clear previous validation states
+        field.classList.remove('is-valid', 'is-invalid');
+        const feedback = field.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+        
+        // Required field validation
+        if (field.hasAttribute('required') && !value) {
+            isValid = false;
+            errorMessage = 'Ce champ est obligatoire.';
+        }
+        
+        // Email validation
+        else if (fieldName.includes('email') && value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                isValid = false;
+                errorMessage = 'Veuillez saisir un email valide.';
+            }
+        }
+        
+        // Password validation
+        else if (fieldName.includes('password') && value) {
+            if (value.length < 6) {
+                isValid = false;
+                errorMessage = 'Le mot de passe doit contenir au moins 6 caractères.';
+            }
+        }
+        
+        // Phone validation
+        else if (fieldName.includes('telephone') && value) {
+            const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
+            if (!phoneRegex.test(value.replace(/\s/g, ''))) {
+                isValid = false;
+                errorMessage = 'Veuillez saisir un numéro de téléphone français valide.';
+            }
+        }
+        
+        // Days of work validation
+        else if (fieldName.includes('jours_semaine_travaille') && value) {
+            const days = parseInt(value);
+            if (isNaN(days) || days < 1 || days > 7) {
+                isValid = false;
+                errorMessage = 'Le nombre de jours doit être entre 1 et 7.';
+            }
+        }
+        
+        // Apply validation result
+        if (isValid && value) {
+            field.classList.add('is-valid');
+        } else if (!isValid) {
+            field.classList.add('is-invalid');
+            
+            // Add error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = errorMessage;
+            field.parentNode.appendChild(errorDiv);
+        }
+        
+        return isValid;
+    }
+});
+</script>

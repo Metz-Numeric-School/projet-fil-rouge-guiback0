@@ -1,11 +1,97 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Zone{% endblock %}
+{% block title %}
+    {% if service %}
+        Nouvelle zone pour {{ service.nomService }} - ACCESS MNS MANAGER
+    {% else %}
+        Nouvelle zone - ACCESS MNS MANAGER
+    {% endif %}
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
+        {% if service %}
+            <li class="breadcrumb-item"><a href="{{ path('app_organisation_index') }}">Organisations</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': service.organisation.id}) }}">{{ service.organisation.nomOrganisation }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_service_show', {'id': service.id}) }}">{{ service.nomService }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Nouvelle zone</li>
+        {% else %}
+            <li class="breadcrumb-item"><a href="{{ path('app_zone_index') }}">Zones</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Nouvelle zone</li>
+        {% endif %}
+    </ol>
+</nav>
+{% endblock %}
 
 {% block body %}
-    <h1>Create new Zone</h1>
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    {% if service %}
+                        <h1 class="h3 mb-1">Créer une zone pour {{ service.nomService }}</h1>
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-plus-square"></i> Nouvelle zone d'accès
+                            • Organisation: {{ service.organisation.nomOrganisation }}
+                        </p>
+                    {% else %}
+                        <h1 class="h3 mb-1">Créer une nouvelle zone</h1>
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-plus-square"></i> Nouvelle zone d'accès
+                        </p>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if service %}
+                        <a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Retour au service
+                        </a>
+                    {% else %}
+                        <a href="{{ path('app_zone_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Retour à la liste
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 
-    {{ include('zone/_form.html.twig') }}
+    <!-- Service Context Info -->
+    {% if service %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info d-flex align-items-center">
+                <i class="bi bi-info-circle-fill me-3"></i>
+                <div>
+                    <strong>Création liée au service :</strong>
+                    Cette zone sera automatiquement créée pour l'organisation 
+                    <strong>{{ service.organisation.nomOrganisation }}</strong> et assignée au service
+                    <strong>{{ service.nomService }}</strong> une fois créée.
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
-    <a href="{{ path('app_zone_index') }}">back to list</a>
+    <!-- Zone Form -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-geo-alt"></i>
+                        Informations de la zone
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{ include('zone/_form.html.twig', {'button_label': service ? 'Créer et assigner au service' : 'Créer la zone'}) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

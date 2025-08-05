@@ -415,4 +415,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getPrincipalService(): ?Service
+    {
+        foreach ($this->travail as $travail) {
+            if ($travail->isIsPrincipal()) {
+                return $travail->getService();
+            }
+        }
+        return null;
+    }
+
+    public function getPrincipalTravail(): ?Travailler
+    {
+        foreach ($this->travail as $travail) {
+            if ($travail->isIsPrincipal()) {
+                return $travail;
+            }
+        }
+        return null;
+    }
+
+    public function getSecondaryServices(): array
+    {
+        $services = [];
+        foreach ($this->travail as $travail) {
+            if (!$travail->isIsPrincipal() && $travail->getService()) {
+                $services[] = $travail->getService();
+            }
+        }
+        return $services;
+    }
+
 }

@@ -44,6 +44,13 @@ class AppFixtures extends Fixture
         $organisation1->setVille('Paris');
         $manager->persist($organisation1);
 
+        // Créer le service principal obligatoire pour organisation1
+        $servicePrincipal1 = new Service();
+        $servicePrincipal1->setNomService('Service principal');
+        $servicePrincipal1->setNiveauService(1);
+        $servicePrincipal1->setOrganisation($organisation1);
+        $manager->persist($servicePrincipal1);
+
         $organisation2 = new Organisation();
         $organisation2->setNomOrganisation('Ministère de l\'Intérieur');
         $organisation2->setEmail('contact@interieur.gouv.fr');
@@ -57,6 +64,13 @@ class AppFixtures extends Fixture
         $organisation2->setCodePostal('75008');
         $organisation2->setVille('Paris');
         $manager->persist($organisation2);
+
+        // Créer le service principal obligatoire pour organisation2
+        $servicePrincipal2 = new Service();
+        $servicePrincipal2->setNomService('Service principal');
+        $servicePrincipal2->setNiveauService(1);
+        $servicePrincipal2->setOrganisation($organisation2);
+        $manager->persist($servicePrincipal2);
 
         $organisation3 = new Organisation();
         $organisation3->setNomOrganisation('Entreprise TechSecure');
@@ -72,7 +86,14 @@ class AppFixtures extends Fixture
         $organisation3->setVille('Paris');
         $manager->persist($organisation3);
 
-        // Créer des services diversifiés
+        // Créer le service principal obligatoire pour organisation3
+        $servicePrincipal3 = new Service();
+        $servicePrincipal3->setNomService('Service principal');
+        $servicePrincipal3->setNiveauService(1);
+        $servicePrincipal3->setOrganisation($organisation3);
+        $manager->persist($servicePrincipal3);
+
+        // Créer des services supplémentaires diversifiés
         $service1 = new Service();
         $service1->setNomService('Service Informatique');
         $service1->setNiveauService(1);
@@ -109,36 +130,88 @@ class AppFixtures extends Fixture
         $service6->setOrganisation($organisation3);
         $manager->persist($service6);
 
-        // Créer des zones diversifiées
+        // Services supplémentaires pour avoir plus de données
+        $service7 = new Service();
+        $service7->setNomService('Service Logistique');
+        $service7->setNiveauService(1);
+        $service7->setOrganisation($organisation1);
+        $manager->persist($service7);
+
+        $service8 = new Service();
+        $service8->setNomService('Service Communication');
+        $service8->setNiveauService(2);
+        $service8->setOrganisation($organisation2);
+        $manager->persist($service8);
+
+        $service9 = new Service();
+        $service9->setNomService('Service Marketing');
+        $service9->setNiveauService(1);
+        $service9->setOrganisation($organisation3);
+        $manager->persist($service9);
+
+        $service10 = new Service();
+        $service10->setNomService('Service Formation');
+        $service10->setNiveauService(2);
+        $service10->setOrganisation($organisation1);
+        $manager->persist($service10);
+
+        // Créer des zones diversifiées - Les zones sont liées aux organisations via Service->ServiceZone
+        // Zones pour l'organisation 1 (Ministère de la Défense)
         $zone1 = new Zone();
-        $zone1->setNomZone('Zone Sécurisée Niveau 1');
-        $zone1->setDescription('Zone d\'accès restreint - Classification Confidentiel');
+        $zone1->setNomZone('Zone Sécurisée Niveau 1 - Défense');
+        $zone1->setDescription('Zone d\'accès restreint - Classification Confidentiel Défense');
         $zone1->setCapacite(50);
         $manager->persist($zone1);
 
         $zone2 = new Zone();
-        $zone2->setNomZone('Zone Sécurisée Niveau 2');
-        $zone2->setDescription('Zone d\'accès très restreint - Classification Secret');
+        $zone2->setNomZone('Zone Sécurisée Niveau 2 - Défense');
+        $zone2->setDescription('Zone d\'accès très restreint - Classification Secret Défense');
         $zone2->setCapacite(25);
         $manager->persist($zone2);
 
         $zone3 = new Zone();
-        $zone3->setNomZone('Zone Publique');
-        $zone3->setDescription('Zone d\'accès libre - Accueil et espaces communs');
-        $zone3->setCapacite(200);
+        $zone3->setNomZone('Zone Technique - Défense');
+        $zone3->setDescription('Zone technique - Serveurs et équipements de la Défense');
+        $zone3->setCapacite(15);
         $manager->persist($zone3);
 
+        // Zones pour l'organisation 2 (Ministère de l'Intérieur)
         $zone4 = new Zone();
-        $zone4->setNomZone('Zone Technique');
-        $zone4->setDescription('Zone technique - Serveurs et équipements');
-        $zone4->setCapacite(15);
+        $zone4->setNomZone('Zone Publique - Intérieur');
+        $zone4->setDescription('Zone d\'accès libre - Accueil et espaces communs Intérieur');
+        $zone4->setCapacite(200);
         $manager->persist($zone4);
 
         $zone5 = new Zone();
-        $zone5->setNomZone('Zone Direction');
-        $zone5->setDescription('Zone réservée à la direction et réunions confidentielles');
-        $zone5->setCapacite(30);
+        $zone5->setNomZone('Zone Opérationnelle - Intérieur');
+        $zone5->setDescription('Zone dédiée aux opérations du Ministère de l\'Intérieur');
+        $zone5->setCapacite(80);
         $manager->persist($zone5);
+
+        $zone6 = new Zone();
+        $zone6->setNomZone('Zone RH - Intérieur');
+        $zone6->setDescription('Zone des ressources humaines - Intérieur');
+        $zone6->setCapacite(40);
+        $manager->persist($zone6);
+
+        // Zones pour l'organisation 3 (Entreprise TechSecure)
+        $zone7 = new Zone();
+        $zone7->setNomZone('Zone Développement - TechSecure');
+        $zone7->setDescription('Zone de développement logiciel - TechSecure');
+        $zone7->setCapacite(60);
+        $manager->persist($zone7);
+
+        $zone8 = new Zone();
+        $zone8->setNomZone('Zone Support - TechSecure');
+        $zone8->setDescription('Zone du support technique - TechSecure');
+        $zone8->setCapacite(35);
+        $manager->persist($zone8);
+
+        $zone9 = new Zone();
+        $zone9->setNomZone('Zone Direction - TechSecure');
+        $zone9->setDescription('Zone réservée à la direction et réunions confidentielles - TechSecure');
+        $zone9->setCapacite(30);
+        $manager->persist($zone9);
 
         // Créer des utilisateurs avec tous les champs
         $admin = new User();
@@ -325,40 +398,92 @@ class AppFixtures extends Fixture
         $manager->persist($badgeuse5);
 
         // Créer des accès pour chaque zone
+        // Organisation 1 zones
         $acces1 = new Acces();
         $acces1->setNumeroBadgeuse(1);
         $acces1->setDateInstallation(new \DateTime('2020-01-01'));
-        $acces1->setZone($zone3); // Zone publique
+        $acces1->setZone($zone1); // Zone Sécurisée Niveau 1 - Défense
         $acces1->setBadgeuse($badgeuse1);
         $manager->persist($acces1);
 
         $acces2 = new Acces();
         $acces2->setNumeroBadgeuse(2);
         $acces2->setDateInstallation(new \DateTime('2020-01-01'));
-        $acces2->setZone($zone1); // Zone sécurisée niveau 1
+        $acces2->setZone($zone2); // Zone Sécurisée Niveau 2 - Défense
         $acces2->setBadgeuse($badgeuse2);
         $manager->persist($acces2);
 
         $acces3 = new Acces();
         $acces3->setNumeroBadgeuse(3);
         $acces3->setDateInstallation(new \DateTime('2020-01-15'));
-        $acces3->setZone($zone2); // Zone sécurisée niveau 2
+        $acces3->setZone($zone3); // Zone Technique - Défense
         $acces3->setBadgeuse($badgeuse3);
         $manager->persist($acces3);
 
+        // Organisation 2 zones
         $acces4 = new Acces();
         $acces4->setNumeroBadgeuse(4);
         $acces4->setDateInstallation(new \DateTime('2020-02-01'));
-        $acces4->setZone($zone4); // Zone technique
+        $acces4->setZone($zone4); // Zone Publique - Intérieur
         $acces4->setBadgeuse($badgeuse4);
         $manager->persist($acces4);
 
         $acces5 = new Acces();
         $acces5->setNumeroBadgeuse(5);
         $acces5->setDateInstallation(new \DateTime('2020-02-15'));
-        $acces5->setZone($zone5); // Zone direction
+        $acces5->setZone($zone5); // Zone Opérationnelle - Intérieur
         $acces5->setBadgeuse($badgeuse5);
         $manager->persist($acces5);
+
+        // Organisation 3 zones - adding new access points
+        $badgeuse6 = new Badgeuse();
+        $badgeuse6->setReference('BADGEUSE_ZONE_DEV_TECHSECURE');
+        $badgeuse6->setDateInstallation(new \DateTime('2021-01-01'));
+        $manager->persist($badgeuse6);
+
+        $badgeuse7 = new Badgeuse();
+        $badgeuse7->setReference('BADGEUSE_ZONE_SUPPORT_TECHSECURE');
+        $badgeuse7->setDateInstallation(new \DateTime('2021-01-01'));
+        $manager->persist($badgeuse7);
+
+        $badgeuse8 = new Badgeuse();
+        $badgeuse8->setReference('BADGEUSE_ZONE_DIRECTION_TECHSECURE');
+        $badgeuse8->setDateInstallation(new \DateTime('2021-01-15'));
+        $manager->persist($badgeuse8);
+
+        $acces6 = new Acces();
+        $acces6->setNumeroBadgeuse(6);
+        $acces6->setDateInstallation(new \DateTime('2021-01-01'));
+        $acces6->setZone($zone7); // Zone Développement - TechSecure
+        $acces6->setBadgeuse($badgeuse6);
+        $manager->persist($acces6);
+
+        $acces7 = new Acces();
+        $acces7->setNumeroBadgeuse(7);
+        $acces7->setDateInstallation(new \DateTime('2021-01-01'));
+        $acces7->setZone($zone8); // Zone Support - TechSecure
+        $acces7->setBadgeuse($badgeuse7);
+        $manager->persist($acces7);
+
+        $acces8 = new Acces();
+        $acces8->setNumeroBadgeuse(8);
+        $acces8->setDateInstallation(new \DateTime('2021-01-15'));
+        $acces8->setZone($zone9); // Zone Direction - TechSecure
+        $acces8->setBadgeuse($badgeuse8);
+        $manager->persist($acces8);
+
+        // Additional access point for zone6 (Zone RH - Intérieur)
+        $badgeuse9 = new Badgeuse();
+        $badgeuse9->setReference('BADGEUSE_ZONE_RH_INTERIEUR');
+        $badgeuse9->setDateInstallation(new \DateTime('2020-03-01'));
+        $manager->persist($badgeuse9);
+
+        $acces9 = new Acces();
+        $acces9->setNumeroBadgeuse(9);
+        $acces9->setDateInstallation(new \DateTime('2020-03-01'));
+        $acces9->setZone($zone6); // Zone RH - Intérieur
+        $acces9->setBadgeuse($badgeuse9);
+        $manager->persist($acces9);
 
         // Créer des relations UserBadge
         $userBadge1 = new UserBadge();
@@ -396,79 +521,238 @@ class AppFixtures extends Fixture
         $userBadge7->setBadge($badge7);
         $manager->persist($userBadge7);
 
-        // Créer des relations Travailler
+        // Créer des relations Travailler - TOUS les utilisateurs sont TOUJOURS assignés au service principal de leur organisation
+        // Admin - TOUJOURS assigné au service principal de l'organisation 1, peut avoir accès secondaire
         $travaillerAdmin = new Travailler();
         $travaillerAdmin->setUtilisateur($admin);
-        $travaillerAdmin->setService($service1);
+        $travaillerAdmin->setService($servicePrincipal1);
         $travaillerAdmin->setDateDebut(new \DateTime('2020-01-01'));
+        $travaillerAdmin->setIsPrincipal(true);
         $manager->persist($travaillerAdmin);
 
+        $travaillerAdminSecondary = new Travailler();
+        $travaillerAdminSecondary->setUtilisateur($admin);
+        $travaillerAdminSecondary->setService($service1);
+        $travaillerAdminSecondary->setDateDebut(new \DateTime('2020-01-01'));
+        $travaillerAdminSecondary->setIsPrincipal(false);
+        $manager->persist($travaillerAdminSecondary);
+
+        // Manager1 - TOUJOURS assigné au service principal de l'organisation 1 (relation immuable)
         $travaillerManager1 = new Travailler();
         $travaillerManager1->setUtilisateur($manager1);
-        $travaillerManager1->setService($service1);
+        $travaillerManager1->setService($servicePrincipal1);
         $travaillerManager1->setDateDebut(new \DateTime('2020-01-15'));
+        $travaillerManager1->setIsPrincipal(true);
         $manager->persist($travaillerManager1);
 
+        // Accès secondaire au service informatique
+        $travaillerManager1Secondary = new Travailler();
+        $travaillerManager1Secondary->setUtilisateur($manager1);
+        $travaillerManager1Secondary->setService($service1);
+        $travaillerManager1Secondary->setDateDebut(new \DateTime('2020-01-15'));
+        $travaillerManager1Secondary->setIsPrincipal(false);
+        $manager->persist($travaillerManager1Secondary);
+
+        // User1 - TOUJOURS assigné au service principal de l'organisation 1 (relation immuable)
         $travailler1 = new Travailler();
         $travailler1->setUtilisateur($user1);
-        $travailler1->setService($service1);
+        $travailler1->setService($servicePrincipal1);
         $travailler1->setDateDebut(new \DateTime('2021-03-15'));
+        $travailler1->setIsPrincipal(true);
         $manager->persist($travailler1);
 
+        // Accès secondaire aux services spécialisés
+        $travailler1Secondary1 = new Travailler();
+        $travailler1Secondary1->setUtilisateur($user1);
+        $travailler1Secondary1->setService($service1);
+        $travailler1Secondary1->setDateDebut(new \DateTime('2021-03-15'));
+        $travailler1Secondary1->setIsPrincipal(false);
+        $manager->persist($travailler1Secondary1);
+
+        $travailler1Secondary2 = new Travailler();
+        $travailler1Secondary2->setUtilisateur($user1);
+        $travailler1Secondary2->setService($service2);
+        $travailler1Secondary2->setDateDebut(new \DateTime('2021-06-01'));
+        $travailler1Secondary2->setIsPrincipal(false);
+        $manager->persist($travailler1Secondary2);
+
+        // User2 - TOUJOURS assigné au service principal de l'organisation 2 (relation immuable)
         $travailler2 = new Travailler();
         $travailler2->setUtilisateur($user2);
-        $travailler2->setService($service3);
+        $travailler2->setService($servicePrincipal2);
         $travailler2->setDateDebut(new \DateTime('2021-06-01'));
+        $travailler2->setIsPrincipal(true);
         $manager->persist($travailler2);
 
+        // Accès secondaire au service RH
+        $travailler2Secondary = new Travailler();
+        $travailler2Secondary->setUtilisateur($user2);
+        $travailler2Secondary->setService($service3);
+        $travailler2Secondary->setDateDebut(new \DateTime('2021-06-15'));
+        $travailler2Secondary->setIsPrincipal(false);
+        $manager->persist($travailler2Secondary);
+
+        // User3 - TOUJOURS assigné au service principal de l'organisation 1 (relation immuable)
         $travailler3 = new Travailler();
         $travailler3->setUtilisateur($user3);
-        $travailler3->setService($service2);
+        $travailler3->setService($servicePrincipal1);
         $travailler3->setDateDebut(new \DateTime('2021-08-01'));
+        $travailler3->setIsPrincipal(true);
         $manager->persist($travailler3);
 
+        // Accès secondaire au service sécurité pour ses fonctions spécialisées
+        $travailler3Secondary = new Travailler();
+        $travailler3Secondary->setUtilisateur($user3);
+        $travailler3Secondary->setService($service2);
+        $travailler3Secondary->setDateDebut(new \DateTime('2021-08-01'));
+        $travailler3Secondary->setIsPrincipal(false);
+        $manager->persist($travailler3Secondary);
+
+        // User4 - TOUJOURS assigné au service principal de l'organisation 3 (relation immuable)
         $travailler4 = new Travailler();
         $travailler4->setUtilisateur($user4);
-        $travailler4->setService($service5);
+        $travailler4->setService($servicePrincipal3);
         $travailler4->setDateDebut(new \DateTime('2022-01-10'));
+        $travailler4->setIsPrincipal(true);
         $manager->persist($travailler4);
 
+        // Accès secondaire au développement
+        $travailler4Secondary = new Travailler();
+        $travailler4Secondary->setUtilisateur($user4);
+        $travailler4Secondary->setService($service5);
+        $travailler4Secondary->setDateDebut(new \DateTime('2022-01-15'));
+        $travailler4Secondary->setIsPrincipal(false);
+        $manager->persist($travailler4Secondary);
+
+        // User5 - TOUJOURS assigné au service principal de l'organisation 3 (relation immuable)
         $travailler5 = new Travailler();
         $travailler5->setUtilisateur($user5);
-        $travailler5->setService($service6);
+        $travailler5->setService($servicePrincipal3);
         $travailler5->setDateDebut(new \DateTime('2022-03-01'));
+        $travailler5->setIsPrincipal(true);
         $manager->persist($travailler5);
 
+        // Accès secondaire au support technique pour ses fonctions spécialisées
+        $travailler5Secondary = new Travailler();
+        $travailler5Secondary->setUtilisateur($user5);
+        $travailler5Secondary->setService($service6);
+        $travailler5Secondary->setDateDebut(new \DateTime('2022-03-01'));
+        $travailler5Secondary->setIsPrincipal(false);
+        $manager->persist($travailler5Secondary);
+
         // Créer des relations ServiceZone (permissions d'accès par service)
-        $serviceZone1 = new ServiceZone();
-        $serviceZone1->setService($service1); // Service Informatique
-        $serviceZone1->setZone($zone3); // Zone publique
-        $manager->persist($serviceZone1);
+        // DÉMONSTRATION: Une zone peut être partagée par plusieurs services de la même organisation
+        
+        // === ORGANISATION 1: Ministère de la Défense ===
+        // Zone Sécurisée Niveau 1 - Accessible par TOUS les services de l'organisation 1
+        $serviceZonePrincipal1Zone1 = new ServiceZone();
+        $serviceZonePrincipal1Zone1->setService($servicePrincipal1); // Service principal organisation1
+        $serviceZonePrincipal1Zone1->setZone($zone1); // Zone Sécurisée Niveau 1 - Défense
+        $manager->persist($serviceZonePrincipal1Zone1);
 
-        $serviceZone2 = new ServiceZone();
-        $serviceZone2->setService($service1); // Service Informatique
-        $serviceZone2->setZone($zone4); // Zone technique
-        $manager->persist($serviceZone2);
+        $serviceZone1Zone1 = new ServiceZone();
+        $serviceZone1Zone1->setService($service1); // Service Informatique org1
+        $serviceZone1Zone1->setZone($zone1); // Zone Sécurisée Niveau 1 - Défense (PARTAGÉE)
+        $manager->persist($serviceZone1Zone1);
 
-        $serviceZone3 = new ServiceZone();
-        $serviceZone3->setService($service2); // Service Sécurité
-        $serviceZone3->setZone($zone1); // Zone sécurisée niveau 1
-        $manager->persist($serviceZone3);
+        $serviceZone2Zone1 = new ServiceZone();
+        $serviceZone2Zone1->setService($service2); // Service Sécurité org1
+        $serviceZone2Zone1->setZone($zone1); // Zone Sécurisée Niveau 1 - Défense (PARTAGÉE)
+        $manager->persist($serviceZone2Zone1);
 
-        $serviceZone4 = new ServiceZone();
-        $serviceZone4->setService($service2); // Service Sécurité
-        $serviceZone4->setZone($zone2); // Zone sécurisée niveau 2
-        $manager->persist($serviceZone4);
+        // Service3 (Service RH) belongs to organisation2, so it can't access zones from organisation1
+        // Removing this incorrect relationship
 
-        $serviceZone5 = new ServiceZone();
-        $serviceZone5->setService($service3); // Service RH
-        $serviceZone5->setZone($zone3); // Zone publique
-        $manager->persist($serviceZone5);
+        // Zone Sécurisée Niveau 2 - Accès restreint (Sécurité + Service Principal)
+        $serviceZone2Zone2 = new ServiceZone();
+        $serviceZone2Zone2->setService($service2); // Service Sécurité org1
+        $serviceZone2Zone2->setZone($zone2); // Zone Sécurisée Niveau 2 - Défense
+        $manager->persist($serviceZone2Zone2);
 
-        $serviceZone6 = new ServiceZone();
-        $serviceZone6->setService($service1); // Service Informatique (accès direction)
-        $serviceZone6->setZone($zone5); // Zone direction
-        $manager->persist($serviceZone6);
+        $serviceZonePrincipal1Zone2 = new ServiceZone();
+        $serviceZonePrincipal1Zone2->setService($servicePrincipal1); // Service principal organisation1
+        $serviceZonePrincipal1Zone2->setZone($zone2); // Zone Sécurisée Niveau 2 - Défense (PARTAGÉE)
+        $manager->persist($serviceZonePrincipal1Zone2);
+
+        // Zone Technique - Accès spécialisé (Informatique + Sécurité)
+        $serviceZone1Zone3 = new ServiceZone();
+        $serviceZone1Zone3->setService($service1); // Service Informatique org1
+        $serviceZone1Zone3->setZone($zone3); // Zone Technique - Défense
+        $manager->persist($serviceZone1Zone3);
+
+        $serviceZone2Zone3 = new ServiceZone();
+        $serviceZone2Zone3->setService($service2); // Service Sécurité org1
+        $serviceZone2Zone3->setZone($zone3); // Zone Technique - Défense (PARTAGÉE)
+        $manager->persist($serviceZone2Zone3);
+
+        // === ORGANISATION 2: Ministère de l'Intérieur ===
+        // Zone Publique - Accessible par TOUS les services de l'organisation 2
+        $serviceZonePrincipal2Zone4 = new ServiceZone();
+        $serviceZonePrincipal2Zone4->setService($servicePrincipal2); // Service principal organisation2
+        $serviceZonePrincipal2Zone4->setZone($zone4); // Zone Publique - Intérieur
+        $manager->persist($serviceZonePrincipal2Zone4);
+
+        $serviceZone4Zone4 = new ServiceZone();
+        $serviceZone4Zone4->setService($service4); // Service 1 org2
+        $serviceZone4Zone4->setZone($zone4); // Zone Publique - Intérieur (PARTAGÉE)
+        $manager->persist($serviceZone4Zone4);
+
+        // service5 (Développement) belongs to organisation3, so it can't access zones from organisation2
+        // Removing this incorrect relationship
+
+        // Zone Opérationnelle - Partagée entre Service Principal et Service 1
+        $serviceZonePrincipal2Zone5 = new ServiceZone();
+        $serviceZonePrincipal2Zone5->setService($servicePrincipal2); // Service principal organisation2
+        $serviceZonePrincipal2Zone5->setZone($zone5); // Zone Opérationnelle - Intérieur
+        $manager->persist($serviceZonePrincipal2Zone5);
+
+        $serviceZone4Zone5 = new ServiceZone();
+        $serviceZone4Zone5->setService($service4); // Service 1 org2
+        $serviceZone4Zone5->setZone($zone5); // Zone Opérationnelle - Intérieur (PARTAGÉE)
+        $manager->persist($serviceZone4Zone5);
+
+        // Zone RH - Accès spécialisé pour Service Principal seulement
+        // service5 (Développement) belongs to organisation3, so it can't access zones from organisation2
+        // Removing this incorrect relationship
+
+        $serviceZonePrincipal2Zone6 = new ServiceZone();
+        $serviceZonePrincipal2Zone6->setService($servicePrincipal2); // Service principal organisation2
+        $serviceZonePrincipal2Zone6->setZone($zone6); // Zone RH - Intérieur (PARTAGÉE)
+        $manager->persist($serviceZonePrincipal2Zone6);
+
+        // === ORGANISATION 3: Entreprise TechSecure ===
+        // Zone Développement - Partagée entre Service Principal et Service spécialisé
+        $serviceZonePrincipal3Zone7 = new ServiceZone();
+        $serviceZonePrincipal3Zone7->setService($servicePrincipal3); // Service principal organisation3
+        $serviceZonePrincipal3Zone7->setZone($zone7); // Zone Développement - TechSecure
+        $manager->persist($serviceZonePrincipal3Zone7);
+
+        $serviceZone6Zone7 = new ServiceZone();
+        $serviceZone6Zone7->setService($service6); // Service org3
+        $serviceZone6Zone7->setZone($zone7); // Zone Développement - TechSecure (PARTAGÉE)
+        $manager->persist($serviceZone6Zone7);
+
+        // Zone Support - Partagée entre Service Principal et Service spécialisé
+        $serviceZonePrincipal3Zone8 = new ServiceZone();
+        $serviceZonePrincipal3Zone8->setService($servicePrincipal3); // Service principal organisation3
+        $serviceZonePrincipal3Zone8->setZone($zone8); // Zone Support - TechSecure
+        $manager->persist($serviceZonePrincipal3Zone8);
+
+        $serviceZone6Zone8 = new ServiceZone();
+        $serviceZone6Zone8->setService($service6); // Service org3
+        $serviceZone6Zone8->setZone($zone8); // Zone Support - TechSecure (PARTAGÉE)
+        $manager->persist($serviceZone6Zone8);
+
+        // Zone Direction - Accès exclusif au Service Principal et Service spécialisé (partage restreint)
+        $serviceZonePrincipal3Zone9 = new ServiceZone();
+        $serviceZonePrincipal3Zone9->setService($servicePrincipal3); // Service principal organisation3
+        $serviceZonePrincipal3Zone9->setZone($zone9); // Zone Direction - TechSecure
+        $manager->persist($serviceZonePrincipal3Zone9);
+
+        $serviceZone6Zone9 = new ServiceZone();
+        $serviceZone6Zone9->setService($service6); // Service org3
+        $serviceZone6Zone9->setZone($zone9); // Zone Direction - TechSecure (PARTAGÉE)
+        $manager->persist($serviceZone6Zone9);
 
         // Créer des relations Gerer (hiérarchie managériale)
         $gerer1 = new Gerer();

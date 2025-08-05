@@ -133,19 +133,6 @@
             color: #212529;
         }
 
-        .stats-card {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-
-        .stats-card h3 {
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
 
         .alert {
             border-radius: 10px;
@@ -312,51 +299,22 @@
                         
                         <div class="nav-section">
                             <div class="nav-section-title">Gestion</div>
-                            
-                            <a class="nav-link {% if app.request.get('_route') starts with 'app_user' %}active{% endif %}" href="{{ path('app_user_index') }}">
-                                <i class="bi bi-people"></i>Utilisateurs
-                            </a>
-                            
+                        
                             <a class="nav-link {% if app.request.get('_route') starts with 'app_organisation' %}active{% endif %}" href="{{ path('app_organisation_index') }}">
                                 <i class="bi bi-building"></i>Organisations
                             </a>
-                            
-                            <a class="nav-link {% if app.request.get('_route') starts with 'app_service' %}active{% endif %}" href="{{ path('app_service_index') }}">
-                                <i class="bi bi-briefcase"></i>Services
+
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_badge' %}active{% endif %}" href="{{ path('app_badge_new') }}">
+                                <i class="bi bi-credit-card"></i>Nouveau badge
                             </a>
-                            
-                            <a class="nav-link {% if app.request.get('_route') starts with 'app_zone' %}active{% endif %}" href="{{ path('app_zone_index') }}">
-                                <i class="bi bi-geo-alt"></i>Zones
+
+                            <a class="nav-link {% if app.request.get('_route') == 'app_acces_new' %}active{% endif %}" href="{{ path('app_acces_new') }}">
+                                <i class="bi bi-gear-fill"></i>Configurer un accès
                             </a>
+                          
                         </div>
 
-                        <div class="nav-section">
-                            <div class="nav-section-title">Contrôle d'accès</div>
-                            
-                            <a class="nav-link {% if app.request.get('_route') starts with 'app_badge' %}active{% endif %}" href="{{ path('app_badge_index') }}">
-                                <i class="bi bi-credit-card"></i>Badges
-                            </a>
-                            
-                            <a class="nav-link {% if app.request.get('_route') starts with 'app_badgeuse' %}active{% endif %}" href="{{ path('app_badgeuse_index') }}">
-                                <i class="bi bi-tablet"></i>Badgeuses
-                            </a>
-                            
-                            <a class="nav-link {% if app.request.get('_route') starts with 'app_acces' %}active{% endif %}" href="{{ path('app_acces_index') }}">
-                                <i class="bi bi-key"></i>Accès
-                            </a>
-                        </div>
 
-                        <div class="nav-section">
-                            <div class="nav-section-title">Suivi</div>
-                            
-                            <a class="nav-link {% if app.request.get('_route') starts with 'app_pointage' %}active{% endif %}" href="{{ path('app_pointage_index') }}">
-                                <i class="bi bi-clock"></i>Pointages
-                            </a>
-                            
-                            <a class="nav-link {% if app.request.get('_route') starts with 'app_travailler' %}active{% endif %}" href="{{ path('app_travailler_index') }}">
-                                <i class="bi bi-calendar-check"></i>Temps de travail
-                            </a>
-                        </div>
                     </nav>
 
                     <!-- User Info -->
