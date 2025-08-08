@@ -6,7 +6,6 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_badge_index') }}">Badges</a></li>
         <li class="breadcrumb-item active" aria-current="page">Nouveau badge</li>
     </ol>
 </nav>
@@ -23,8 +22,8 @@
                     <p class="text-muted">Créer et attribuer un nouveau badge d'accès</p>
                 </div>
                 <div>
-                    <a href="{{ path('app_badge_index') }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour au tableau de bord
                     </a>
                 </div>
             </div>
@@ -67,7 +66,7 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <label for="organisation" class="form-label">Organisation *</label>
-                                    <select name="organisation" id="organisation" class="form-select" required onchange="this.form.submit()">
+                                    <select name="organisation" id="organisation" class="form-select" required onchange="handleOrganisationChange()">
                                         <option value="">Sélectionner une organisation...</option>
                                         {% for organisation in organisations %}
                                             <option value="{{ organisation.id }}" 
@@ -189,6 +188,17 @@
 
 {% block javascripts %}
 <script>
+// Handle organisation selection change
+function handleOrganisationChange() {
+    const organisationSelect = document.getElementById('organisation');
+    if (organisationSelect.value && organisationSelect.value.trim() !== '') {
+        document.getElementById('organisationForm').submit();
+    } else {
+        // Redirect to clean URL without organisation parameter
+        window.location.href = '{{ path('app_badge_new') }}';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('badgeForm');
     if (!form) return;

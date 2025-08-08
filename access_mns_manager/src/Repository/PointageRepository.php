@@ -16,28 +16,37 @@ class PointageRepository extends ServiceEntityRepository
         parent::__construct($registry, Pointage::class);
     }
 
-//    /**
-//     * @return Pointage[] Returns an array of Pointage objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Pointage
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * @return Pointage[] Returns an array of Pointage objects for a specific organisation
+     */
+    public function findByOrganisation($organisationId): array
+    {
+        // Use a simpler approach to avoid entity loading issues
+        $sql = '
+            SELECT p.* FROM pointage p
+            INNER JOIN badge b ON p.badge_id = b.id
+            INNER JOIN user_badge ub ON b.id = ub.badge_id
+            INNER JOIN "user" usr ON ub.utilisateur_id = usr.id
+            INNER JOIN travailler t ON usr.id = t.utilisateur_id
+            INNER JOIN service s ON t.service_id = s.id
+            WHERE s.organisation_id = :organisationId
+            ORDER BY p.heure DESC
+        ';
+        
+        $connection = $this->getEntityManager()->getConnection();
+        $stmt = $connection->prepare($sql);
+        $result = $stmt->executeQuery(['organisationId' => $organisationId]);
+        $rows = $result->fetchAllAssociative();
+        
+        // Convert to entities
+        $pointages = [];
+        foreach ($rows as $row) {
+            $pointage = $this->find($row['id']);
+            if ($pointage) {
+                $pointages[] = $pointage;
+            }
+        }
+        
+        return $pointages;
+    }
 }

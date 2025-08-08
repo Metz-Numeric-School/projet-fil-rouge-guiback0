@@ -1,59 +1,75 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvel employé - {{ organisation.nomOrganisation }} - ACCESS MNS MANAGER{% endblock %}
+{% block title %}Nouvel employé -
+	{{ organisation.nomOrganisation }}
+	- ACCESS MNS MANAGER
+{% endblock %}
 
 {% block breadcrumb %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_index') }}">Organisations</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Nouvel employé</li>
-    </ol>
-</nav>
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">
+					<i class="bi bi-house-door"></i>
+					Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_index') }}">Organisations</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a>
+			</li>
+			<li class="breadcrumb-item active" aria-current="page">Nouvel employé</li>
+		</ol>
+	</nav>
 {% endblock %}
 
 {% block body %}
-<div class="container">
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0">Nouvel employé</h1>
-                    <p class="text-muted">Créer un nouvel employé pour {{ organisation.nomOrganisation }}</p>
-                </div>
-                <div>
-                    <a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Retour
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+<div
+	class="container">
+	<!-- Page Header -->
+	<div class="row mb-4">
+		<div class="col-12">
+			<div class="d-flex justify-content-between align-items-center">
+				<div>
+					<h1 class="h3 mb-0">Nouvel employé</h1>
+					<p class="text-muted">Créer un nouvel employé pour
+						{{ organisation.nomOrganisation }}</p>
+				</div>
+				<div>
+					<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
+						<i class="bi bi-arrow-left"></i>
+						Retour
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <!-- Info Alert -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i>
-                <strong>Information :</strong> Cet employé sera automatiquement assigné au service principal de l'organisation {{ organisation.nomOrganisation }}. Vous pouvez également l'assigner à des services secondaires.
-            </div>
-        </div>
-    </div>
+	<!-- Info Alert -->
+	<div class="row mb-4">
+		<div class="col-12">
+			<div class="alert alert-info">
+				<i class="bi bi-info-circle"></i>
+				<strong>Information :</strong>
+				Cet employé sera automatiquement assigné au service principal de l'organisation
+				{{ organisation.nomOrganisation }}. Vous pouvez également l'assigner à des services secondaires.
+			</div>
+		</div>
+	</div>
 
-    <!-- Form -->
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-person-plus"></i>
-                        Informations de l'employé
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% include 'user/_form.html.twig' with {
+	<!-- Form -->
+	<div class="row justify-content-center">
+		<div class="col-lg-10">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="mb-0">
+						<i class="bi bi-person-plus"></i>
+						Informations de l'employé
+					</h5>
+				</div>
+				<div class="card-body">
+					{% include 'user/_form.html.twig' with {
                         'button_label': 'Créer l\'employé',
                         'organisation': organisation
                     } %}

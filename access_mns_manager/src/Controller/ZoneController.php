@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Zone;
+use App\Entity\Service;
 use App\Entity\ServiceZone;
 use App\Form\ZoneType;
 use App\Repository\ZoneRepository;
@@ -125,6 +126,15 @@ final class ZoneController extends AbstractController{
         return $this->render('zone/edit.html.twig', [
             'zone' => $zone,
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/service/{id}', name: 'app_zone_by_service', methods: ['GET'])]
+    public function byService(Service $service): Response
+    {
+        return $this->render('zone/by_service.html.twig', [
+            'zones' => $service->getServiceZones(),
+            'service' => $service,
         ]);
     }
 

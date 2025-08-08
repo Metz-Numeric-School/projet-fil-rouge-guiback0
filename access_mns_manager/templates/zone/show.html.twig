@@ -6,12 +6,12 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_index') }}">Organisations</a></li>
-        {% if zone.organisation %}
-            <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': zone.organisation.id}) }}">{{ zone.organisation.nomOrganisation }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('app_zone_index') }}">Zones</a></li>
+        {% if zone.serviceZones and zone.serviceZones|first.service.organisation %}
+            <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': zone.serviceZones|first.service.organisation.id}) }}">{{ zone.serviceZones|first.service.organisation.nomOrganisation }}</a></li>
         {% endif %}
         {% if zone.serviceZones %}
-            <li class="breadcrumb-item"><a href="{{ path('app_service_show', {'id': zone.serviceZones[0].service.id}) }}">{{ zone.serviceZones[0].service.nomService }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_service_show', {'id': zone.serviceZones|first.service.id}) }}">{{ zone.serviceZones|first.service.nomService }}</a></li>
         {% endif %}
         <li class="breadcrumb-item active" aria-current="page">{{ zone.nomZone }}</li>
     </ol>
@@ -28,8 +28,8 @@
                     <h1 class="h3 mb-1">{{ zone.nomZone }}</h1>
                     <p class="text-muted mb-0">
                         <i class="bi bi-geo-alt"></i> Zone d'accès
-                        {% if zone.organisation %}
-                            • {{ zone.organisation.nomOrganisation }}
+                        {% if zone.serviceZones and zone.serviceZones|first.service.organisation %}
+                            • {{ zone.serviceZones|first.service.organisation.nomOrganisation }}
                         {% endif %}
                         {% if zone.capacite %}
                             • Capacité: {{ zone.capacite }} personnes
@@ -95,10 +95,10 @@
                             <div class="mb-3">
                                 <label class="text-muted small">Organisation</label>
                                 <div>
-                                    {% if zone.organisation %}
+                                    {% if zone.serviceZones and zone.serviceZones|first.service.organisation %}
                                         <i class="bi bi-building me-2"></i>
-                                        <a href="{{ path('app_organisation_show', {'id': zone.organisation.id}) }}">
-                                            {{ zone.organisation.nomOrganisation }}
+                                        <a href="{{ path('app_organisation_show', {'id': zone.serviceZones|first.service.organisation.id}) }}">
+                                            {{ zone.serviceZones|first.service.organisation.nomOrganisation }}
                                         </a>
                                     {% else %}
                                         <span class="text-muted">Aucune organisation assignée</span>
@@ -116,10 +116,6 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="text-muted small">Services ayant accès</label>
-                                <div><i class="bi bi-briefcase me-2"></i>{{ zone.serviceZones|length }} service{{ zone.serviceZones|length > 1 ? 's' : '' }}</div>
-                            </div>
-                            <div class="mb-3">
                                 <label class="text-muted small">Points d'accès installés</label>
                                 <div><i class="bi bi-key me-2"></i>{{ zone.acces|length }} accès</div>
                             </div>
@@ -130,87 +126,6 @@
         </div>
     </div>
 
-    <!-- Services Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-briefcase"></i>
-                        Services ayant accès ({{ zone.serviceZones|length }})
-                    </h5>
-                    <small class="text-muted">Services autorisés à accéder à cette zone</small>
-                </div>
-                {% if zone.serviceZones|length > 0 %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Service</th>
-                                        <th>Organisation</th>
-                                        <th>Niveau</th>
-                                        <th>Employés</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for serviceZone in zone.serviceZones %}
-                                    <tr class="clickable-row" data-href="{{ path('app_service_show', {'id': serviceZone.service.id}) }}">
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="service-icon me-3">
-                                                    <i class="bi bi-briefcase text-primary fs-5"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-medium">{{ serviceZone.service.nomService }}</div>
-                                                    <small class="text-muted">ID: {{ serviceZone.service.id }}</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {% if serviceZone.service.organisation %}
-                                                <i class="bi bi-building text-muted me-2"></i>
-                                                <a href="{{ path('app_organisation_show', {'id': serviceZone.service.organisation.id}) }}">
-                                                    {{ serviceZone.service.organisation.nomOrganisation }}
-                                                </a>
-                                            {% else %}
-                                                <span class="text-muted">Aucune organisation</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-primary">Niveau {{ serviceZone.service.niveauService }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-people text-success me-2"></i>
-                                                <span>{{ serviceZone.service.travail|length }} employé{{ serviceZone.service.travail|length > 1 ? 's' : '' }}</span>
-                                            </div>
-                                        </td>
-                                        <td onclick="event.stopPropagation();">
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ path('app_service_show', {'id': serviceZone.service.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-                                                <a href="{{ path('app_service_edit', {'id': serviceZone.service.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                {% else %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
-                            <h4 class="text-muted mt-3">Aucun service</h4>
-                            <p class="text-muted">Aucun service n'a encore accès à cette zone.</p>
-                        </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
 
     <!-- Access Points Section -->
     <div class="row">
@@ -338,7 +253,7 @@
 
 {% block stylesheets %}
 <style>
-.service-icon, .access-icon {
+.access-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;

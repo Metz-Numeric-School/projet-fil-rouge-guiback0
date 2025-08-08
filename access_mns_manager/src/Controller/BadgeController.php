@@ -35,18 +35,36 @@ final class BadgeController extends AbstractController{
         // Handle organisation selection
         if ($request->query->has('organisation')) {
             $organisationId = $request->query->get('organisation');
-            $selectedOrganisation = $organisationRepository->find($organisationId);
             
-            if ($selectedOrganisation) {
-                // Get users from this organisation (users with principal service in this org)
-                $users = $userRepository->createQueryBuilder('u')
-                    ->join('u.travail', 't')
-                    ->join('t.service', 's')
-                    ->where('s.organisation = :organisation')
-                    ->andWhere('t.is_principal = true')
-                    ->setParameter('organisation', $selectedOrganisation)
-                    ->getQuery()
-                    ->getResult();
+            // Validate organisation ID
+            if (!empty(trim($organisationId))) {
+                $validatedId = filter_var($organisationId, FILTER_VALIDATE_INT);
+                if ($validatedId !== false && $validatedId > 0) {
+                    $selectedOrganisation = $organisationRepository->find($validatedId);
+                    
+                    if ($selectedOrganisation) {
+                        // Get users from this organisation (users with principal service in this org)
+                        $users = $userRepository->createQueryBuilder('u')
+                            ->leftJoin('u.travail', 't')
+                            ->leftJoin('t.service', 's')
+                            ->where('s.organisation = :organisation')
+                            ->andWhere('t.is_principal = true')
+                            ->setParameter('organisation', $selectedOrganisation)
+                            ->getQuery()
+                            ->getResult();
+                        
+                        // Debug: If no users found with principal service, get all users who work in this org
+                        if (empty($users)) {
+                            $users = $userRepository->createQueryBuilder('u')
+                                ->leftJoin('u.travail', 't')
+                                ->leftJoin('t.service', 's')
+                                ->where('s.organisation = :organisation')
+                                ->setParameter('organisation', $selectedOrganisation)
+                                ->getQuery()
+                                ->getResult();
+                        }
+                    }
+                }
             }
         }
 
@@ -70,8 +88,14 @@ final class BadgeController extends AbstractController{
                         if (isset($badgeData['typeBadge'])) {
                             $badge->setTypeBadge($badgeData['typeBadge']);
                         }
-                        if (isset($badgeData['numeroBadge']) && !empty($badgeData['numeroBadge'])) {
-                            $badge->setNumeroBadge((int) $badgeData['numeroBadge']);
+                        if (isset($badgeData['numeroBadge']) && !empty(trim($badgeData['numeroBadge']))) {
+                            $numeroBadge = filter_var($badgeData['numeroBadge'], FILTER_VALIDATE_INT);
+                            if ($numeroBadge !== false && $numeroBadge > 0) {
+                                $badge->setNumeroBadge($numeroBadge);
+                            } else {
+                                $this->addFlash('error', 'Le numéro de badge doit être un nombre entier positif.');
+                                return $this->redirectToRoute('app_badge_new', ['organisation' => $selectedOrganisation?->getId()]);
+                            }
                         } else {
                             $this->addFlash('error', 'Le numéro de badge est obligatoire.');
                             return $this->redirectToRoute('app_badge_new', ['organisation' => $selectedOrganisation?->getId()]);

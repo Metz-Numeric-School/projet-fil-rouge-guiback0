@@ -33,7 +33,9 @@ class ZoneRepository extends ServiceEntityRepository
         }
         
         if ($organisation) {
-            $qb->andWhere('z.organisation = :organisation')
+            $qb->join('z.serviceZones', 'sz')
+               ->join('sz.service', 's')
+               ->andWhere('s.organisation = :organisation')
                ->setParameter('organisation', $organisation);
         }
         
@@ -57,10 +59,29 @@ class ZoneRepository extends ServiceEntityRepository
         }
         
         if ($organisation) {
-            $qb->andWhere('z.organisation = :organisation')
+            $qb->join('z.serviceZones', 'sz')
+               ->join('sz.service', 's')
+               ->andWhere('s.organisation = :organisation')
                ->setParameter('organisation', $organisation);
         }
         
         return $qb;
+    }
+
+    /**
+     * Find zones belonging to a specific organisation through ServiceZone relationships
+     * @param Organisation $organisation
+     * @return Zone[]
+     */
+    public function findByOrganisation($organisation): array
+    {
+        return $this->createQueryBuilder('z')
+            ->join('z.serviceZones', 'sz')
+            ->join('sz.service', 's')
+            ->where('s.organisation = :organisation')
+            ->setParameter('organisation', $organisation)
+            ->orderBy('z.nom_zone', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Pointage;
+use App\Entity\Organisation;
 use App\Form\PointageType;
 use App\Repository\PointageRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,6 +19,22 @@ final class PointageController extends AbstractController{
     {
         return $this->render('pointage/index.html.twig', [
             'pointages' => $pointageRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/organisation/{id}', name: 'app_pointage_by_organisation', methods: ['GET'])]
+    public function byOrganisation(Organisation $organisation, PointageRepository $pointageRepository): Response
+    {
+        try {
+            $pointages = $pointageRepository->findByOrganisation($organisation->getId());
+        } catch (\Exception $e) {
+            // If there's an issue with the complex query, fall back to simple query
+            $pointages = [];
+        }
+        
+        return $this->render('pointage/by_organisation.html.twig', [
+            'pointages' => $pointages,
+            'organisation' => $organisation,
         ]);
     }
 

@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Service;
+use App\Entity\Organisation;
 use App\Entity\Travailler;
 use App\Form\UserType;
 use App\Repository\UserRepository;
@@ -14,12 +16,32 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/user')]
-final class UserController extends AbstractController{
+final class UserController extends AbstractController
+{
     #[Route(name: 'app_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
         return $this->render('user/index.html.twig', [
             'users' => $userRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/organisation/{id}', name: 'app_user_by_organisation', methods: ['GET'])]
+    public function byOrganisation(Organisation $organisation): Response
+    {
+        // Get users from this organisation
+        $users = [];
+        foreach ($organisation->getServices() as $service) {
+            foreach ($service->getTravail() as $travail) {
+                if ($travail->getUtilisateur() && !in_array($travail->getUtilisateur(), $users)) {
+                    $users[] = $travail->getUtilisateur();
+                }
+            }
+        }
+
+        return $this->render('user/by_organisation.html.twig', [
+            'users' => $users,
+            'organisation' => $organisation,
         ]);
     }
 
@@ -32,7 +54,7 @@ final class UserController extends AbstractController{
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($user);
-            
+
             // Auto-assign user to the first principal service found
             $principalService = $serviceRepository->findOneBy(['nom_service' => 'Service principal']);
             if ($principalService) {
@@ -43,9 +65,9 @@ final class UserController extends AbstractController{
                 $travailler->setIsPrincipal(true);
                 $entityManager->persist($travailler);
             }
-            
+
             $entityManager->flush();
-            
+
             $this->addFlash('success', 'Utilisateur créé avec succès et assigné au service principal.');
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -72,7 +94,7 @@ final class UserController extends AbstractController{
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-            
+
             $this->addFlash('success', 'Utilisateur modifié avec succès.');
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -86,21 +108,67 @@ final class UserController extends AbstractController{
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->getPayload()->getString('_token'))) {
             // Check if user has principal service assignment
             $principalService = $user->getPrincipalService();
             if ($principalService) {
                 $this->addFlash('error', 'Impossible de supprimer un utilisateur assigné à un service principal. Veuillez d\'abord réassigner l\'utilisateur.');
                 return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
             }
-            
+
             $entityManager->remove($user);
             $entityManager->flush();
-            
+
             $this->addFlash('success', 'Utilisateur supprimé avec succès.');
         }
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/service/{id}', name: 'app_user_by_service', methods: ['GET'])]
+    public function byService(Service $service, UserRepository $userRepository): Response
+    {
+        // Get users working in this service
+        $users = [];
+        foreach ($service->getTravail() as $travail) {
+            if ($travail->getUtilisateur()) {
+                $users[] = $travail->getUtilisateur();
+            }
+        }
+
+        // Get available users from the same organisation not currently working in this service
+        $organisation = $service->getOrganisation();
+        $availableUsers = [];
+
+        if ($organisation) {
+            // Get all users who have their principal service in this organisation
+            $allOrgUsers = $userRepository->createQueryBuilder('u')
+                ->join('u.travail', 't')
+                ->join('t.service', 's')
+                ->where('s.organisation = :organisation')
+                ->andWhere('t.is_principal = true')
+                ->setParameter('organisation', $organisation)
+                ->getQuery()
+                ->getResult();
+
+            // Filter out users already working in this service
+            $serviceUserIds = [];
+            foreach ($users as $user) {
+                $serviceUserIds[] = $user->getId();
+            }
+
+            foreach ($allOrgUsers as $user) {
+                if (!in_array($user->getId(), $serviceUserIds)) {
+                    $availableUsers[] = $user;
+                }
+            }
+        }
+
+        return $this->render('user/by_service.html.twig', [
+            'users' => $users,
+            'service' => $service,
+            'available_users' => $availableUsers,
+        ]);
     }
 
     #[Route('/{id}/services', name: 'app_user_services', methods: ['GET'])]
@@ -108,12 +176,11 @@ final class UserController extends AbstractController{
     {
         $principalService = $user->getPrincipalService();
         $secondaryServices = $user->getSecondaryServices();
-        
+
         return $this->render('user/services.html.twig', [
             'user' => $user,
             'principal_service' => $principalService,
             'secondary_services' => $secondaryServices,
         ]);
     }
-
 }

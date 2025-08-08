@@ -18,15 +18,7 @@ class ZoneType extends AbstractType
             ->add('description')
             ->add('capacite');
 
-        // Only add organisation field if not creating from service context
-        if (!$options['from_service']) {
-            $builder->add('organisation', EntityType::class, [
-                'class' => Organisation::class,
-                'choice_label' => 'nomOrganisation',
-                'placeholder' => 'Sélectionner une organisation',
-                'required' => true,
-            ]);
-        }
+        // Note: Organisation relationship is managed through ServiceZone, not directly on Zone
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -40,19 +40,33 @@ final class AccesController extends AbstractController{
         if ($organisationId) {
             $selectedOrganisation = $organisationRepository->find($organisationId);
             if ($selectedOrganisation) {
-                $zones = $zoneRepository->findBy(['organisation' => $selectedOrganisation]);
+                $zones = $zoneRepository->findByOrganisation($selectedOrganisation);
             }
         }
 
         // Handle form submission
         if ($request->isMethod('POST') && $selectedOrganisation) {
-            $selectedZones = $request->request->all('zones');
-            $numeroBadgeuse = (int) $request->request->get('numero_badgeuse');
-            $referenceBadgeuse = $request->request->get('reference_badgeuse');
+            $selectedZone = $request->request->get('zone');
+            $numeroBadgeuseRaw = $request->request->get('numero_badgeuse');
+            $referenceBadgeuse = trim($request->request->get('reference_badgeuse'));
 
-            if (empty($selectedZones)) {
-                $this->addFlash('error', 'Veuillez sélectionner au moins une zone.');
-            } elseif (!$numeroBadgeuse || !$referenceBadgeuse) {
+            // Validate numero_badgeuse
+            $numeroBadgeuse = null;
+            if (!empty(trim($numeroBadgeuseRaw))) {
+                $numeroBadgeuse = filter_var($numeroBadgeuseRaw, FILTER_VALIDATE_INT);
+                if ($numeroBadgeuse === false || $numeroBadgeuse <= 0) {
+                    $this->addFlash('error', 'Le numéro de badgeuse doit être un nombre entier positif.');
+                    return $this->render('acces/new.html.twig', [
+                        'organisations' => $organisations,
+                        'selectedOrganisation' => $selectedOrganisation,
+                        'zones' => $zones,
+                    ]);
+                }
+            }
+
+            if (!$selectedZone) {
+                $this->addFlash('error', 'Veuillez sélectionner une zone.');
+            } elseif (!$numeroBadgeuse || empty($referenceBadgeuse)) {
                 $this->addFlash('error', 'Veuillez renseigner le numéro et la référence de la badgeuse.');
             } else {
                 try {
@@ -65,21 +79,24 @@ final class AccesController extends AbstractController{
                     $entityManager->persist($badgeuse);
                     $entityManager->flush(); // Get badgeuse ID
 
-                    $createdAccess = [];
-
-                    // Create access for each selected zone
-                    foreach ($selectedZones as $zoneId) {
-                        $zone = $zoneRepository->find((int)$zoneId);
-                        if ($zone && $zone->getOrganisation() === $selectedOrganisation) {
-                            $acces = new Acces();
-                            $acces->setNumeroBadgeuse($numeroBadgeuse);
-                            $acces->setDateInstallation(new \DateTime());
-                            $acces->setZone($zone);
-                            $acces->setBadgeuse($badgeuse);
-                            
-                            $entityManager->persist($acces);
-                            $createdAccess[] = $zone->getNomZone();
-                        }
+                    // Create access for the selected zone
+                    $zoneId = filter_var($selectedZone, FILTER_VALIDATE_INT);
+                    if ($zoneId === false || $zoneId <= 0) {
+                        throw new \Exception('ID de zone invalide');
+                    }
+                    
+                    $zone = $zoneRepository->find($zoneId);
+                    if ($zone) {
+                        $acces = new Acces();
+                        $acces->setNumeroBadgeuse($numeroBadgeuse);
+                        $acces->setDateInstallation(new \DateTime());
+                        $acces->setZone($zone);
+                        $acces->setBadgeuse($badgeuse);
+                        
+                        $entityManager->persist($acces);
+                        $createdAccess = [$zone->getNomZone()];
+                    } else {
+                        throw new \Exception('Zone non trouvée');
                     }
 
                     $entityManager->flush();
@@ -87,8 +104,7 @@ final class AccesController extends AbstractController{
 
                     $this->addFlash('success', 
                         'Badgeuse "' . $referenceBadgeuse . '" créée avec succès. ' .
-                        count($createdAccess) . ' accès configuré(s) pour les zones: ' . 
-                        implode(', ', $createdAccess)
+                        'Accès configuré pour la zone: ' . $createdAccess[0]
                     );
 
                     return $this->redirectToRoute('app_acces_index');

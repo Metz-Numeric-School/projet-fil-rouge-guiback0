@@ -6,7 +6,6 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_acces_index') }}">Accès</a></li>
         <li class="breadcrumb-item active" aria-current="page">Configurer un accès</li>
     </ol>
 </nav>
@@ -23,8 +22,8 @@
                     <p class="text-muted">Configuration de nouveaux accès avec badgeuse</p>
                 </div>
                 <div>
-                    <a href="{{ path('app_acces_index') }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour au tableau de bord
                     </a>
                 </div>
             </div>
@@ -98,7 +97,7 @@
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="bi bi-geo-alt"></i>
-                        Sélectionner les zones d'accès
+                        Sélectionner une zone d'accès
                     </h5>
                     <small class="text-muted">Organisation: {{ selectedOrganisation.nomOrganisation }}</small>
                 </div>
@@ -180,14 +179,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const spinner = submitBtn.querySelector('.spinner-border');
     
     // Zone selection validation
-    const zoneCheckboxes = form.querySelectorAll('input[name="zones[]"]');
+    const zoneRadios = form.querySelectorAll('input[name="zone"]');
     const numeroBadgeuse = form.querySelector('#numero_badgeuse');
     const referenceBadgeuse = form.querySelector('#reference_badgeuse');
     
     // Real-time validation
     function validateForm() {
-        const hasSelectedZones = Array.from(zoneCheckboxes).some(cb => cb.checked);
-        updateSubmitButton(hasSelectedZones && numeroBadgeuse.value && referenceBadgeuse.value);
+        const hasSelectedZone = Array.from(zoneRadios).some(radio => radio.checked);
+        updateSubmitButton(hasSelectedZone && numeroBadgeuse.value && referenceBadgeuse.value);
     }
     
     function updateSubmitButton(isValid) {
@@ -202,8 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Add event listeners
-    zoneCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', validateForm);
+    zoneRadios.forEach(radio => {
+        radio.addEventListener('change', validateForm);
     });
     
     numeroBadgeuse.addEventListener('input', validateForm);
@@ -214,11 +213,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Form submission
     form.addEventListener('submit', function(e) {
-        const hasSelectedZones = Array.from(zoneCheckboxes).some(cb => cb.checked);
+        const hasSelectedZone = Array.from(zoneRadios).some(radio => radio.checked);
         
-        if (!hasSelectedZones) {
+        if (!hasSelectedZone) {
             e.preventDefault();
-            alert('Veuillez sélectionner au moins une zone.');
+            alert('Veuillez sélectionner une zone.');
             return;
         }
         
@@ -237,11 +236,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const zoneCards = document.querySelectorAll('.zone-card');
     zoneCards.forEach(card => {
         card.addEventListener('click', function(e) {
-            if (e.target.type === 'checkbox') return;
+            if (e.target.type === 'radio') return;
             
-            const checkbox = this.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            checkbox.dispatchEvent(new Event('change'));
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change'));
         });
     });
 });
