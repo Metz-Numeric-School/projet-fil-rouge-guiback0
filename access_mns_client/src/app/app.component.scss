@@ -1,0 +1,269 @@
+// Brand Colors (matching the login component)
+$primary-orange: #ff5d2d;
+$secondary-blue: #25176e;
+$light-blue: #4a3a9b;
+$light-orange: #ff7a51;
+$dark-blue: #1a0f5c;
+
+$light-gray: #f5f5f5;
+$medium-gray: #e0e0e0;
+$dark-gray: #333;
+$white: #ffffff;
+
+// Responsive Breakpoints
+$mobile: 480px;
+$tablet: 768px;
+$desktop: 1024px;
+
+// App Layout
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// Navigation Bar Styles
+.app-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .navbar-toolbar {
+    background: linear-gradient(
+      135deg,
+      $secondary-blue 0%,
+      $light-blue 100%
+    ) !important;
+    color: $white;
+    padding: 0 1rem;
+    min-height: 64px;
+
+    @media (max-width: $tablet) {
+      padding: 0 0.5rem;
+      min-height: 56px;
+    }
+  }
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 2rem;
+
+    .brand-icon {
+      color: $primary-orange;
+      font-size: 1.8rem;
+      width: 1.8rem;
+      height: 1.8rem;
+    }
+
+    .brand-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+
+      @media (max-width: $mobile) {
+        display: none;
+      }
+    }
+  }
+
+  .navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+
+    @media (max-width: $tablet) {
+      gap: 0.25rem;
+    }
+
+    .nav-button {
+      color: rgba($white, 0.9) !important;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      text-transform: none;
+      font-weight: 500;
+
+      @media (max-width: $tablet) {
+        padding: 0.5rem 0.75rem;
+
+        span {
+          display: none;
+        }
+      }
+
+      @media (max-width: $mobile) {
+        padding: 0.5rem;
+        min-width: auto;
+      }
+
+      &:hover {
+        background-color: rgba($primary-orange, 0.2);
+        color: $white !important;
+        transform: translateY(-1px);
+      }
+
+      &.active-link {
+        background-color: $primary-orange;
+        color: $white !important;
+        font-weight: 600;
+
+        &:hover {
+          background-color: $light-orange;
+        }
+      }
+
+      mat-icon {
+        font-size: 1.2rem;
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+    }
+  }
+
+  .navbar-actions {
+    display: flex;
+    align-items: center;
+
+    .logout-button {
+      color: rgba($white, 0.9) !important;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: $primary-orange !important;
+        background-color: rgba($primary-orange, 0.1);
+        transform: scale(1.1);
+      }
+    }
+  }
+}
+
+// Main Content Adjustments
+.main-content {
+  flex: 1;
+  min-height: calc(100vh - 200px); // Account for footer height
+
+  &.with-navbar {
+    min-height: calc(100vh - 264px); // Account for navbar + footer height
+  }
+}
+
+// Enhanced Footer Styles
+.app-footer {
+  background: linear-gradient(135deg, $dark-blue 0%, $secondary-blue 100%);
+  color: $white;
+  margin-top: auto;
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+
+    @media (max-width: $tablet) {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 1.5rem;
+    }
+  }
+
+  .footer-section {
+    h4,
+    h5 {
+      margin: 0 0 1rem 0;
+      font-weight: 600;
+    }
+
+    .footer-title {
+      color: $primary-orange;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+    }
+
+    h5 {
+      color: $light-orange;
+      font-size: 1.1rem;
+    }
+
+    p {
+      margin: 0.5rem 0;
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+
+    .footer-description {
+      font-style: italic;
+      opacity: 0.8;
+    }
+
+    .footer-link {
+      color: rgba($white, 0.9);
+      text-decoration: none;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: $primary-orange;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .footer-bottom {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba($white, 0.1);
+
+    @media (max-width: $tablet) {
+      flex-direction: column;
+      gap: 0.5rem;
+      text-align: center;
+    }
+
+    .footer-copyright,
+    .footer-version {
+      p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+    }
+
+    .footer-version {
+      font-weight: 500;
+      color: $light-orange;
+    }
+  }
+}
+
+
+
+// Responsive adjustments
+@media (max-width: $mobile) {
+  .app-footer {
+    .footer-content {
+      padding: 1.5rem 1rem;
+    }
+
+    .footer-bottom {
+      padding: 0.75rem;
+
+      .footer-copyright,
+      .footer-version {
+        p {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}

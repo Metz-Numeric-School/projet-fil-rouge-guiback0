@@ -15,13 +15,13 @@ class Acces
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $numero_badgeuse = null;
+    private ?string $nom_acces = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_installation = null;
 
     #[ORM\ManyToOne(inversedBy: 'acces')]
-    private ?zone $zone = null;
+    private ?Zone $zone = null;
 
     #[ORM\ManyToOne(inversedBy: 'acces')]
     private ?Badgeuse $badgeuse = null;
@@ -31,14 +31,14 @@ class Acces
         return $this->id;
     }
 
-    public function getNumeroBadgeuse(): ?int
+    public function getNomAcces(): ?string
     {
-        return $this->numero_badgeuse;
+        return $this->nom_acces;
     }
 
-    public function setNumeroBadgeuse(int $numero_badgeuse): static
+    public function setNomAcces(string $nom_acces): static
     {
-        $this->numero_badgeuse = $numero_badgeuse;
+        $this->nom_acces = $nom_acces;
 
         return $this;
     }
@@ -55,12 +55,12 @@ class Acces
         return $this;
     }
 
-    public function getZone(): ?zone
+    public function getZone(): ?Zone
     {
         return $this->zone;
     }
 
-    public function setZone(?zone $zone): static
+    public function setZone(?Zone $zone): static
     {
         $this->zone = $zone;
 

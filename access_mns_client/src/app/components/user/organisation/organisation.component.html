@@ -1,0 +1,91 @@
+<div class="organisation-container">
+  <div class="dashboard-header">
+    <h1>
+      <mat-icon class="dashboard-icon">business</mat-icon>
+      Organisation
+    </h1>
+    <p class="dashboard-subtitle">Informations sur votre organisation d'appartenance</p>
+  </div>
+
+  <div class="dashboard-grid" *ngIf="completeProfile?.organisation; else noOrganisation">
+    <!-- Basic Organization Info Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <div mat-card-avatar class="card-avatar organisation-avatar">
+          <mat-icon>corporate_fare</mat-icon>
+        </div>
+        <mat-card-title>Informations Générales</mat-card-title>
+        <mat-card-subtitle>Données principales de l'organisation</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Nom de l'organisation:</strong>
+            <span>{{ completeProfile?.organisation?.nom_organisation || 'Non défini' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>SIRET:</strong>
+            <span>{{ completeProfile?.organisation?.siret || 'Non défini' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Contact Information Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <div mat-card-avatar class="card-avatar contact-avatar">
+          <mat-icon>contact_phone</mat-icon>
+        </div>
+        <mat-card-title>Informations de Contact</mat-card-title>
+        <mat-card-subtitle>Moyens de communication</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Email:</strong>
+            <span>{{ completeProfile?.organisation?.email || 'Non défini' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Téléphone:</strong>
+            <span>{{ completeProfile?.organisation?.telephone || 'Non défini' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Site web:</strong>
+            <span>{{ completeProfile?.organisation?.site_web || 'Non défini' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Address Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <div mat-card-avatar class="card-avatar address-avatar">
+          <mat-icon>location_on</mat-icon>
+        </div>
+        <mat-card-title>Adresse</mat-card-title>
+        <mat-card-subtitle>Localisation de l'organisation</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Adresse complète:</strong>
+            <span>{{ getOrganizationAddress() || 'Non définie' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- No Organization Template -->
+  <ng-template #noOrganisation>
+    <div class="no-data-container">
+      <div class="no-data-content">
+        <mat-icon class="no-data-icon">business_center</mat-icon>
+        <h2>Aucune Organisation</h2>
+        <p>Aucune information d'organisation n'est disponible pour ce profil.</p>
+      </div>
+    </div>
+  </ng-template>
+</div>

@@ -1,11 +1,248 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Badge{% endblock %}
+{% block title %}Nouveau badge - ACCESS MNS MANAGER{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Nouveau badge</li>
+    </ol>
+</nav>
+{% endblock %}
 
 {% block body %}
-    <h1>Create new Badge</h1>
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">Nouveau badge</h1>
+                    <p class="text-muted">Créer et attribuer un nouveau badge d'accès</p>
+                </div>
+                <div>
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    {{ include('badge/_form.html.twig') }}
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                <i class="bi bi-{{ type == 'success' ? 'check-circle' : type == 'error' ? 'exclamation-triangle' : 'info-circle' }}"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
 
-    <a href="{{ path('app_badge_index') }}">back to list</a>
+    <!-- Organisation Selection -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-building"></i>
+                        Sélectionner une organisation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if organisations is empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">Aucune organisation</h4>
+                            <p class="text-muted">Aucune organisation n'est disponible pour la création de badges.</p>
+                            <a href="{{ path('app_organisation_new') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Créer une organisation
+                            </a>
+                        </div>
+                    {% else %}
+                        <form method="GET" action="{{ path('app_badge_new') }}" id="organisationForm">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label for="organisation" class="form-label">Organisation *</label>
+                                    <select name="organisation" id="organisation" class="form-select" required onchange="handleOrganisationChange()">
+                                        <option value="">Sélectionner une organisation...</option>
+                                        {% for organisation in organisations %}
+                                            <option value="{{ organisation.id }}" 
+                                                {% if selectedOrganisation and selectedOrganisation.id == organisation.id %}selected{% endif %}>
+                                                {{ organisation.nomOrganisation }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-search"></i> Charger les utilisateurs
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if selectedOrganisation %}
+    <!-- Badge Creation and Assignment -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-credit-card"></i>
+                        Créer et attribuer un badge
+                    </h5>
+                    <small class="text-muted">Organisation: {{ selectedOrganisation.nomOrganisation }}</small>
+                </div>
+                <div class="card-body">
+                    {% if users is empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">Aucun utilisateur disponible</h4>
+                            <p class="text-muted">Cette organisation n'a pas encore d'utilisateurs.</p>
+                        </div>
+                    {% else %}
+                        <form method="POST" action="{{ path('app_badge_new', {'organisation': selectedOrganisation.id}) }}" id="badgeForm">
+                            <input type="hidden" name="_token" value="{{ csrf_token('create_badge') }}">
+                            
+                            <div class="row g-4">
+                                <!-- User Selection -->
+                                <div class="col-md-6">
+                                    <label for="user" class="form-label">Utilisateur *</label>
+                                    <select name="user" id="user" class="form-select" required>
+                                        <option value="">Sélectionner un utilisateur...</option>
+                                        {% for user in users %}
+                                            <option value="{{ user.id }}"
+                                                {% if user.userBadges|length >= 1 %}
+                                                    disabled style="color: #6c757d;"
+                                                {% endif %}>
+                                                {{ user.prenom }} {{ user.nom }}
+                                                {% if user.userBadges|length >= 1 %}
+                                                    (Limite atteinte)
+                                                {% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <!-- Badge Type -->
+                                <div class="col-md-6">
+                                    <label for="badge_typeBadge" class="form-label">Type de badge *</label>
+                                    <select name="badge[typeBadge]" id="badge_typeBadge" class="form-select" required>
+                                        <option value="">Sélectionner un type...</option>
+                                        <option value="RFID">RFID</option>
+                                        <option value="NFC">NFC</option>
+                                        <option value="Magnétique">Magnétique</option>
+                                        <option value="Code-barres">Code-barres</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Badge Number -->
+                                <div class="col-md-6">
+                                    <label for="badge_numeroBadge" class="form-label">Numéro de badge *</label>
+                                    <input type="number" name="badge[numeroBadge]" id="badge_numeroBadge" class="form-control" placeholder="Ex: 001234" required>
+                                    <div class="form-text">Numéro unique du badge</div>
+                                </div>
+                                
+                                <!-- Date Creation -->
+                                <div class="col-md-6">
+                                    <label for="badge_dateCreation" class="form-label">Date de création</label>
+                                    <input type="date" name="badge[dateCreation]" id="badge_dateCreation" class="form-control" value="{{ 'now'|date('Y-m-d') }}">
+                                    <div class="form-text">Date de création du badge</div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-success" id="submitBtn">
+                                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                    <i class="bi bi-check-circle"></i> Créer et attribuer le badge
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+.form-select:invalid {
+    border-color: #dc3545;
+}
+.form-select:valid {
+    border-color: #198754;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Handle organisation selection change
+function handleOrganisationChange() {
+    const organisationSelect = document.getElementById('organisation');
+    if (organisationSelect.value && organisationSelect.value.trim() !== '') {
+        document.getElementById('organisationForm').submit();
+    } else {
+        // Redirect to clean URL without organisation parameter
+        window.location.href = '{{ path('app_badge_new') }}';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('badgeForm');
+    if (!form) return;
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    const userSelect = document.getElementById('user');
+    const typeSelect = document.getElementById('badge_typeBadge');
+    const numeroSelect = document.getElementById('badge_numeroBadge');
+    
+    // Real-time validation
+    function validateForm() {
+        const isValid = userSelect.value && typeSelect.value && numeroSelect.value;
+        submitBtn.disabled = !isValid;
+        
+        if (!isValid) {
+            submitBtn.classList.add('btn-outline-success');
+            submitBtn.classList.remove('btn-success');
+        } else {
+            submitBtn.classList.remove('btn-outline-success');
+            submitBtn.classList.add('btn-success');
+        }
+    }
+    
+    // Add event listeners
+    userSelect.addEventListener('change', validateForm);
+    typeSelect.addEventListener('change', validateForm);
+    numeroSelect.addEventListener('input', validateForm);
+    
+    // Initial validation
+    validateForm();
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        if (!userSelect.value || !typeSelect.value || !numeroSelect.value) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires.');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        spinner.classList.remove('d-none');
+    });
+});
+</script>
 {% endblock %}

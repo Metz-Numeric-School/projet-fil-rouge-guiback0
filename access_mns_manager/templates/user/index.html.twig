@@ -44,87 +44,6 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="mb-0 text-primary">{{ users|length }}</h3>
-                            <p class="text-muted mb-0">Total utilisateurs</p>
-                        </div>
-                        <div class="text-primary">
-                            <i class="bi bi-people fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            {% set admins = 0 %}
-                            {% for user in users %}
-                                {% if user.roles and 'ROLE_ADMIN' in user.roles %}
-                                    {% set admins = admins + 1 %}
-                                {% endif %}
-                            {% endfor %}
-                            <h3 class="mb-0 text-success">{{ admins }}</h3>
-                            <p class="text-muted mb-0">Administrateurs</p>
-                        </div>
-                        <div class="text-success">
-                            <i class="bi bi-shield-check fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            {% set newToday = 0 %}
-                            {% for user in users %}
-                                {% if user.dateInscription and user.dateInscription|date('Y-m-d') == 'now'|date('Y-m-d') %}
-                                    {% set newToday = newToday + 1 %}
-                                {% endif %}
-                            {% endfor %}
-                            <h3 class="mb-0 text-warning">{{ newToday }}</h3>
-                            <p class="text-muted mb-0">Nouveaux aujourd'hui</p>
-                        </div>
-                        <div class="text-warning">
-                            <i class="bi bi-person-plus fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            {% set withPhone = 0 %}
-                            {% for user in users %}
-                                {% if user.telephone %}
-                                    {% set withPhone = withPhone + 1 %}
-                                {% endif %}
-                            {% endfor %}
-                            <h3 class="mb-0 text-info">{{ withPhone }}</h3>
-                            <p class="text-muted mb-0">Avec téléphone</p>
-                        </div>
-                        <div class="text-info">
-                            <i class="bi bi-telephone fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Filters and Search -->
     <div class="row mb-4">
@@ -183,15 +102,17 @@
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="bi bi-table"></i>
-                        Liste des utilisateurs
+                        <i class="bi bi-people"></i>
+                        Utilisateurs ({{ users|length }})
                     </h5>
+                    <a href="{{ path('app_user_new') }}" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-person-plus"></i> Nouvel utilisateur
+                    </a>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0" id="usersTable">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="usersTable">
                             <thead>
                                 <tr>
                                     <th>
@@ -336,7 +257,6 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
             </div>
         </div>
     </div>

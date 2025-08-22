@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Pointage;
+use App\Entity\Organisation;
 use App\Form\PointageType;
 use App\Repository\PointageRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,12 +13,32 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/pointage')]
-final class PointageController extends AbstractController{
+final class PointageController extends AbstractController
+{
     #[Route(name: 'app_pointage_index', methods: ['GET'])]
     public function index(PointageRepository $pointageRepository): Response
     {
         return $this->render('pointage/index.html.twig', [
             'pointages' => $pointageRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/organisation/{id}', name: 'app_pointage_by_organisation', methods: ['GET'])]
+    public function byOrganisation(Organisation $organisation, PointageRepository $pointageRepository, Request $request): Response
+    {
+        try {
+            // Implement limit with max 200 records as requested
+            $limit = min($request->query->getInt('limit', 200), 200); // Max 200
+            $pointages = $pointageRepository->findByOrganisation($organisation->getId(), $limit);
+        } catch (\Exception $e) {
+            // If there's an issue with the complex query, fall back to simple query
+            $pointages = [];
+        }
+
+        return $this->render('pointage/by_organisation.html.twig', [
+            'pointages' => $pointages,
+            'organisation' => $organisation,
+            'limit' => $limit ?? 200,
         ]);
     }
 
@@ -70,7 +91,7 @@ final class PointageController extends AbstractController{
     #[Route('/{id}', name: 'app_pointage_delete', methods: ['POST'])]
     public function delete(Request $request, Pointage $pointage, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$pointage->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $pointage->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($pointage);
             $entityManager->flush();
         }

@@ -1,0 +1,162 @@
+<div class="user-dashboard">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Chargement du profil...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && currentUser" class="dashboard-content">
+    <!-- Enhanced Header -->
+    <div class="dashboard-header">
+      <h1>
+        <mat-icon class="dashboard-icon">account_circle</mat-icon>
+        Mon Profil
+      </h1>
+      <p class="dashboard-subtitle">Consultez et gérez vos informations personnelles et professionnelles</p>
+    </div>
+
+    <!-- Navigation Cards or Tab Content -->
+    <div *ngIf="selectedTabIndex === 0" class="dashboard-grid">
+      <!-- Personal Information Card -->
+      <mat-card class="dashboard-card" (click)="setActiveTab(1)">
+        <mat-card-header>
+          <div mat-card-avatar class="card-avatar personal-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+          <mat-card-title>Informations Personnelles</mat-card-title>
+          <mat-card-subtitle>Vos données personnelles et horaires</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Consultez vos informations de base, vos horaires de travail et vos rôles dans le système.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">
+            <mat-icon>arrow_forward</mat-icon>
+            Consulter
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Organization Card -->
+      <mat-card class="dashboard-card" [class.disabled-card]="!hasOrganization()"
+        (click)="hasOrganization() && setActiveTab(2)">
+        <mat-card-header>
+          <div mat-card-avatar class="card-avatar" [class.organisation-avatar]="hasOrganization()"
+            [class.disabled-avatar]="!hasOrganization()">
+            <mat-icon>business</mat-icon>
+          </div>
+          <mat-card-title>Organisation</mat-card-title>
+          <mat-card-subtitle>{{ hasOrganization() ? 'Informations de votre organisation' : 'Aucune organisation' }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p *ngIf="hasOrganization()">Consultez les détails de votre organisation d'appartenance.</p>
+          <p *ngIf="!hasOrganization()">Aucune organisation n'est associée à votre profil.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button [color]="hasOrganization() ? 'primary' : ''" [disabled]="!hasOrganization()">
+            <mat-icon>{{ hasOrganization() ? 'arrow_forward' : 'block' }}</mat-icon>
+            {{ hasOrganization() ? 'Consulter' : 'Non disponible' }}
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Services Card -->
+      <mat-card class="dashboard-card" (click)="setActiveTab(3)">
+        <mat-card-header>
+          <div mat-card-avatar class="card-avatar services-avatar">
+            <mat-icon>work</mat-icon>
+          </div>
+          <mat-card-title>Services</mat-card-title>
+          <mat-card-subtitle>Service actuel et historique</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Consultez votre service actuel et l'historique de vos affectations.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">
+            <mat-icon>arrow_forward</mat-icon>
+            Consulter
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Access & Zones Card -->
+      <mat-card class="dashboard-card" (click)="setActiveTab(4)">
+        <mat-card-header>
+          <div mat-card-avatar class="card-avatar access-avatar">
+            <mat-icon>place</mat-icon>
+          </div>
+          <mat-card-title>Accès & Zones</mat-card-title>
+          <mat-card-subtitle>Zones accessibles et badgeuses</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Consultez vos zones d'accès autorisées et les badgeuses disponibles.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">
+            <mat-icon>arrow_forward</mat-icon>
+            Consulter
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Badges Card -->
+      <mat-card class="dashboard-card" (click)="setActiveTab(5)">
+        <mat-card-header>
+          <div mat-card-avatar class="card-avatar badges-avatar">
+            <mat-icon>badge</mat-icon>
+          </div>
+          <mat-card-title>Badges</mat-card-title>
+          <mat-card-subtitle>Gestion de vos badges d'accès</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Consultez vos badges actifs et l'historique de tous vos badges.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">
+            <mat-icon>arrow_forward</mat-icon>
+            Consulter
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+
+    </div>
+
+    <!-- Component Content -->
+    <div *ngIf="selectedTabIndex !== 0" class="component-content">
+      <!-- Back Button -->
+      <div class="back-button-container">
+        <button mat-raised-button color="primary" (click)="setActiveTab(0)">
+          <mat-icon>arrow_back</mat-icon>
+          Retour au Menu
+        </button>
+      </div>
+
+      <!-- Personal Info Component -->
+      <app-personal-info *ngIf="selectedTabIndex === 1" [currentUser]="currentUser"></app-personal-info>
+
+      <!-- Organisation Component -->
+      <app-organisation *ngIf="selectedTabIndex === 2" [completeProfile]="completeProfile"></app-organisation>
+
+      <!-- Services Component -->
+      <app-services *ngIf="selectedTabIndex === 3" [completeProfile]="completeProfile"></app-services>
+
+      <!-- Access Zones Component -->
+      <app-access-zones *ngIf="selectedTabIndex === 4" [completeProfile]="completeProfile"></app-access-zones>
+
+      <!-- Badges Component -->
+      <app-badges *ngIf="selectedTabIndex === 5" [completeProfile]="completeProfile"></app-badges>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !currentUser" class="error-state">
+    <mat-icon>error</mat-icon>
+    <h2>Erreur de chargement</h2>
+    <p>Impossible de charger les informations utilisateur.</p>
+    <button mat-raised-button color="primary" (click)="logout()">Retourner à la connexion</button>
+  </div>
+</div>

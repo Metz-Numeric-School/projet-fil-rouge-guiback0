@@ -1,39 +1,289 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Zone index{% endblock %}
+{% block title %}Zones - ACCESS MNS MANAGER{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Zones</li>
+    </ol>
+</nav>
+{% endblock %}
 
 {% block body %}
-    <h1>Zone index</h1>
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">Zones d'accès</h1>
+                    <p class="text-muted">Gestion des zones du système d'accès</p>
+                </div>
+                <div>
+                    <a href="{{ path('app_zone_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Nouvelle zone
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nom_zone</th>
-                <th>Description</th>
-                <th>Capacite</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for zone in zones %}
-            <tr>
-                <td>{{ zone.id }}</td>
-                <td>{{ zone.nomZone }}</td>
-                <td>{{ zone.description }}</td>
-                <td>{{ zone.capacite }}</td>
-                <td>
-                    <a href="{{ path('app_zone_show', {'id': zone.id}) }}">show</a>
-                    <a href="{{ path('app_zone_edit', {'id': zone.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="row g-3 p-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Rechercher une zone...">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="organisationFilter">
+                                <option value="">Toutes les organisations</option>
+                                {% set organisations = [] %}
+                                {% for zone in zones %}
+                                    {% if zone.organisation and zone.organisation.nomOrganisation not in organisations %}
+                                        {% set organisations = organisations|merge([zone.organisation.nomOrganisation]) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for org in organisations|sort %}
+                                    <option value="{{ org }}">{{ org }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="capacityFilter">
+                                <option value="">Toutes les capacités</option>
+                                <option value="small">Petite (1-10 pers.)</option>
+                                <option value="medium">Moyenne (11-50 pers.)</option>
+                                <option value="large">Grande (51+ pers.)</option>
+                                <option value="undefined">Non définie</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-outline-secondary" id="clearFilters">
+                                <i class="bi bi-x-circle"></i> Effacer
+                            </button>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <span class="text-muted">{{ zones|length }} zone{{ zones|length > 1 ? 's' : '' }}</span>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <a href="{{ path('app_zone_new') }}">Create new</a>
+    <!-- Zones List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-geo-alt"></i>
+                        Zones ({{ zones|length }})
+                    </h5>
+                    <a href="{{ path('app_zone_new') }}" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-plus-circle"></i> Nouvelle zone
+                    </a>
+                </div>
+                {% if zones|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="zonesTable">
+                            <thead>
+                                <tr>
+                                    <th>Zone</th>
+                                    <th>Organisation</th>
+                                    <th>Description</th>
+                                    <th>Capacité</th>
+                                    <th>Services</th>
+                                    <th>Accès installés</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for zone in zones %}
+                                <tr class="clickable-row" data-href="{{ path('app_zone_show', {'id': zone.id}) }}" data-capacity="{{ zone.capacite ?? 0 }}" data-organisation="{{ zone.organisation ? zone.organisation.nomOrganisation : '' }}">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="zone-icon me-3">
+                                                <i class="bi bi-geo-alt text-info fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">{{ zone.nomZone }}</div>
+                                                <small class="text-muted">ID: {{ zone.id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if zone.organisation %}
+                                            <i class="bi bi-building text-primary me-2"></i>
+                                            <a href="{{ path('app_organisation_show', {'id': zone.organisation.id}) }}">
+                                                {{ zone.organisation.nomOrganisation }}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">Aucune organisation</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if zone.description %}
+                                            {{ zone.description|slice(0, 50) }}{% if zone.description|length > 50 %}...{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">Aucune description</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if zone.capacite %}
+                                            <span class="badge bg-info">{{ zone.capacite }} pers.</span>
+                                        {% else %}
+                                            <span class="text-muted">Non définie</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-briefcase text-primary me-2"></i>
+                                            <span>{{ zone.serviceZones|length }} service{{ zone.serviceZones|length > 1 ? 's' : '' }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-key text-success me-2"></i>
+                                            <span>{{ zone.acces|length }} accès</span>
+                                        </div>
+                                    </td>
+                                    <td onclick="event.stopPropagation();">
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('app_zone_show', {'id': zone.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{{ path('app_zone_edit', {'id': zone.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-geo-alt text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Aucune zone</p>
+                        <a href="{{ path('app_zone_new') }}" class="btn btn-primary">
+                            <i class="bi bi-plus"></i>
+                            Créer une zone
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+.zone-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e1f5fe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.clickable-row:hover {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Make table rows clickable
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', (e) => {
+            if (e.target.closest('a, button')) {
+                return;
+            }
+            window.location.href = row.dataset.href;
+        });
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    const organisationFilter = document.getElementById('organisationFilter');
+    const capacityFilter = document.getElementById('capacityFilter');
+    const clearFilters = document.getElementById('clearFilters');
+    const tableRows = document.querySelectorAll('#zonesTable tbody tr');
+
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedOrganisation = organisationFilter.value;
+        const selectedCapacity = capacityFilter.value;
+        let visibleCount = 0;
+
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const capacity = parseInt(row.dataset.capacity) || 0;
+            const organisation = row.dataset.organisation;
+            
+            const matchesSearch = text.includes(searchTerm);
+            const matchesOrganisation = !selectedOrganisation || organisation === selectedOrganisation;
+            let matchesCapacity = true;
+            
+            if (selectedCapacity) {
+                switch (selectedCapacity) {
+                    case 'small':
+                        matchesCapacity = capacity > 0 && capacity <= 10;
+                        break;
+                    case 'medium':
+                        matchesCapacity = capacity >= 11 && capacity <= 50;
+                        break;
+                    case 'large':
+                        matchesCapacity = capacity > 50;
+                        break;
+                    case 'undefined':
+                        matchesCapacity = capacity === 0;
+                        break;
+                }
+            }
+            
+            if (matchesSearch && matchesOrganisation && matchesCapacity) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update count display
+        const countDisplay = document.querySelector('.text-end .text-muted');
+        if (countDisplay) {
+            countDisplay.textContent = `${visibleCount} zone${visibleCount !== 1 ? 's' : ''}`;
+        }
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    organisationFilter.addEventListener('change', filterTable);
+    capacityFilter.addEventListener('change', filterTable);
+    
+    clearFilters.addEventListener('click', () => {
+        searchInput.value = '';
+        organisationFilter.value = '';
+        capacityFilter.value = '';
+        filterTable();
+    });
+});
+</script>
 {% endblock %}

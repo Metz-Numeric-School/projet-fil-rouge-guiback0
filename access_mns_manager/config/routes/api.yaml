@@ -1,3 +1,7 @@
 api_login_check:
     path: /api/login_check
     methods: POST
+# Note: API User endpoints are automatically loaded via controller attributes
+# Available endpoints:
+# GET /manager/api/user/profile/complete - Get complete user profile with all related information
+# GET /manager/api/user/profile/{id} - Get user profile by ID (admin only)

@@ -3,35 +3,92 @@
 {% block title %}Travailler index{% endblock %}
 
 {% block body %}
-    <h1>Travailler index</h1>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-briefcase"></i>
+            Affectations ({{ travaillers|length }})
+        </h5>
+        <a href="{{ path('app_travailler_new') }}" class="btn btn-sm btn-outline-light">
+            <i class="bi bi-plus-circle"></i> Nouvelle affectation
+        </a>
+    </div>
+    {% if travaillers|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Date début</th>
+                        <th>Date fin</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for travailler in travaillers %}
+                    <tr class="clickable-row" data-href="{{ path('app_travailler_show', {'id': travailler.id}) }}">
+                        <td>{{ travailler.id }}</td>
+                        <td>{{ travailler.dateDebut ? travailler.dateDebut|date('d/m/Y') : '' }}</td>
+                        <td>
+                            {% if travailler.dateFin %}
+                                {{ travailler.dateFin|date('d/m/Y') }}
+                            {% else %}
+                                <span class="badge bg-success">En cours</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ path('app_travailler_show', {'id': travailler.id}) }}" class="btn btn-sm btn-primary" title="Voir">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ path('app_travailler_edit', {'id': travailler.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-briefcase text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-2">Aucune affectation</p>
+            <a href="{{ path('app_travailler_new') }}" class="btn btn-primary">
+                <i class="bi bi-plus"></i>
+                Créer une affectation
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Date_debut</th>
-                <th>Date_fin</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for travailler in travaillers %}
-            <tr>
-                <td>{{ travailler.id }}</td>
-                <td>{{ travailler.dateDebut ? travailler.dateDebut|date('Y-m-d') : '' }}</td>
-                <td>{{ travailler.dateFin ? travailler.dateFin|date('Y-m-d') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_travailler_show', {'id': travailler.id}) }}">show</a>
-                    <a href="{{ path('app_travailler_edit', {'id': travailler.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+{% block stylesheets %}
+<style>
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.clickable-row:hover {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+</style>
+{% endblock %}
 
-    <a href="{{ path('app_travailler_new') }}">Create new</a>
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Make table rows clickable
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', (e) => {
+            // Don't trigger if clicking on buttons or links
+            if (e.target.closest('a, button')) {
+                return;
+            }
+            window.location.href = row.dataset.href;
+        });
+    });
+});
+</script>
 {% endblock %}

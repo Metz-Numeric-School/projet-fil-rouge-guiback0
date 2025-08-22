@@ -1,4 +1,291 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'organisationForm', 'class': 'needs-validation'}}) }}
+    <div class="row g-4">
+        <!-- Informations générales -->
+        <div class="col-12">
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-building"></i>
+                Informations générales
+            </h6>
+        </div>
+        
+        <div class="col-md-8">
+            {{ form_row(form.nom_organisation, {
+                'label': 'Nom de l\'organisation *',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Nom de votre organisation'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-4">
+            {{ form_row(form.siret, {
+                'label': 'SIRET',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': '12345678901234'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.email, {
+                'label': 'Email *',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'contact@organisation.com'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.telephone, {
+                'label': 'Téléphone',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': '01 23 45 67 89'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.site_web, {
+                'label': 'Site web',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'https://www.organisation.com'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.ca, {
+                'label': 'Chiffre d\'affaires (€)',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': '1000000'
+                }
+            }) }}
+        </div>
+        
+        <!-- Séparateur -->
+        <div class="col-12">
+            <hr>
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-geo-alt"></i>
+                Adresse
+            </h6>
+        </div>
+        
+        <div class="col-md-2">
+            {{ form_row(form.numero_rue, {
+                'label': 'N°',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': '123'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-2">
+            {{ form_row(form.suffix_rue, {
+                'label': 'Suffixe',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'bis'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-8">
+            {{ form_row(form.nom_rue, {
+                'label': 'Nom de la rue *',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'rue de la République',
+                    'required': true
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-3">
+            {{ form_row(form.code_postal, {
+                'label': 'Code postal',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': '75001'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.ville, {
+                'label': 'Ville',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Paris'
+                }
+            }) }}
+        </div>
+        
+        <div class="col-md-3">
+            {{ form_row(form.pays, {
+                'label': 'Pays',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'France'
+                }
+            }) }}
+        </div>
+        
+        {{ form_rest(form) }}
+        
+        <div class="col-12">
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{{ app.request.get('_route') == 'app_organisation_edit' ? path('app_organisation_show', {'id': app.request.get('id')}) : path('app_organisation_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Annuler
+                </a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <i class="bi bi-check-circle"></i> {{ button_label|default('Enregistrer') }}
+                </button>
+            </div>
+        </div>
+    </div>
 {{ form_end(form) }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('organisationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    
+    // Real-time validation
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        
+        if (isValid) {
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            
+            // Submit form
+            this.submit();
+        } else {
+            // Scroll to first error
+            const firstError = form.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+    
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldName = field.name;
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Clear previous validation states
+        field.classList.remove('is-valid', 'is-invalid');
+        const feedback = field.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+        
+        // Required field validation
+        if (field.hasAttribute('required') && !value) {
+            isValid = false;
+            errorMessage = 'Ce champ est obligatoire.';
+        }
+        
+        // Email validation
+        else if (fieldName.includes('email') && value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                isValid = false;
+                errorMessage = 'Veuillez saisir un email valide.';
+            }
+        }
+        
+        // URL validation
+        else if (fieldName.includes('site_web') && value) {
+            const urlRegex = /^https?:\/\/.+\..+/;
+            if (!urlRegex.test(value)) {
+                isValid = false;
+                errorMessage = 'Veuillez saisir une URL valide (ex: https://www.exemple.com).';
+            }
+        }
+        
+        // SIRET validation
+        else if (fieldName.includes('siret') && value) {
+            const siretRegex = /^\d{14}$/;
+            if (!siretRegex.test(value)) {
+                isValid = false;
+                errorMessage = 'Le SIRET doit contenir exactement 14 chiffres.';
+            }
+        }
+        
+        // Phone validation
+        else if (fieldName.includes('telephone') && value) {
+            const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
+            if (!phoneRegex.test(value.replace(/\s/g, ''))) {
+                isValid = false;
+                errorMessage = 'Veuillez saisir un numéro de téléphone français valide.';
+            }
+        }
+        
+        // Postal code validation
+        else if (fieldName.includes('code_postal') && value) {
+            const postalRegex = /^\d{5}$/;
+            if (!postalRegex.test(value)) {
+                isValid = false;
+                errorMessage = 'Le code postal doit contenir 5 chiffres.';
+            }
+        }
+        
+        // Numeric validation
+        else if ((fieldName.includes('ca') || fieldName.includes('numero_rue')) && value) {
+            if (isNaN(value) || parseFloat(value) < 0) {
+                isValid = false;
+                errorMessage = 'Veuillez saisir un nombre positif.';
+            }
+        }
+        
+        // Apply validation result
+        if (isValid && value) {
+            field.classList.add('is-valid');
+        } else if (!isValid) {
+            field.classList.add('is-invalid');
+            
+            // Add error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = errorMessage;
+            field.parentNode.appendChild(errorDiv);
+        }
+        
+        return isValid;
+    }
+});
+</script>
