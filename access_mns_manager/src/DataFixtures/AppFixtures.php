@@ -11,9 +11,8 @@ use App\Entity\Badgeuse;
 use App\Entity\Acces;
 use App\Entity\UserBadge;
 use App\Entity\Travailler;
-use App\Entity\ServiceZone;
-use App\Entity\Gerer;
 use App\Entity\Pointage;
+use App\Entity\ServiceZone;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -29,7 +28,9 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        // Créer des organisations avec toutes les propriétés requises
+        // ========== ORGANISATIONS ==========
+        $organisations = [];
+
         $organisation1 = new Organisation();
         $organisation1->setNomOrganisation('Ministère de la Défense');
         $organisation1->setEmail('contact@defense.gouv.fr');
@@ -43,6 +44,7 @@ class AppFixtures extends Fixture
         $organisation1->setCodePostal('75007');
         $organisation1->setVille('Paris');
         $manager->persist($organisation1);
+        $organisations['defense'] = $organisation1;
 
         $organisation2 = new Organisation();
         $organisation2->setNomOrganisation('Ministère de l\'Intérieur');
@@ -57,531 +59,421 @@ class AppFixtures extends Fixture
         $organisation2->setCodePostal('75008');
         $organisation2->setVille('Paris');
         $manager->persist($organisation2);
+        $organisations['interieur'] = $organisation2;
 
         $organisation3 = new Organisation();
-        $organisation3->setNomOrganisation('Entreprise TechSecure');
-        $organisation3->setEmail('contact@techsecure.com');
-        $organisation3->setDateCreation(new \DateTime('2018-03-20'));
-        $organisation3->setSiret('11122233344556');
-        $organisation3->setTelephone('01.45.67.89.01');
-        $organisation3->setSiteWeb('https://techsecure.com');
+        $organisation3->setNomOrganisation('Ministère de l\'Économie');
+        $organisation3->setEmail('contact@economie.gouv.fr');
+        $organisation3->setDateCreation(new \DateTime('2018-03-10'));
+        $organisation3->setSiret('11223344556677');
+        $organisation3->setTelephone('01.44.87.17.17');
+        $organisation3->setSiteWeb('https://economie.gouv.fr');
         $organisation3->setPays('France');
-        $organisation3->setNomRue('Avenue des Champs-Élysées');
-        $organisation3->setNumeroRue(123);
-        $organisation3->setCodePostal('75008');
+        $organisation3->setNomRue('Rue de Bercy');
+        $organisation3->setNumeroRue(139);
+        $organisation3->setCodePostal('75012');
         $organisation3->setVille('Paris');
         $manager->persist($organisation3);
-
-        // Créer des services diversifiés
-        $service1 = new Service();
-        $service1->setNomService('Service Informatique');
-        $service1->setNiveauService(1);
-        $service1->setOrganisation($organisation1);
-        $manager->persist($service1);
-
-        $service2 = new Service();
-        $service2->setNomService('Service Sécurité');
-        $service2->setNiveauService(3);
-        $service2->setOrganisation($organisation1);
-        $manager->persist($service2);
-
-        $service3 = new Service();
-        $service3->setNomService('Service RH');
-        $service3->setNiveauService(1);
-        $service3->setOrganisation($organisation2);
-        $manager->persist($service3);
-
-        $service4 = new Service();
-        $service4->setNomService('Service Opérations');
-        $service4->setNiveauService(2);
-        $service4->setOrganisation($organisation2);
-        $manager->persist($service4);
-
-        $service5 = new Service();
-        $service5->setNomService('Développement');
-        $service5->setNiveauService(1);
-        $service5->setOrganisation($organisation3);
-        $manager->persist($service5);
-
-        $service6 = new Service();
-        $service6->setNomService('Support Technique');
-        $service6->setNiveauService(2);
-        $service6->setOrganisation($organisation3);
-        $manager->persist($service6);
-
-        // Créer des zones diversifiées
-        $zone1 = new Zone();
-        $zone1->setNomZone('Zone Sécurisée Niveau 1');
-        $zone1->setDescription('Zone d\'accès restreint - Classification Confidentiel');
-        $zone1->setCapacite(50);
-        $manager->persist($zone1);
-
-        $zone2 = new Zone();
-        $zone2->setNomZone('Zone Sécurisée Niveau 2');
-        $zone2->setDescription('Zone d\'accès très restreint - Classification Secret');
-        $zone2->setCapacite(25);
-        $manager->persist($zone2);
-
-        $zone3 = new Zone();
-        $zone3->setNomZone('Zone Publique');
-        $zone3->setDescription('Zone d\'accès libre - Accueil et espaces communs');
-        $zone3->setCapacite(200);
-        $manager->persist($zone3);
-
-        $zone4 = new Zone();
-        $zone4->setNomZone('Zone Technique');
-        $zone4->setDescription('Zone technique - Serveurs et équipements');
-        $zone4->setCapacite(15);
-        $manager->persist($zone4);
-
-        $zone5 = new Zone();
-        $zone5->setNomZone('Zone Direction');
-        $zone5->setDescription('Zone réservée à la direction et réunions confidentielles');
-        $zone5->setCapacite(30);
-        $manager->persist($zone5);
-
-        // Créer des utilisateurs avec tous les champs
-        $admin = new User();
-        $admin->setEmail('admin@example.com');
-        $admin->setRoles(['ROLE_ADMIN']);
-        $admin->setPassword($this->hasher->hashPassword($admin, 'admin123'));
-        $admin->setNom('Administrateur');
-        $admin->setPrenom('Système');
-        $admin->setDateNaissance(new \DateTime('1980-05-15'));
-        $admin->setTelephone('01.23.45.67.89');
-        $admin->setDateInscription(new \DateTime('2020-01-01'));
-        $admin->setAdresse('14 Rue Saint-Dominique, 75007 Paris');
-        $admin->setHorraire(new \DateTime('08:00:00'));
-        $admin->setHeureDebut(new \DateTime('08:00:00'));
-        $admin->setJoursSemaineTravaille(5);
-        $admin->setPoste('Administrateur Système');
-        $manager->persist($admin);
-
-        $manager1 = new User();
-        $manager1->setEmail('director@defense.gouv.fr');
-        $manager1->setRoles(['ROLE_MANAGER']);
-        $manager1->setPassword($this->hasher->hashPassword($manager1, 'manager123'));
-        $manager1->setNom('Dubois');
-        $manager1->setPrenom('François');
-        $manager1->setDateNaissance(new \DateTime('1975-09-22'));
-        $manager1->setTelephone('01.23.45.67.90');
-        $manager1->setDateInscription(new \DateTime('2020-01-15'));
-        $manager1->setAdresse('25 Avenue Bosquet, 75007 Paris');
-        $manager1->setHorraire(new \DateTime('07:30:00'));
-        $manager1->setHeureDebut(new \DateTime('07:30:00'));
-        $manager1->setJoursSemaineTravaille(5);
-        $manager1->setPoste('Directeur Service Informatique');
-        $manager->persist($manager1);
-
-        $user1 = new User();
-        $user1->setEmail('jean.dupont@example.com');
-        $user1->setRoles(['ROLE_USER']);
-        $user1->setPassword($this->hasher->hashPassword($user1, 'password123'));
-        $user1->setNom('Dupont');
-        $user1->setPrenom('Jean');
-        $user1->setDateNaissance(new \DateTime('1990-03-10'));
-        $user1->setTelephone('01.11.22.33.44');
-        $user1->setDateInscription(new \DateTime('2021-03-15'));
-        $user1->setAdresse('12 Rue de la Paix, 75001 Paris');
-        $user1->setHorraire(new \DateTime('09:00:00'));
-        $user1->setHeureDebut(new \DateTime('09:00:00'));
-        $user1->setJoursSemaineTravaille(5);
-        $user1->setPoste('Développeur Senior');
-        $manager->persist($user1);
-
-        $user2 = new User();
-        $user2->setEmail('marie.martin@example.com');
-        $user2->setRoles(['ROLE_USER']);
-        $user2->setPassword($this->hasher->hashPassword($user2, 'password123'));
-        $user2->setNom('Martin');
-        $user2->setPrenom('Marie');
-        $user2->setDateNaissance(new \DateTime('1985-11-28'));
-        $user2->setTelephone('01.55.66.77.88');
-        $user2->setDateInscription(new \DateTime('2021-06-01'));
-        $user2->setAdresse('8 Boulevard Saint-Germain, 75005 Paris');
-        $user2->setHorraire(new \DateTime('08:30:00'));
-        $user2->setHeureDebut(new \DateTime('08:30:00'));
-        $user2->setJoursSemaineTravaille(4);
-        $user2->setPoste('Responsable RH');
-        $manager->persist($user2);
-
-        $user3 = new User();
-        $user3->setEmail('pierre.durand@example.com');
-        $user3->setRoles(['ROLE_USER']);
-        $user3->setPassword($this->hasher->hashPassword($user3, 'password123'));
-        $user3->setNom('Durand');
-        $user3->setPrenom('Pierre');
-        $user3->setDateNaissance(new \DateTime('1988-07-14'));
-        $user3->setTelephone('01.99.88.77.66');
-        $user3->setDateInscription(new \DateTime('2021-08-01'));
-        $user3->setAdresse('45 Rue du Faubourg Saint-Antoine, 75011 Paris');
-        $user3->setHorraire(new \DateTime('22:00:00'));
-        $user3->setHeureDebut(new \DateTime('22:00:00'));
-        $user3->setJoursSemaineTravaille(5);
-        $user3->setPoste('Agent de Sécurité');
-        $manager->persist($user3);
-
-        $user4 = new User();
-        $user4->setEmail('sophie.bernard@techsecure.com');
-        $user4->setRoles(['ROLE_USER']);
-        $user4->setPassword($this->hasher->hashPassword($user4, 'password123'));
-        $user4->setNom('Bernard');
-        $user4->setPrenom('Sophie');
-        $user4->setDateNaissance(new \DateTime('1992-12-03'));
-        $user4->setTelephone('01.44.55.66.77');
-        $user4->setDateInscription(new \DateTime('2022-01-10'));
-        $user4->setAdresse('77 Avenue Marceau, 75016 Paris');
-        $user4->setHorraire(new \DateTime('09:30:00'));
-        $user4->setHeureDebut(new \DateTime('09:30:00'));
-        $user4->setJoursSemaineTravaille(5);
-        $user4->setPoste('Analyste Cybersécurité');
-        $manager->persist($user4);
-
-        $user5 = new User();
-        $user5->setEmail('lucas.petit@techsecure.com');
-        $user5->setRoles(['ROLE_USER']);
-        $user5->setPassword($this->hasher->hashPassword($user5, 'password123'));
-        $user5->setNom('Petit');
-        $user5->setPrenom('Lucas');
-        $user5->setDateNaissance(new \DateTime('1995-04-18'));
-        $user5->setTelephone('01.33.44.55.66');
-        $user5->setDateInscription(new \DateTime('2022-03-01'));
-        $user5->setAdresse('15 Rue de Rivoli, 75004 Paris');
-        $user5->setHorraire(new \DateTime('10:00:00'));
-        $user5->setHeureDebut(new \DateTime('10:00:00'));
-        $user5->setJoursSemaineTravaille(5);
-        $user5->setPoste('Support Technique Junior');
-        $manager->persist($user5);
-
-        // Créer des badges diversifiés
-        $badge1 = new Badge();
-        $badge1->setNumeroBadge(100001);
-        $badge1->setTypeBadge('admin');
-        $badge1->setDateCreation(new \DateTime('2020-01-01'));
-        $manager->persist($badge1);
-
-        $badge2 = new Badge();
-        $badge2->setNumeroBadge(100002);
-        $badge2->setTypeBadge('manager');
-        $badge2->setDateCreation(new \DateTime('2020-01-15'));
-        $manager->persist($badge2);
-
-        $badge3 = new Badge();
-        $badge3->setNumeroBadge(100003);
-        $badge3->setTypeBadge('standard');
-        $badge3->setDateCreation(new \DateTime('2021-03-15'));
-        $manager->persist($badge3);
-
-        $badge4 = new Badge();
-        $badge4->setNumeroBadge(100004);
-        $badge4->setTypeBadge('standard');
-        $badge4->setDateCreation(new \DateTime('2021-06-01'));
-        $manager->persist($badge4);
-
-        $badge5 = new Badge();
-        $badge5->setNumeroBadge(100005);
-        $badge5->setTypeBadge('security');
-        $badge5->setDateCreation(new \DateTime('2021-08-01'));
-        $manager->persist($badge5);
-
-        $badge6 = new Badge();
-        $badge6->setNumeroBadge(100006);
-        $badge6->setTypeBadge('visiteur');
-        $badge6->setDateCreation(new \DateTime('2022-01-10'));
-        $badge6->setDateExpiration(new \DateTime('2024-01-10'));
-        $manager->persist($badge6);
-
-        $badge7 = new Badge();
-        $badge7->setNumeroBadge(100007);
-        $badge7->setTypeBadge('temporaire');
-        $badge7->setDateCreation(new \DateTime('2022-03-01'));
-        $badge7->setDateExpiration(new \DateTime('2023-03-01'));
-        $manager->persist($badge7);
-
-        // Créer des badgeuses
-        $badgeuse1 = new Badgeuse();
-        $badgeuse1->setReference('BADGEUSE_ENTREE_PRINCIPALE');
-        $badgeuse1->setDateInstallation(new \DateTime('2020-01-01'));
-        $manager->persist($badgeuse1);
-
-        $badgeuse2 = new Badgeuse();
-        $badgeuse2->setReference('BADGEUSE_ZONE_SECURISEE_1');
-        $badgeuse2->setDateInstallation(new \DateTime('2020-01-01'));
-        $manager->persist($badgeuse2);
-
-        $badgeuse3 = new Badgeuse();
-        $badgeuse3->setReference('BADGEUSE_ZONE_SECURISEE_2');
-        $badgeuse3->setDateInstallation(new \DateTime('2020-01-15'));
-        $manager->persist($badgeuse3);
-
-        $badgeuse4 = new Badgeuse();
-        $badgeuse4->setReference('BADGEUSE_ZONE_TECHNIQUE');
-        $badgeuse4->setDateInstallation(new \DateTime('2020-02-01'));
-        $manager->persist($badgeuse4);
-
-        $badgeuse5 = new Badgeuse();
-        $badgeuse5->setReference('BADGEUSE_ZONE_DIRECTION');
-        $badgeuse5->setDateInstallation(new \DateTime('2020-02-15'));
-        $manager->persist($badgeuse5);
-
-        // Créer des accès pour chaque zone
-        $acces1 = new Acces();
-        $acces1->setNumeroBadgeuse(1);
-        $acces1->setDateInstallation(new \DateTime('2020-01-01'));
-        $acces1->setZone($zone3); // Zone publique
-        $acces1->setBadgeuse($badgeuse1);
-        $manager->persist($acces1);
-
-        $acces2 = new Acces();
-        $acces2->setNumeroBadgeuse(2);
-        $acces2->setDateInstallation(new \DateTime('2020-01-01'));
-        $acces2->setZone($zone1); // Zone sécurisée niveau 1
-        $acces2->setBadgeuse($badgeuse2);
-        $manager->persist($acces2);
-
-        $acces3 = new Acces();
-        $acces3->setNumeroBadgeuse(3);
-        $acces3->setDateInstallation(new \DateTime('2020-01-15'));
-        $acces3->setZone($zone2); // Zone sécurisée niveau 2
-        $acces3->setBadgeuse($badgeuse3);
-        $manager->persist($acces3);
-
-        $acces4 = new Acces();
-        $acces4->setNumeroBadgeuse(4);
-        $acces4->setDateInstallation(new \DateTime('2020-02-01'));
-        $acces4->setZone($zone4); // Zone technique
-        $acces4->setBadgeuse($badgeuse4);
-        $manager->persist($acces4);
-
-        $acces5 = new Acces();
-        $acces5->setNumeroBadgeuse(5);
-        $acces5->setDateInstallation(new \DateTime('2020-02-15'));
-        $acces5->setZone($zone5); // Zone direction
-        $acces5->setBadgeuse($badgeuse5);
-        $manager->persist($acces5);
-
-        // Créer des relations UserBadge
-        $userBadge1 = new UserBadge();
-        $userBadge1->setUtilisateur($admin);
-        $userBadge1->setBadge($badge1);
-        $manager->persist($userBadge1);
-
-        $userBadge2 = new UserBadge();
-        $userBadge2->setUtilisateur($manager1);
-        $userBadge2->setBadge($badge2);
-        $manager->persist($userBadge2);
-
-        $userBadge3 = new UserBadge();
-        $userBadge3->setUtilisateur($user1);
-        $userBadge3->setBadge($badge3);
-        $manager->persist($userBadge3);
-
-        $userBadge4 = new UserBadge();
-        $userBadge4->setUtilisateur($user2);
-        $userBadge4->setBadge($badge4);
-        $manager->persist($userBadge4);
-
-        $userBadge5 = new UserBadge();
-        $userBadge5->setUtilisateur($user3);
-        $userBadge5->setBadge($badge5);
-        $manager->persist($userBadge5);
-
-        $userBadge6 = new UserBadge();
-        $userBadge6->setUtilisateur($user4);
-        $userBadge6->setBadge($badge6);
-        $manager->persist($userBadge6);
-
-        $userBadge7 = new UserBadge();
-        $userBadge7->setUtilisateur($user5);
-        $userBadge7->setBadge($badge7);
-        $manager->persist($userBadge7);
-
-        // Créer des relations Travailler
-        $travaillerAdmin = new Travailler();
-        $travaillerAdmin->setUtilisateur($admin);
-        $travaillerAdmin->setService($service1);
-        $travaillerAdmin->setDateDebut(new \DateTime('2020-01-01'));
-        $manager->persist($travaillerAdmin);
-
-        $travaillerManager1 = new Travailler();
-        $travaillerManager1->setUtilisateur($manager1);
-        $travaillerManager1->setService($service1);
-        $travaillerManager1->setDateDebut(new \DateTime('2020-01-15'));
-        $manager->persist($travaillerManager1);
-
-        $travailler1 = new Travailler();
-        $travailler1->setUtilisateur($user1);
-        $travailler1->setService($service1);
-        $travailler1->setDateDebut(new \DateTime('2021-03-15'));
-        $manager->persist($travailler1);
-
-        $travailler2 = new Travailler();
-        $travailler2->setUtilisateur($user2);
-        $travailler2->setService($service3);
-        $travailler2->setDateDebut(new \DateTime('2021-06-01'));
-        $manager->persist($travailler2);
-
-        $travailler3 = new Travailler();
-        $travailler3->setUtilisateur($user3);
-        $travailler3->setService($service2);
-        $travailler3->setDateDebut(new \DateTime('2021-08-01'));
-        $manager->persist($travailler3);
-
-        $travailler4 = new Travailler();
-        $travailler4->setUtilisateur($user4);
-        $travailler4->setService($service5);
-        $travailler4->setDateDebut(new \DateTime('2022-01-10'));
-        $manager->persist($travailler4);
-
-        $travailler5 = new Travailler();
-        $travailler5->setUtilisateur($user5);
-        $travailler5->setService($service6);
-        $travailler5->setDateDebut(new \DateTime('2022-03-01'));
-        $manager->persist($travailler5);
-
-        // Créer des relations ServiceZone (permissions d'accès par service)
-        $serviceZone1 = new ServiceZone();
-        $serviceZone1->setService($service1); // Service Informatique
-        $serviceZone1->setZone($zone3); // Zone publique
-        $manager->persist($serviceZone1);
-
-        $serviceZone2 = new ServiceZone();
-        $serviceZone2->setService($service1); // Service Informatique
-        $serviceZone2->setZone($zone4); // Zone technique
-        $manager->persist($serviceZone2);
-
-        $serviceZone3 = new ServiceZone();
-        $serviceZone3->setService($service2); // Service Sécurité
-        $serviceZone3->setZone($zone1); // Zone sécurisée niveau 1
-        $manager->persist($serviceZone3);
-
-        $serviceZone4 = new ServiceZone();
-        $serviceZone4->setService($service2); // Service Sécurité
-        $serviceZone4->setZone($zone2); // Zone sécurisée niveau 2
-        $manager->persist($serviceZone4);
-
-        $serviceZone5 = new ServiceZone();
-        $serviceZone5->setService($service3); // Service RH
-        $serviceZone5->setZone($zone3); // Zone publique
-        $manager->persist($serviceZone5);
-
-        $serviceZone6 = new ServiceZone();
-        $serviceZone6->setService($service1); // Service Informatique (accès direction)
-        $serviceZone6->setZone($zone5); // Zone direction
-        $manager->persist($serviceZone6);
-
-        // Créer des relations Gerer (hiérarchie managériale)
-        $gerer1 = new Gerer();
-        $gerer1->setManageur($manager1); // François Dubois manage
-        $gerer1->setEmploye($user1); // Jean Dupont
-        $manager->persist($gerer1);
-
-        $gerer2 = new Gerer();
-        $gerer2->setManageur($admin); // Admin manage
-        $gerer2->setEmploye($manager1); // François Dubois
-        $manager->persist($gerer2);
-
-        $gerer3 = new Gerer();
-        $gerer3->setManageur($user2); // Marie Martin (RH) manage
-        $gerer3->setEmploye($user3); // Pierre Durand
-        $manager->persist($gerer3);
-
-        $gerer4 = new Gerer();
-        $gerer4->setManageur($user4); // Sophie Bernard manage
-        $gerer4->setEmploye($user5); // Lucas Petit
-        $manager->persist($gerer4);
-
-        // Créer des pointages (historique d'utilisation des badges)
-        $now = new \DateTime();
-        $yesterday = (new \DateTime())->modify('-1 day');
-        $twoDaysAgo = (new \DateTime())->modify('-2 days');
-
-        // Pointages d'aujourd'hui
-        $pointage1 = new Pointage();
-        $pointage1->setBadge($badge1);
-        $pointage1->setBadgeuse($badgeuse1);
-        $pointage1->setHeure((new \DateTime())->setTime(8, 0));
-        $pointage1->setType('entrée');
-        $manager->persist($pointage1);
-
-        $pointage2 = new Pointage();
-        $pointage2->setBadge($badge2);
-        $pointage2->setBadgeuse($badgeuse1);
-        $pointage2->setHeure((new \DateTime())->setTime(7, 30));
-        $pointage2->setType('entrée');
-        $manager->persist($pointage2);
-
-        $pointage3 = new Pointage();
-        $pointage3->setBadge($badge3);
-        $pointage3->setBadgeuse($badgeuse1);
-        $pointage3->setHeure((new \DateTime())->setTime(9, 0));
-        $pointage3->setType('entrée');
-        $manager->persist($pointage3);
-
-        $pointage4 = new Pointage();
-        $pointage4->setBadge($badge1);
-        $pointage4->setBadgeuse($badgeuse4);
-        $pointage4->setHeure((new \DateTime())->setTime(10, 30));
-        $pointage4->setType('accès_zone');
-        $manager->persist($pointage4);
-
-        $pointage5 = new Pointage();
-        $pointage5->setBadge($badge5);
-        $pointage5->setBadgeuse($badgeuse2);
-        $pointage5->setHeure((new \DateTime())->setTime(22, 0));
-        $pointage5->setType('entrée');
-        $manager->persist($pointage5);
-
-        // Pointages d'hier
-        $pointage6 = new Pointage();
-        $pointage6->setBadge($badge1);
-        $pointage6->setBadgeuse($badgeuse1);
-        $pointage6->setHeure($yesterday->setTime(8, 15));
-        $pointage6->setType('entrée');
-        $manager->persist($pointage6);
-
-        $pointage7 = new Pointage();
-        $pointage7->setBadge($badge1);
-        $pointage7->setBadgeuse($badgeuse1);
-        $pointage7->setHeure($yesterday->setTime(18, 30));
-        $pointage7->setType('sortie');
-        $manager->persist($pointage7);
-
-        $pointage8 = new Pointage();
-        $pointage8->setBadge($badge3);
-        $pointage8->setBadgeuse($badgeuse1);
-        $pointage8->setHeure($yesterday->setTime(9, 15));
-        $pointage8->setType('entrée');
-        $manager->persist($pointage8);
-
-        $pointage9 = new Pointage();
-        $pointage9->setBadge($badge3);
-        $pointage9->setBadgeuse($badgeuse1);
-        $pointage9->setHeure($yesterday->setTime(17, 45));
-        $pointage9->setType('sortie');
-        $manager->persist($pointage9);
-
-        // Pointages d'il y a deux jours
-        $pointage10 = new Pointage();
-        $pointage10->setBadge($badge2);
-        $pointage10->setBadgeuse($badgeuse1);
-        $pointage10->setHeure($twoDaysAgo->setTime(7, 45));
-        $pointage10->setType('entrée');
-        $manager->persist($pointage10);
-
-        $pointage11 = new Pointage();
-        $pointage11->setBadge($badge2);
-        $pointage11->setBadgeuse($badgeuse5);
-        $pointage11->setHeure($twoDaysAgo->setTime(14, 30));
-        $pointage11->setType('accès_zone');
-        $manager->persist($pointage11);
-
-        $pointage12 = new Pointage();
-        $pointage12->setBadge($badge2);
-        $pointage12->setBadgeuse($badgeuse1);
-        $pointage12->setHeure($twoDaysAgo->setTime(19, 0));
-        $pointage12->setType('sortie');
-        $manager->persist($pointage12);
+        $organisations['economie'] = $organisation3;
+
+        // ========== SERVICES ==========
+        $services = [];
+
+        // Service principal pour chaque organisation
+        $servicePrincipalDefense = new Service();
+        $servicePrincipalDefense->setNomService('Service principal');
+        $servicePrincipalDefense->setNiveauService(1);
+        $servicePrincipalDefense->setOrganisation($organisations['defense']);
+        $manager->persist($servicePrincipalDefense);
+        $services['principal_defense'] = $servicePrincipalDefense;
+
+        $servicePrincipalInterieur = new Service();
+        $servicePrincipalInterieur->setNomService('Service principal');
+        $servicePrincipalInterieur->setNiveauService(1);
+        $servicePrincipalInterieur->setOrganisation($organisations['interieur']);
+        $manager->persist($servicePrincipalInterieur);
+        $services['principal_interieur'] = $servicePrincipalInterieur;
+
+        $servicePrincipalEconomie = new Service();
+        $servicePrincipalEconomie->setNomService('Service principal');
+        $servicePrincipalEconomie->setNiveauService(1);
+        $servicePrincipalEconomie->setOrganisation($organisations['economie']);
+        $manager->persist($servicePrincipalEconomie);
+        $services['principal_economie'] = $servicePrincipalEconomie;
+
+        // Services Ministère de la Défense
+        $serviceIT = new Service();
+        $serviceIT->setNomService('Service Informatique');
+        $serviceIT->setNiveauService(2);
+        $serviceIT->setOrganisation($organisations['defense']);
+        $manager->persist($serviceIT);
+        $services['it_defense'] = $serviceIT;
+
+        $serviceSecurity = new Service();
+        $serviceSecurity->setNomService('Service Sécurité');
+        $serviceSecurity->setNiveauService(3);
+        $serviceSecurity->setOrganisation($organisations['defense']);
+        $manager->persist($serviceSecurity);
+        $services['security_defense'] = $serviceSecurity;
+
+        $serviceLogistics = new Service();
+        $serviceLogistics->setNomService('Service Logistique');
+        $serviceLogistics->setNiveauService(2);
+        $serviceLogistics->setOrganisation($organisations['defense']);
+        $manager->persist($serviceLogistics);
+        $services['logistics_defense'] = $serviceLogistics;
+
+        // Services Ministère de l'Intérieur
+        $serviceRH = new Service();
+        $serviceRH->setNomService('Service RH');
+        $serviceRH->setNiveauService(1);
+        $serviceRH->setOrganisation($organisations['interieur']);
+        $manager->persist($serviceRH);
+        $services['rh_interieur'] = $serviceRH;
+
+        $servicePolice = new Service();
+        $servicePolice->setNomService('Service Police Nationale');
+        $servicePolice->setNiveauService(4);
+        $servicePolice->setOrganisation($organisations['interieur']);
+        $manager->persist($servicePolice);
+        $services['police_interieur'] = $servicePolice;
+
+        // Services Ministère de l'Économie
+        $serviceFinance = new Service();
+        $serviceFinance->setNomService('Service Finances Publiques');
+        $serviceFinance->setNiveauService(2);
+        $serviceFinance->setOrganisation($organisations['economie']);
+        $manager->persist($serviceFinance);
+        $services['finance_economie'] = $serviceFinance;
+
+        // ========== ZONES ==========
+        $zones = [];
+
+        // Zone principale (partagée entre toutes les organisations)
+        $zonePrincipale = new Zone();
+        $zonePrincipale->setNomZone('Zone principale');
+        $zonePrincipale->setDescription('Zone principale créée automatiquement');
+        $zonePrincipale->setCapacite(100);
+        $manager->persist($zonePrincipale);
+        $zones['principale'] = $zonePrincipale;
+
+        $zoneSA = new Zone();
+        $zoneSA->setNomZone('Zone Sécurisée Alpha');
+        $zoneSA->setDescription('Zone d\'accès ultra-restreint - Niveau Secret Défense');
+        $zoneSA->setCapacite(25);
+        $manager->persist($zoneSA);
+        $zones['alpha'] = $zoneSA;
+
+        $zoneSB = new Zone();
+        $zoneSB->setNomZone('Zone Sécurisée Beta');
+        $zoneSB->setDescription('Zone d\'accès restreint - Personnel autorisé uniquement');
+        $zoneSB->setCapacite(50);
+        $manager->persist($zoneSB);
+        $zones['beta'] = $zoneSB;
+
+        $zonePublic = new Zone();
+        $zonePublic->setNomZone('Zone d\'Accueil Public');
+        $zonePublic->setDescription('Zone d\'accès public - Hall d\'accueil');
+        $zonePublic->setCapacite(200);
+        $manager->persist($zonePublic);
+        $zones['public'] = $zonePublic;
+
+        $zoneBureau = new Zone();
+        $zoneBureau->setNomZone('Zone Bureau');
+        $zoneBureau->setDescription('Espaces de bureaux - Personnel permanent');
+        $zoneBureau->setCapacite(150);
+        $manager->persist($zoneBureau);
+        $zones['bureau'] = $zoneBureau;
+
+        $zoneTechnique = new Zone();
+        $zoneTechnique->setNomZone('Zone Technique');
+        $zoneTechnique->setDescription('Salles serveurs et installations techniques');
+        $zoneTechnique->setCapacite(30);
+        $manager->persist($zoneTechnique);
+        $zones['technique'] = $zoneTechnique;
+
+        // ========== UTILISATEURS ==========
+        $users = [];
+
+        // Super Admin
+        $superAdmin = new User();
+        $superAdmin->setEmail('superadmin@access-mns.fr');
+        $superAdmin->setRoles(['ROLE_SUPER_ADMIN']);
+        $superAdmin->setPassword($this->hasher->hashPassword($superAdmin, 'SuperAdmin2024!'));
+        $superAdmin->setNom('SYSTÈME');
+        $superAdmin->setPrenom('Super Admin');
+        $superAdmin->setTelephone('01.00.00.00.01');
+        $superAdmin->setDateInscription(new \DateTime('2020-01-01'));
+        $superAdmin->setDateDerniereConnexion(new \DateTime('-1 day'));
+        $superAdmin->setCompteActif(true);
+        $manager->persist($superAdmin);
+        $users['superadmin'] = $superAdmin;
+
+        // Admin Défense
+        $adminDefense = new User();
+        $adminDefense->setEmail('admin@defense.gouv.fr');
+        $adminDefense->setRoles(['ROLE_ADMIN']);
+        $adminDefense->setPassword($this->hasher->hashPassword($adminDefense, 'AdminDefense2024!'));
+        $adminDefense->setNom('MARTIN');
+        $adminDefense->setPrenom('Général Alexandre');
+        $adminDefense->setTelephone('01.23.45.67.01');
+        $adminDefense->setDateInscription(new \DateTime('2020-01-15'));
+        $adminDefense->setCompteActif(true);
+        $manager->persist($adminDefense);
+        $users['admin_defense'] = $adminDefense;
+
+        // Admin Intérieur
+        $adminInterieur = new User();
+        $adminInterieur->setEmail('admin@interieur.gouv.fr');
+        $adminInterieur->setRoles(['ROLE_ADMIN']);
+        $adminInterieur->setPassword($this->hasher->hashPassword($adminInterieur, 'AdminInterieur2024!'));
+        $adminInterieur->setNom('BERNARD');
+        $adminInterieur->setPrenom('Préfet Catherine');
+        $adminInterieur->setTelephone('01.98.76.54.01');
+        $adminInterieur->setDateInscription(new \DateTime('2020-02-01'));
+        $adminInterieur->setCompteActif(true);
+        $manager->persist($adminInterieur);
+        $users['admin_interieur'] = $adminInterieur;
+
+        // Utilisateurs réguliers - Défense
+        $userDefense1 = new User();
+        $userDefense1->setEmail('j.dupont@defense.gouv.fr');
+        $userDefense1->setRoles(['ROLE_USER']);
+        $userDefense1->setPassword($this->hasher->hashPassword($userDefense1, 'UserDefense123!'));
+        $userDefense1->setNom('DUPONT');
+        $userDefense1->setPrenom('Jean-Michel');
+        $userDefense1->setTelephone('01.23.45.67.11');
+        $userDefense1->setDateInscription(new \DateTime('2021-03-15'));
+        $userDefense1->setCompteActif(true);
+        $manager->persist($userDefense1);
+        $users['user_defense_1'] = $userDefense1;
+
+        $userDefense2 = new User();
+        $userDefense2->setEmail('s.rousseau@defense.gouv.fr');
+        $userDefense2->setRoles(['ROLE_USER']);
+        $userDefense2->setPassword($this->hasher->hashPassword($userDefense2, 'UserDefense123!'));
+        $userDefense2->setNom('ROUSSEAU');
+        $userDefense2->setPrenom('Sophie');
+        $userDefense2->setTelephone('01.23.45.67.12');
+        $userDefense2->setDateInscription(new \DateTime('2021-04-10'));
+        $userDefense2->setCompteActif(true);
+        $manager->persist($userDefense2);
+        $users['user_defense_2'] = $userDefense2;
+
+        // Utilisateurs réguliers - Intérieur
+        $userInterieur1 = new User();
+        $userInterieur1->setEmail('m.martin@interieur.gouv.fr');
+        $userInterieur1->setRoles(['ROLE_USER']);
+        $userInterieur1->setPassword($this->hasher->hashPassword($userInterieur1, 'UserInterieur123!'));
+        $userInterieur1->setNom('MARTIN');
+        $userInterieur1->setPrenom('Marie');
+        $userInterieur1->setTelephone('01.98.76.54.11');
+        $userInterieur1->setDateInscription(new \DateTime('2021-06-01'));
+        $userInterieur1->setCompteActif(true);
+        $manager->persist($userInterieur1);
+        $users['user_interieur_1'] = $userInterieur1;
+
+        $userInterieur2 = new User();
+        $userInterieur2->setEmail('p.durand@interieur.gouv.fr');
+        $userInterieur2->setRoles(['ROLE_USER']);
+        $userInterieur2->setPassword($this->hasher->hashPassword($userInterieur2, 'UserInterieur123!'));
+        $userInterieur2->setNom('DURAND');
+        $userInterieur2->setPrenom('Pierre');
+        $userInterieur2->setTelephone('01.98.76.54.12');
+        $userInterieur2->setDateInscription(new \DateTime('2021-08-01'));
+        $userInterieur2->setCompteActif(true);
+        $manager->persist($userInterieur2);
+        $users['user_interieur_2'] = $userInterieur2;
+
+        // Utilisateurs réguliers - Économie
+        $userEconomie1 = new User();
+        $userEconomie1->setEmail('a.leroy@economie.gouv.fr');
+        $userEconomie1->setRoles(['ROLE_USER']);
+        $userEconomie1->setPassword($this->hasher->hashPassword($userEconomie1, 'UserEconomie123!'));
+        $userEconomie1->setNom('LEROY');
+        $userEconomie1->setPrenom('Antoine');
+        $userEconomie1->setTelephone('01.44.87.17.11');
+        $userEconomie1->setDateInscription(new \DateTime('2021-09-15'));
+        $userEconomie1->setCompteActif(true);
+        $manager->persist($userEconomie1);
+        $users['user_economie_1'] = $userEconomie1;
+
+        // Utilisateur désactivé pour test RGPD
+        $userDeactivated = new User();
+        $userDeactivated->setEmail('user.deactivated@test.gov.fr');
+        $userDeactivated->setRoles(['ROLE_USER']);
+        $userDeactivated->setPassword($this->hasher->hashPassword($userDeactivated, 'UserTest123!'));
+        $userDeactivated->setNom('ANCIEN');
+        $userDeactivated->setPrenom('Utilisateur');
+        $userDeactivated->setTelephone('01.00.00.00.99');
+        $userDeactivated->setDateInscription(new \DateTime('2019-01-01'));
+        $userDeactivated->setDateDerniereConnexion(new \DateTime('2019-12-31'));
+        $userDeactivated->deactivate(); // This sets compte_actif to false and date_suppression_prevue
+        $manager->persist($userDeactivated);
+        $users['user_deactivated'] = $userDeactivated;
+
+        // ========== BADGES ==========
+        $badges = [];
+
+        $badgeNumbers = [200001, 200002, 200003, 200004, 200005, 200006, 200007, 200008, 200009];
+        $badgeTypes = ['administrateur', 'permanent', 'permanent', 'temporaire', 'visiteur', 'permanent', 'permanent', 'permanent', 'desactive'];
+        $badgeUsers = ['superadmin', 'admin_defense', 'admin_interieur', 'user_defense_1', 'user_defense_2', 'user_interieur_1', 'user_interieur_2', 'user_economie_1', 'user_deactivated'];
+
+        foreach ($badgeNumbers as $index => $number) {
+            $badge = new Badge();
+            $badge->setNumeroBadge($number);
+            $badge->setTypeBadge($badgeTypes[$index]);
+            $badge->setDateCreation(new \DateTime('2021-01-0' . ($index + 1)));
+
+            if ($badgeTypes[$index] === 'temporaire') {
+                $badge->setDateExpiration(new \DateTime('2025-12-31'));
+            } elseif ($badgeTypes[$index] === 'visiteur') {
+                $badge->setDateExpiration(new \DateTime('2024-06-30'));
+            }
+
+            $manager->persist($badge);
+            $badges[$badgeUsers[$index]] = $badge;
+        }
+
+        // ========== BADGEUSES ==========
+        $badgeuses = [];
+
+        $badgeuseData = [
+            ['ref' => 'BADGE-ALPHA-001', 'date' => '2020-01-01'],
+            ['ref' => 'BADGE-BETA-001', 'date' => '2020-01-01'],
+            ['ref' => 'BADGE-PUBLIC-001', 'date' => '2020-01-01'],
+            ['ref' => 'BADGE-BUREAU-001', 'date' => '2020-01-15'],
+            ['ref' => 'BADGE-TECH-001', 'date' => '2020-01-15'],
+            ['ref' => 'BADGE-BETA-002', 'date' => '2020-02-01'],
+        ];
+
+        foreach ($badgeuseData as $index => $data) {
+            $badgeuse = new Badgeuse();
+            $badgeuse->setReference($data['ref']);
+            $badgeuse->setDateInstallation(new \DateTime($data['date']));
+            $manager->persist($badgeuse);
+            $badgeuses['badgeuse_' . ($index + 1)] = $badgeuse;
+        }
+
+        // ========== ACCÈS ==========
+        $accesData = [
+            ['badgeuse' => 'badgeuse_1', 'zone' => 'alpha', 'nom' => 'Accès Alpha Principal'],
+            ['badgeuse' => 'badgeuse_2', 'zone' => 'beta', 'nom' => 'Accès Beta Secondaire'],
+            ['badgeuse' => 'badgeuse_3', 'zone' => 'public', 'nom' => 'Accès Hall Public'],
+            ['badgeuse' => 'badgeuse_4', 'zone' => 'bureau', 'nom' => 'Accès Bureau Direction'],
+            ['badgeuse' => 'badgeuse_5', 'zone' => 'technique', 'nom' => 'Accès Zone Technique'],
+            ['badgeuse' => 'badgeuse_6', 'zone' => 'beta', 'nom' => 'Accès Beta Test'],
+        ];
+
+        foreach ($accesData as $data) {
+            $acces = new Acces();
+            $acces->setNomAcces($data['nom']);
+            $acces->setDateInstallation(new \DateTime('2020-01-01'));
+            $acces->setZone($zones[$data['zone']]);
+            $acces->setBadgeuse($badgeuses[$data['badgeuse']]);
+            $manager->persist($acces);
+        }
+
+        // ========== USER BADGES ==========
+        foreach ($badgeUsers as $userKey) {
+            $userBadge = new UserBadge();
+            $userBadge->setUtilisateur($users[$userKey]);
+            $userBadge->setBadge($badges[$userKey]);
+            $manager->persist($userBadge);
+        }
+
+        // ========== TRAVAILLER (User-Service relationships) ==========
+        // Principal service assignments (mandatory)
+        $principalTravaillerData = [
+            ['user' => 'superadmin', 'service' => 'principal_defense', 'date' => '2020-01-01'],
+            ['user' => 'admin_defense', 'service' => 'principal_defense', 'date' => '2020-01-15'],
+            ['user' => 'admin_interieur', 'service' => 'principal_interieur', 'date' => '2020-02-01'],
+            ['user' => 'user_defense_1', 'service' => 'principal_defense', 'date' => '2021-03-15'],
+            ['user' => 'user_defense_2', 'service' => 'principal_defense', 'date' => '2021-04-10'],
+            ['user' => 'user_interieur_1', 'service' => 'principal_interieur', 'date' => '2021-06-01'],
+            ['user' => 'user_interieur_2', 'service' => 'principal_interieur', 'date' => '2021-08-01'],
+            ['user' => 'user_economie_1', 'service' => 'principal_economie', 'date' => '2021-09-15'],
+        ];
+
+        foreach ($principalTravaillerData as $data) {
+            $travailler = new Travailler();
+            $travailler->setUtilisateur($users[$data['user']]);
+            $travailler->setService($services[$data['service']]);
+            $travailler->setDateDebut(new \DateTime($data['date']));
+            $travailler->setIsPrincipal(true);
+            $manager->persist($travailler);
+        }
+
+        // Secondary service assignments (optional)
+        $secondaryTravaillerData = [
+            ['user' => 'admin_defense', 'service' => 'security_defense', 'date' => '2020-01-15'],
+            ['user' => 'user_defense_1', 'service' => 'it_defense', 'date' => '2021-03-15'],
+            ['user' => 'user_defense_2', 'service' => 'logistics_defense', 'date' => '2021-04-10'],
+            ['user' => 'user_interieur_1', 'service' => 'rh_interieur', 'date' => '2021-06-01'],
+            ['user' => 'user_interieur_2', 'service' => 'police_interieur', 'date' => '2021-08-01'],
+            ['user' => 'user_economie_1', 'service' => 'finance_economie', 'date' => '2021-09-15'],
+        ];
+
+        foreach ($secondaryTravaillerData as $data) {
+            $travailler = new Travailler();
+            $travailler->setUtilisateur($users[$data['user']]);
+            $travailler->setService($services[$data['service']]);
+            $travailler->setDateDebut(new \DateTime($data['date']));
+            $travailler->setIsPrincipal(false);
+            $manager->persist($travailler);
+        }
+
+        // ========== SERVICE ZONES ==========
+        $serviceZoneData = [
+            // Principal services linked to Zone principale
+            ['service' => 'principal_defense', 'zone' => 'principale'],
+            ['service' => 'principal_interieur', 'zone' => 'principale'],
+            ['service' => 'principal_economie', 'zone' => 'principale'],
+            
+            // Other service zones
+            ['service' => 'security_defense', 'zone' => 'alpha'],
+            ['service' => 'security_defense', 'zone' => 'beta'],
+            ['service' => 'it_defense', 'zone' => 'technique'],
+            ['service' => 'it_defense', 'zone' => 'bureau'],
+            ['service' => 'logistics_defense', 'zone' => 'bureau'],
+            ['service' => 'rh_interieur', 'zone' => 'bureau'],
+            ['service' => 'police_interieur', 'zone' => 'beta'],
+            ['service' => 'finance_economie', 'zone' => 'bureau'],
+        ];
+
+        foreach ($serviceZoneData as $data) {
+            $serviceZone = new ServiceZone();
+            $serviceZone->setService($services[$data['service']]);
+            $serviceZone->setZone($zones[$data['zone']]);
+            $manager->persist($serviceZone);
+        }
+
+
+        // ========== POINTAGES (Time tracking) ==========
+        $today = new \DateTime();
+        $yesterday = new \DateTime('-1 day');
+        $lastWeek = new \DateTime('-7 days');
+
+        $pointageData = [
+            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_2', 'heure' => $today->format('Y-m-d') . ' 08:30:00', 'type' => 'entrée'],
+            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_2', 'heure' => $today->format('Y-m-d') . ' 12:00:00', 'type' => 'sortie'],
+            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_2', 'heure' => $today->format('Y-m-d') . ' 13:30:00', 'type' => 'entrée'],
+
+            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_4', 'heure' => $yesterday->format('Y-m-d') . ' 09:00:00', 'type' => 'entrée'],
+            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_4', 'heure' => $yesterday->format('Y-m-d') . ' 17:30:00', 'type' => 'sortie'],
+
+            ['badge' => 'user_defense_2', 'badgeuse' => 'badgeuse_4', 'heure' => $lastWeek->format('Y-m-d') . ' 08:15:00', 'type' => 'entrée'],
+            ['badge' => 'user_defense_2', 'badgeuse' => 'badgeuse_4', 'heure' => $lastWeek->format('Y-m-d') . ' 18:00:00', 'type' => 'sortie'],
+        ];
+
+        foreach ($pointageData as $data) {
+            $pointage = new Pointage();
+            $pointage->setBadge($badges[$data['badge']]);
+            $pointage->setBadgeuse($badgeuses[$data['badgeuse']]);
+            $pointage->setHeure(new \DateTime($data['heure']));
+            $pointage->setType($data['type']);
+            $manager->persist($pointage);
+        }
 
         $manager->flush();
     }

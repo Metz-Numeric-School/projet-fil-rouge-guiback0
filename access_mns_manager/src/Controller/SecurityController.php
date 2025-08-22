@@ -14,19 +14,10 @@ class SecurityController extends AbstractController
     {
         // Method 1: Using getParameter (simplest for AbstractController)
         $environment = $this->getParameter('kernel.environment');
-        
+
         // Check if we're in production or development
         $isProd = $environment === 'prod';
         $isDev = $environment === 'dev';
-        
-        // You can now use these variables for conditional logic
-        if ($isProd) {
-            // Production-specific logic
-            // e.g., enhanced security, different logging, etc.
-        } elseif ($isDev) {
-            // Development-specific logic
-            // e.g., debug info, different error handling, etc.
-        }
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();

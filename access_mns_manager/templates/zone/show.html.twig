@@ -1,34 +1,370 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Zone{% endblock %}
+{% block title %}
+	{{ zone.nomZone }}
+	- ACCESS MNS MANAGER
+{% endblock %}
+
+{% block breadcrumb %}
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">
+					<i class="bi bi-house-door"></i>
+					Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_zone_index') }}">Zones</a>
+			</li>
+			{% if zone.serviceZones and zone.serviceZones|first.service.organisation %}
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_organisation_show', {'id': zone.serviceZones|first.service.organisation.id}) }}">{{ zone.serviceZones|first.service.organisation.nomOrganisation }}</a>
+				</li>
+			{% endif %}
+			{% if zone.serviceZones %}
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_service_show', {'id': zone.serviceZones|first.service.id}) }}">{{ zone.serviceZones|first.service.nomService }}</a>
+				</li>
+			{% endif %}
+			<li class="breadcrumb-item active" aria-current="page">{{ zone.nomZone }}</li>
+		</ol>
+	</nav>
+{% endblock %}
 
 {% block body %}
-    <h1>Zone</h1>
+	<div
+		class="container">
+		<!-- Page Header -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-start">
+					<div>
+						<h1 class="h3 mb-1">{{ zone.nomZone }}</h1>
+						<p class="text-muted mb-0">
+							<i class="bi bi-geo-alt"></i>
+							Zone d'accès
+							{% if zone.serviceZones and zone.serviceZones|first.service.organisation %}
+								•
+								{{ zone.serviceZones|first.service.organisation.nomOrganisation }}
+							{% endif %}
+							{% if zone.capacite %}
+								• Capacité:
+								{{ zone.capacite }}
+								personnes
+							{% endif %}
+						</p>
+					</div>
+					<div>
+						<a href="{{ path('app_zone_edit', {'id': zone.id}) }}" class="btn btn-outline-primary">
+							<i class="bi bi-pencil"></i>
+							Modifier
+						</a>
+						{% if zone.nomZone != 'Zone principale' %}
+							<button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ zone.id }}, '{{ zone.nomZone|e('js') }}', '{{ csrf_token('delete' ~ zone.id) }}')">
+								<i class="bi bi-trash"></i>
+								Supprimer
+							</button>
+						{% else %}
+							<button type="button" class="btn btn-outline-secondary" disabled title="La Zone principale ne peut pas être supprimée">
+								<i class="bi bi-shield-lock"></i>
+								Zone protégée
+							</button>
+						{% endif %}
+						<a href="{{ path('app_zone_index') }}" class="btn btn-secondary">
+							<i class="bi bi-arrow-left"></i>
+							Retour
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ zone.id }}</td>
-            </tr>
-            <tr>
-                <th>Nom_zone</th>
-                <td>{{ zone.nomZone }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ zone.description }}</td>
-            </tr>
-            <tr>
-                <th>Capacite</th>
-                <td>{{ zone.capacite }}</td>
-            </tr>
-        </tbody>
-    </table>
+		<!-- Zone Details -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<i class="bi bi-info-circle"></i>
+							Informations de la zone
+						</h5>
+					</div>
+					<div class="card-body">
+						<div class="row g-4">
+							<div class="col-md-6">
+								<h6 class="text-primary mb-3">Détails généraux</h6>
+								<div class="mb-3">
+									<label class="text-muted small">Nom de la zone</label>
+									<div>
+										<i class="bi bi-geo-alt me-2"></i>
+										{{ zone.nomZone }}</div>
+								</div>
+								<div class="mb-3">
+									<label class="text-muted small">Description</label>
+									<div>
+										{% if zone.description %}
+											<i class="bi bi-card-text me-2"></i>
+											{{ zone.description }}
+										{% else %}
+											<span class="text-muted">Aucune description</span>
+										{% endif %}
+									</div>
+								</div>
+								<div class="mb-3">
+									<label class="text-muted small">ID de la zone</label>
+									<div>
+										<code>{{ zone.id }}</code>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-primary mb-3">Organisation et utilisation</h6>
+								<div class="mb-3">
+									<label class="text-muted small">Organisation</label>
+									<div>
+										{% if zone.serviceZones and zone.serviceZones|first.service.organisation %}
+											<i class="bi bi-building me-2"></i>
+											<a href="{{ path('app_organisation_show', {'id': zone.serviceZones|first.service.organisation.id}) }}">
+												{{ zone.serviceZones|first.service.organisation.nomOrganisation }}
+											</a>
+										{% else %}
+											<span class="text-muted">Aucune organisation assignée</span>
+										{% endif %}
+									</div>
+								</div>
+								<div class="mb-3">
+									<label class="text-muted small">Capacité maximale</label>
+									<div>
+										{% if zone.capacite %}
+											<span class="badge bg-info fs-6">{{ zone.capacite }}
+												personnes</span>
+										{% else %}
+											<span class="text-muted">Non définie</span>
+										{% endif %}
+									</div>
+								</div>
+								<div class="mb-3">
+									<label class="text-muted small">Points d'accès installés</label>
+									<div>
+										<i class="bi bi-key me-2"></i>
+										{{ zone.acces|length }}
+										accès</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <a href="{{ path('app_zone_index') }}">back to list</a>
 
-    <a href="{{ path('app_zone_edit', {'id': zone.id}) }}">edit</a>
+		<!-- Access Points Section -->
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header d-flex justify-content-between align-items-center">
+						<div>
+							<h5 class="mb-0">
+								<i class="bi bi-key"></i>
+								Points d'accès ({{ zone.acces|length }})
+							</h5>
+							<small class="text-muted">Badgeuses installées dans cette zone</small>
+						</div>
+						<div>
+							<a href="{{ path('app_acces_new') }}" class="btn btn-primary">
+								<i class="bi bi-plus-circle"></i>
+								Nouvel accès
+							</a>
+						</div>
+					</div>
+					{% if zone.acces|length > 0 %}
+						<div class="table-responsive">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>Badgeuse</th>
+										<th>Date installation</th>
+										<th>Statut</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for acces in zone.acces %}
+										<tr class="clickable-row" data-href="{{ path('app_acces_show', {'id': acces.id}) }}">
+											<td>
+												<div class="d-flex align-items-center">
+													<div class="access-icon me-3">
+														<i class="bi bi-credit-card text-success fs-5"></i>
+													</div>
+													<div>
+														<div class="fw-medium">{{ acces.nomAcces }}</div>
+														<small class="text-muted">ID:
+															{{ acces.id }}</small>
+													</div>
+												</div>
+											</td>
+											<td>
+												<i class="bi bi-calendar text-muted me-2"></i>
+												{{ acces.dateInstallation ? acces.dateInstallation|date('d/m/Y') : 'Non définie' }}
+												{% if acces.dateInstallation %}
+													<br><small class="text-muted">{{ acces.dateInstallation|date('H:i') }}</small>
+												{% endif %}
+											</td>
+											<td>
+												{% if acces.badgeuse %}
+													<span class="badge bg-success">Opérationnel</span>
+												{% else %}
+													<span class="badge bg-warning">En attente</span>
+												{% endif %}
+											</td>
+											<td onclick="event.stopPropagation();">
+												<div class="btn-group" role="group">
+													<a href="{{ path('app_acces_show', {'id': acces.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
+														<i class="bi bi-eye"></i>
+													</a>
+													<a href="{{ path('app_acces_edit', {'id': acces.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+														<i class="bi bi-pencil"></i>
+													</a>
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% else %}
+						<div class="text-center py-5">
+							<i class="bi bi-key text-muted" style="font-size: 4rem;"></i>
+							<h4 class="text-muted mt-3">Aucun point d'accès</h4>
+							<p class="text-muted">Aucune badgeuse n'est installée dans cette zone.</p>
+							<a href="{{ path('app_acces_new') }}" class="btn btn-primary">
+								<i class="bi bi-plus-circle"></i>
+								Installer un premier accès
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
 
-    {{ include('zone/_delete_form.html.twig') }}
+	<!-- Delete Confirmation Modal -->
+	<div class="modal fade" id="deleteModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirmer la suppression</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<div id="deleteWarning" class="alert alert-warning d-none">
+						<i class="bi bi-exclamation-triangle"></i>
+						<strong>Attention !</strong>
+						<p class="mb-0">Cette zone ne peut pas être supprimée car elle est utilisée par des services. Veuillez d'abord retirer la zone de tous les services.</p>
+					</div>
+					<div id="deleteConfirmation">
+						<p>Êtes-vous sûr de vouloir supprimer la zone
+							<strong id="zoneName"></strong>
+							?</p>
+						<div id="accessWarning" class="alert alert-info d-none">
+							<i class="bi bi-info-circle"></i>
+							<strong>Information :</strong>
+							<span id="accessCount"></span>
+							point(s) d'accès associé(s) seront également supprimé(s).
+						</div>
+						<p class="text-danger">
+							<small>Cette action est irréversible.</small>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+					<form id="deleteForm" method="post" style="display: inline;">
+						<input type="hidden" name="_token" id="deleteToken">
+						<button type="submit" class="btn btn-danger" id="deleteButton">Supprimer</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block stylesheets %}
+	<style>
+		.access-icon {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background-color: #e9ecef;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+		.access-icon {
+			background-color: #e8f5e8;
+		}
+		.clickable-row {
+			cursor: pointer;
+			transition: background-color 0.2s ease;
+		}
+		.clickable-row:hover {
+			background-color: rgba(13, 110, 253, 0.1) !important;
+		}
+	</style>
+{% endblock %}
+
+{% block javascripts %}
+	<script>
+		document.addEventListener('DOMContentLoaded', () => { // Make table rows clickable
+document.querySelectorAll('.clickable-row').forEach(row => {
+row.addEventListener('click', (e) => {
+if (e.target.closest('a, button')) {
+return;
+}
+window.location.href = row.dataset.href;
+});
+});
+});
+
+function confirmDelete(zoneId, zoneName, csrfToken) {
+document.getElementById('zoneName').textContent = zoneName;
+document.getElementById('deleteForm').action = `/manager/zone/${zoneId}`;
+
+// Set CSRF token for deletion
+document.getElementById('deleteToken').value = csrfToken;
+document.getElementById('deleteToken').name = '_token';
+
+// Check if zone has assigned services
+const hasServices = {{ zone.serviceZones|length }} > 0;
+const accessCount = {{ zone.acces|length }};
+const deleteWarning = document.getElementById('deleteWarning');
+const deleteConfirmation = document.getElementById('deleteConfirmation');
+const accessWarning = document.getElementById('accessWarning');
+const accessCountSpan = document.getElementById('accessCount');
+const deleteButton = document.getElementById('deleteButton');
+
+if (hasServices) {
+deleteWarning.classList.remove('d-none');
+deleteConfirmation.classList.add('d-none');
+deleteButton.disabled = true;
+deleteButton.textContent = 'Suppression impossible';
+} else {
+deleteWarning.classList.add('d-none');
+deleteConfirmation.classList.remove('d-none');
+deleteButton.disabled = false;
+deleteButton.textContent = 'Supprimer';
+
+// Show access deletion warning if there are access points
+if (accessCount > 0) {
+accessWarning.classList.remove('d-none');
+accessCountSpan.textContent = accessCount;
+} else {
+accessWarning.classList.add('d-none');
+}
+}
+
+new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+	</script>
 {% endblock %}

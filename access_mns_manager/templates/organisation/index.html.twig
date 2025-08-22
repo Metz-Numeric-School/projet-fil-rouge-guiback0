@@ -1,59 +1,310 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Organisation index{% endblock %}
+{% block title %}Organisations - ACCESS MNS MANAGER
+{% endblock %}
+
+{% block breadcrumb %}
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">
+					<i class="bi bi-house-door"></i>
+					Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item active" aria-current="page">Organisations</li>
+		</ol>
+	</nav>
+{% endblock %}
 
 {% block body %}
-    <h1>Organisation index</h1>
+	<div
+		class="container">
+		<!-- Page Header -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-center">
+					<div>
+						<h1 class="h3 mb-0">Organisations</h1>
+						<p class="text-muted">Gestion des organisations du système</p>
+					</div>
+					<div>
+						<a href="{{ path('app_organisation_new') }}" class="btn btn-primary">
+							<i class="bi bi-plus-circle"></i>
+							Nouvelle organisation
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nom_organisation</th>
-                <th>Telephone</th>
-                <th>Email</th>
-                <th>Site_web</th>
-                <th>Date_creation</th>
-                <th>Siret</th>
-                <th>Ca</th>
-                <th>Numero_rue</th>
-                <th>Suffix_rue</th>
-                <th>Nom_rue</th>
-                <th>Code_postal</th>
-                <th>Ville</th>
-                <th>Pays</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for organisation in organisations %}
-            <tr>
-                <td>{{ organisation.id }}</td>
-                <td>{{ organisation.nomOrganisation }}</td>
-                <td>{{ organisation.telephone }}</td>
-                <td>{{ organisation.email }}</td>
-                <td>{{ organisation.siteWeb }}</td>
-                <td>{{ organisation.dateCreation ? organisation.dateCreation|date('Y-m-d') : '' }}</td>
-                <td>{{ organisation.siret }}</td>
-                <td>{{ organisation.ca }}</td>
-                <td>{{ organisation.numeroRue }}</td>
-                <td>{{ organisation.suffixRue }}</td>
-                <td>{{ organisation.nomRue }}</td>
-                <td>{{ organisation.codePostal }}</td>
-                <td>{{ organisation.ville }}</td>
-                <td>{{ organisation.pays }}</td>
-                <td>
-                    <a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">show</a>
-                    <a href="{{ path('app_organisation_edit', {'id': organisation.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="15">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+		<!-- Search and Filters -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+						<div class="row g-3">
+							<div class="col-md-4">
+								<div class="input-group">
+									<span class="input-group-text">
+										<i class="bi bi-search"></i>
+									</span>
+									<input type="text" class="form-control" id="searchInput" placeholder="Rechercher une organisation...">
+								</div>
+							</div>
+							<div class="col-md-3">
+								<select class="form-select" id="cityFilter">
+									<option value="">Toutes les villes</option>
+									{% set cities = [] %}
+									{% for organisation in organisations %}
+										{% if organisation.ville and organisation.ville not in cities %}
+											{% set cities = cities|merge([organisation.ville]) %}
+										{% endif %}
+									{% endfor %}
+									{% for city in cities|sort %}
+										<option value="{{ city }}">{{ city }}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div class="col-md-2">
+								<button type="button" class="btn btn-outline-secondary" id="clearFilters">
+									<i class="bi bi-x-circle"></i>
+									Effacer
+								</button>
+							</div>
+							<div class="col-md-3 text-end">
+								<span class="text-muted">{{ organisations|length }}
+									organisation{{ organisations|length > 1 ? 's' : '' }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <a href="{{ path('app_organisation_new') }}">Create new</a>
+		<!-- Organisations List -->
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header d-flex justify-content-between align-items-center">
+						<h5 class="mb-0">
+							<i class="bi bi-building"></i>
+							Organisations ({{ organisations|length }})
+						</h5>
+						<a href="{{ path('app_organisation_new') }}" class="btn btn-primary">
+							<i class="bi bi-plus-circle"></i>
+							Nouvelle organisation
+						</a>
+					</div>
+					{% if organisations|length > 0 %}
+						<div class="table-responsive">
+							<table class="table table-hover" id="organisationsTable">
+								<thead>
+									<tr>
+										<th>Organisation</th>
+										<th>Localisation</th>
+										<th>Contact</th>
+										<th>Services</th>
+										<th>Date création</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for organisation in organisations %}
+										<tr class="clickable-row" data-href="{{ path('app_organisation_show', {'id': organisation.id}) }}" data-city="{{ organisation.ville ?? '' }}">
+											<td>
+												<div>
+													<div class="fw-medium">{{ organisation.nomOrganisation ?? 'Organisation sans nom' }}</div>
+													{% if organisation.siret %}
+														<small class="text-muted">SIRET:
+															{{ organisation.siret }}</small>
+													{% endif %}
+												</div>
+											</td>
+											<td>
+												{% if organisation.ville %}
+													<div>
+														<i class="bi bi-geo-alt text-primary"></i>
+														{{ organisation.ville }}
+														{% if organisation.codePostal %}
+															<small class="text-muted">({{ organisation.codePostal }})</small>
+														{% endif %}
+													</div>
+													{% if organisation.nomRue %}
+														<small class="text-muted">{{ organisation.numeroRue ?? '' }}
+															{{ organisation.suffixRue ?? '' }}
+															{{ organisation.nomRue }}</small>
+													{% endif %}
+												{% else %}
+													<small class="text-muted">Non renseignée</small>
+												{% endif %}
+											</td>
+											<td>
+												<div>
+													<div>
+														<i class="bi bi-envelope text-muted"></i>
+														{{ organisation.email ?? 'Non renseigné' }}</div>
+													{% if organisation.telephone %}
+														<small class="text-muted">
+															<i class="bi bi-telephone"></i>
+															{{ organisation.telephone }}</small>
+													{% endif %}
+													{% if organisation.siteWeb %}
+														<small class="d-block">
+															<i class="bi bi-globe"></i>
+															<a href="{{ organisation.siteWeb }}" target="_blank">Site web</a>
+														</small>
+													{% endif %}
+												</div>
+											</td>
+											<td>
+												<span class="badge bg-primary">{{ organisation.services|length }}
+													service{{ organisation.services|length > 1 ? 's' : '' }}</span>
+											</td>
+											<td>
+												<small class="text-muted">{{ organisation.dateCreation ? organisation.dateCreation|date('d/m/Y') : 'Non renseignée' }}</small>
+												{% if organisation.ca %}
+													<div>
+														<small class="text-success">CA:
+															{{ organisation.ca|number_format(0, ',', ' ') }}
+															€</small>
+													</div>
+												{% endif %}
+											</td>
+											<td onclick="event.stopPropagation();">
+												<div class="btn-group" role="group">
+													<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
+														<i class="bi bi-eye"></i>
+													</a>
+													<a href="{{ path('app_organisation_edit', {'id': organisation.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+														<i class="bi bi-pencil"></i>
+													</a>
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% else %}
+						<div class="text-center py-4">
+							<i class="bi bi-building text-muted" style="font-size: 3rem;"></i>
+							<p class="text-muted mt-2">Aucune organisation</p>
+							<a href="{{ path('app_organisation_new') }}" class="btn btn-primary">
+								<i class="bi bi-plus"></i>
+								Créer une organisation
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Delete Confirmation Modal -->
+	<div class="modal fade" id="deleteModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirmer la suppression</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<p>Êtes-vous sûr de vouloir supprimer l'organisation
+						<strong id="organisationName"></strong>
+						?</p>
+					<p class="text-danger">
+						<small>Cette action est irréversible.</small>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+					<form id="deleteForm" method="post" style="display: inline;">
+						<input type="hidden" name="_token" id="deleteToken">
+						<button type="submit" class="btn btn-danger">Supprimer</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block stylesheets %}
+	<style>
+		.clickable-row {
+			cursor: pointer;
+			transition: background-color 0.2s ease;
+		}
+		.clickable-row:hover {
+			background-color: rgba(13, 110, 253, 0.1) !important;
+		}
+	</style>
+{% endblock %}
+
+{% block javascripts %}
+	<script>
+		document.addEventListener('DOMContentLoaded', () => { // Make table rows clickable
+document.querySelectorAll('.clickable-row').forEach(row => {
+row.addEventListener('click', (e) => { // Don't trigger if clicking on buttons or links
+if (e.target.closest('a, button')) {
+return;
+}
+window.location.href = row.dataset.href;
+});
+});
+
+const searchInput = document.getElementById('searchInput');
+const cityFilter = document.getElementById('cityFilter');
+const clearFilters = document.getElementById('clearFilters');
+const tableRows = document.querySelectorAll('#organisationsTable tbody tr');
+
+function filterTable() {
+const searchTerm = searchInput.value.toLowerCase();
+const selectedCity = cityFilter.value;
+let visibleCount = 0;
+
+tableRows.forEach(row => {
+const text = row.textContent.toLowerCase();
+const city = row.dataset.city;
+
+const matchesSearch = text.includes(searchTerm);
+const matchesCity = ! selectedCity || city === selectedCity;
+
+if (matchesSearch && matchesCity) {
+row.style.display = '';
+visibleCount++;
+} else {
+row.style.display = 'none';
+}
+});
+
+// Update count display
+const countDisplay = document.querySelector('.text-end .text-muted');
+if (countDisplay) {
+countDisplay.textContent = `${visibleCount} organisation${
+visibleCount !== 1 ? 's' : ''
+}`;
+}
+}
+
+searchInput.addEventListener('input', filterTable);
+cityFilter.addEventListener('change', filterTable);
+
+clearFilters.addEventListener('click', () => {
+searchInput.value = '';
+cityFilter.value = '';
+filterTable();
+});
+});
+
+function confirmDelete(orgId, orgName, csrfToken) {
+document.getElementById('organisationName').textContent = orgName;
+document.getElementById('deleteForm').action = `/manager/organisation/${orgId}/delete`;
+
+// Set CSRF token for deletion
+document.getElementById('deleteToken').value = csrfToken;
+document.getElementById('deleteToken').name = '_token';
+
+new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+	</script>
 {% endblock %}

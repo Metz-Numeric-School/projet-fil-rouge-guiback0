@@ -1,4 +1,222 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'zoneForm', 'class': 'needs-validation'}}) }}
+    <div class="row g-4">
+        <!-- Zone Information Header -->
+        <div class="col-12">
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-geo-alt"></i>
+                Informations générales
+            </h6>
+        </div>
+        
+        <!-- Zone Name -->
+        <div class="col-md-8">
+            {{ form_row(form.nom_zone, {
+                'label': 'Nom de la zone *',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Ex: Zone Serveurs, Zone Réunion, Zone Archives...'
+                }
+            }) }}
+        </div>
+        
+        <!-- Zone Capacity -->
+        <div class="col-md-4">
+            {{ form_row(form.capacite, {
+                'label': 'Capacité maximale',
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Ex: 50',
+                    'min': '1',
+                    'max': '10000'
+                }
+            }) }}
+        </div>
+
+        <!-- Zone Description -->
+        <div class="col-12">
+            {{ form_row(form.description, {
+                'label': 'Description',
+                'attr': {
+                    'class': 'form-control',
+                    'rows': 3,
+                    'placeholder': 'Décrivez l\'utilisation de cette zone, les équipements présents, les restrictions d\'accès...'
+                }
+            }) }}
+        </div>
+
+        <!-- Organization -->
+        {% if form.organisation is defined %}
+        <div class="col-12">
+            {{ form_row(form.organisation, {
+                'label': 'Organisation *',
+                'attr': {
+                    'class': 'form-select'
+                }
+            }) }}
+        </div>
+        {% endif %}
+
+        {{ form_rest(form) }}
+        
+        <!-- Form Actions -->
+        <div class="col-12">
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                {% if service is defined and service %}
+                    <a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </a>
+                {% else %}
+                    <a href="{{ path('app_zone_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </a>
+                {% endif %}
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <i class="bi bi-check-circle"></i> {{ button_label|default('Enregistrer') }}
+                </button>
+            </div>
+        </div>
+    </div>
 {{ form_end(form) }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('zoneForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    
+    // Real-time validation
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        
+        if (isValid) {
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            
+            // Submit form
+            this.submit();
+        } else {
+            // Scroll to first error
+            const firstError = form.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+    
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldName = field.name;
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Clear previous validation states
+        field.classList.remove('is-valid', 'is-invalid');
+        const feedback = field.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+        
+        // Required field validation
+        if (field.hasAttribute('required') && !value) {
+            isValid = false;
+            errorMessage = 'Ce champ est obligatoire.';
+        }
+        
+        // Zone name validation
+        else if (fieldName.includes('nom_zone') && value) {
+            if (value.length < 2) {
+                isValid = false;
+                errorMessage = 'Le nom de la zone doit contenir au moins 2 caractères.';
+            } else if (value.length > 100) {
+                isValid = false;
+                errorMessage = 'Le nom de la zone ne peut pas dépasser 100 caractères.';
+            }
+        }
+        
+        // Zone capacity validation
+        else if (fieldName.includes('capacite') && value) {
+            const capacity = parseInt(value);
+            if (isNaN(capacity) || capacity < 1 || capacity > 10000) {
+                isValid = false;
+                errorMessage = 'La capacité doit être un nombre entre 1 et 10000.';
+            }
+        }
+        
+        // Description validation
+        else if (fieldName.includes('description') && value && value.length > 500) {
+            isValid = false;
+            errorMessage = 'La description ne peut pas dépasser 500 caractères.';
+        }
+        
+        // Apply validation result
+        if (isValid && value) {
+            field.classList.add('is-valid');
+        } else if (!isValid) {
+            field.classList.add('is-invalid');
+            
+            // Add error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = errorMessage;
+            field.parentNode.appendChild(errorDiv);
+        }
+        
+        return isValid;
+    }
+    
+    // Character counter for description
+    const descriptionField = form.querySelector('textarea[name*="description"]');
+    if (descriptionField) {
+        const maxLength = 500;
+        
+        // Create character counter
+        const counterDiv = document.createElement('div');
+        counterDiv.className = 'form-text text-end mt-1';
+        counterDiv.innerHTML = `<small class="text-muted"><span id="descriptionCount">0</span>/${maxLength} caractères</small>`;
+        descriptionField.parentNode.appendChild(counterDiv);
+        
+        const counter = document.getElementById('descriptionCount');
+        
+        descriptionField.addEventListener('input', function() {
+            const currentLength = this.value.length;
+            counter.textContent = currentLength;
+            
+            if (currentLength > maxLength) {
+                counter.parentNode.classList.remove('text-muted');
+                counter.parentNode.classList.add('text-danger');
+            } else if (currentLength > maxLength * 0.8) {
+                counter.parentNode.classList.remove('text-muted', 'text-danger');
+                counter.parentNode.classList.add('text-warning');
+            } else {
+                counter.parentNode.classList.remove('text-warning', 'text-danger');
+                counter.parentNode.classList.add('text-muted');
+            }
+        });
+        
+        // Initialize counter
+        descriptionField.dispatchEvent(new Event('input'));
+    }
+});
+</script>

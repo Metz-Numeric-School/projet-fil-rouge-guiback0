@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Acces;
+use App\Entity\Badgeuse;
 use App\Form\AccesType;
 use App\Repository\AccesRepository;
+use App\Repository\OrganisationRepository;
+use App\Repository\ZoneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/acces')]
-final class AccesController extends AbstractController{
+final class AccesController extends AbstractController
+{
     #[Route(name: 'app_acces_index', methods: ['GET'])]
     public function index(AccesRepository $accesRepository): Response
     {
@@ -22,22 +26,88 @@ final class AccesController extends AbstractController{
     }
 
     #[Route('/new', name: 'app_acces_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $acce = new Acces();
-        $form = $this->createForm(AccesType::class, $acce);
-        $form->handleRequest($request);
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        OrganisationRepository $organisationRepository,
+        ZoneRepository $zoneRepository
+    ): Response {
+        $organisations = $organisationRepository->findAll();
+        $selectedOrganisation = null;
+        $zones = [];
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($acce);
-            $entityManager->flush();
+        // Handle organisation selection
+        $organisationId = $request->query->get('organisation') ?: $request->request->get('organisation');
+        if ($organisationId) {
+            $selectedOrganisation = $organisationRepository->find($organisationId);
+            if ($selectedOrganisation) {
+                $zones = $zoneRepository->findByOrganisation($selectedOrganisation);
+            }
+        }
 
-            return $this->redirectToRoute('app_acces_index', [], Response::HTTP_SEE_OTHER);
+        // Handle form submission
+        if ($request->isMethod('POST') && $selectedOrganisation) {
+            $selectedZone = $request->request->get('zone');
+            $nomAcces = trim($request->request->get('nom_acces'));
+            $referenceBadgeuse = trim($request->request->get('reference_badgeuse'));
+
+            if (!$selectedZone) {
+                $this->addFlash('error', 'Veuillez sélectionner une zone.');
+            } elseif (empty($nomAcces) || empty($referenceBadgeuse)) {
+                $this->addFlash('error', 'Veuillez renseigner le nom d\'accès et la référence de la badgeuse.');
+            } else {
+                try {
+                    $entityManager->beginTransaction();
+
+                    // Create new badgeuse
+                    $badgeuse = new Badgeuse();
+                    $badgeuse->setReference($referenceBadgeuse);
+                    $badgeuse->setDateInstallation(new \DateTime());
+                    $entityManager->persist($badgeuse);
+                    $entityManager->flush(); // Get badgeuse ID
+
+                    // Create access for the selected zone
+                    $zoneId = filter_var($selectedZone, FILTER_VALIDATE_INT);
+                    if ($zoneId === false || $zoneId <= 0) {
+                        throw new \Exception('ID de zone invalide');
+                    }
+
+                    $zone = $zoneRepository->find($zoneId);
+                    if ($zone) {
+                        $acces = new Acces();
+                        $acces->setNomAcces($nomAcces);
+                        $acces->setDateInstallation(new \DateTime());
+                        $acces->setZone($zone);
+                        $acces->setBadgeuse($badgeuse);
+
+                        $entityManager->persist($acces);
+                        $createdAccess = [$zone->getNomZone()];
+                    } else {
+                        throw new \Exception('Zone non trouvée');
+                    }
+
+                    $entityManager->flush();
+                    $entityManager->commit();
+
+                    $this->addFlash(
+                        'success',
+                        'Badgeuse "' . $referenceBadgeuse . '" créée avec succès. ' .
+                            'Accès configuré pour la zone: ' . $createdAccess[0]
+                    );
+
+                    // Redirect to the zone show page
+                    return $this->redirectToRoute('app_zone_show', ['id' => $zone->getId()]);
+                } catch (\Exception) {
+                    $entityManager->rollback();
+                    $this->addFlash('error', 'Erreur lors de la création des accès. Veuillez réessayer.');
+                }
+            }
         }
 
         return $this->render('acces/new.html.twig', [
-            'acce' => $acce,
-            'form' => $form,
+            'organisations' => $organisations,
+            'selectedOrganisation' => $selectedOrganisation,
+            'zones' => $zones,
         ]);
     }
 
@@ -70,7 +140,7 @@ final class AccesController extends AbstractController{
     #[Route('/{id}', name: 'app_acces_delete', methods: ['POST'])]
     public function delete(Request $request, Acces $acce, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$acce->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $acce->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($acce);
             $entityManager->flush();
         }

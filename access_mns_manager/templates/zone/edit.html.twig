@@ -9,5 +9,11 @@
 
     <a href="{{ path('app_zone_index') }}">back to list</a>
 
-    {{ include('zone/_delete_form.html.twig') }}
+    {% if zone.nomZone != 'Zone principale' %}
+        {{ include('zone/_delete_form.html.twig') }}
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-shield-lock"></i> La Zone principale ne peut pas être supprimée.
+        </div>
+    {% endif %}
 {% endblock %}
