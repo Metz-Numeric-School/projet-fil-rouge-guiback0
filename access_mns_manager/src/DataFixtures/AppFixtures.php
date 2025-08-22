@@ -204,6 +204,8 @@ class AppFixtures extends Fixture
         $superAdmin->setPrenom('Super Admin');
         $superAdmin->setTelephone('01.00.00.00.01');
         $superAdmin->setDateInscription(new \DateTime('2020-01-01'));
+        $superAdmin->setDateDerniereConnexion(new \DateTime('-1 day'));
+        $superAdmin->setCompteActif(true);
         $manager->persist($superAdmin);
         $users['superadmin'] = $superAdmin;
 
@@ -216,6 +218,7 @@ class AppFixtures extends Fixture
         $adminDefense->setPrenom('Général Alexandre');
         $adminDefense->setTelephone('01.23.45.67.01');
         $adminDefense->setDateInscription(new \DateTime('2020-01-15'));
+        $adminDefense->setCompteActif(true);
         $manager->persist($adminDefense);
         $users['admin_defense'] = $adminDefense;
 
@@ -228,6 +231,7 @@ class AppFixtures extends Fixture
         $adminInterieur->setPrenom('Préfet Catherine');
         $adminInterieur->setTelephone('01.98.76.54.01');
         $adminInterieur->setDateInscription(new \DateTime('2020-02-01'));
+        $adminInterieur->setCompteActif(true);
         $manager->persist($adminInterieur);
         $users['admin_interieur'] = $adminInterieur;
 
@@ -240,6 +244,7 @@ class AppFixtures extends Fixture
         $userDefense1->setPrenom('Jean-Michel');
         $userDefense1->setTelephone('01.23.45.67.11');
         $userDefense1->setDateInscription(new \DateTime('2021-03-15'));
+        $userDefense1->setCompteActif(true);
         $manager->persist($userDefense1);
         $users['user_defense_1'] = $userDefense1;
 
@@ -251,6 +256,7 @@ class AppFixtures extends Fixture
         $userDefense2->setPrenom('Sophie');
         $userDefense2->setTelephone('01.23.45.67.12');
         $userDefense2->setDateInscription(new \DateTime('2021-04-10'));
+        $userDefense2->setCompteActif(true);
         $manager->persist($userDefense2);
         $users['user_defense_2'] = $userDefense2;
 
@@ -263,6 +269,7 @@ class AppFixtures extends Fixture
         $userInterieur1->setPrenom('Marie');
         $userInterieur1->setTelephone('01.98.76.54.11');
         $userInterieur1->setDateInscription(new \DateTime('2021-06-01'));
+        $userInterieur1->setCompteActif(true);
         $manager->persist($userInterieur1);
         $users['user_interieur_1'] = $userInterieur1;
 
@@ -274,6 +281,7 @@ class AppFixtures extends Fixture
         $userInterieur2->setPrenom('Pierre');
         $userInterieur2->setTelephone('01.98.76.54.12');
         $userInterieur2->setDateInscription(new \DateTime('2021-08-01'));
+        $userInterieur2->setCompteActif(true);
         $manager->persist($userInterieur2);
         $users['user_interieur_2'] = $userInterieur2;
 
@@ -286,15 +294,30 @@ class AppFixtures extends Fixture
         $userEconomie1->setPrenom('Antoine');
         $userEconomie1->setTelephone('01.44.87.17.11');
         $userEconomie1->setDateInscription(new \DateTime('2021-09-15'));
+        $userEconomie1->setCompteActif(true);
         $manager->persist($userEconomie1);
         $users['user_economie_1'] = $userEconomie1;
+
+        // Utilisateur désactivé pour test RGPD
+        $userDeactivated = new User();
+        $userDeactivated->setEmail('user.deactivated@test.gov.fr');
+        $userDeactivated->setRoles(['ROLE_USER']);
+        $userDeactivated->setPassword($this->hasher->hashPassword($userDeactivated, 'UserTest123!'));
+        $userDeactivated->setNom('ANCIEN');
+        $userDeactivated->setPrenom('Utilisateur');
+        $userDeactivated->setTelephone('01.00.00.00.99');
+        $userDeactivated->setDateInscription(new \DateTime('2019-01-01'));
+        $userDeactivated->setDateDerniereConnexion(new \DateTime('2019-12-31'));
+        $userDeactivated->deactivate(); // This sets compte_actif to false and date_suppression_prevue
+        $manager->persist($userDeactivated);
+        $users['user_deactivated'] = $userDeactivated;
 
         // ========== BADGES ==========
         $badges = [];
 
-        $badgeNumbers = [200001, 200002, 200003, 200004, 200005, 200006, 200007, 200008];
-        $badgeTypes = ['administrateur', 'permanent', 'permanent', 'temporaire', 'visiteur', 'permanent', 'permanent', 'permanent'];
-        $badgeUsers = ['superadmin', 'admin_defense', 'admin_interieur', 'user_defense_1', 'user_defense_2', 'user_interieur_1', 'user_interieur_2', 'user_economie_1'];
+        $badgeNumbers = [200001, 200002, 200003, 200004, 200005, 200006, 200007, 200008, 200009];
+        $badgeTypes = ['administrateur', 'permanent', 'permanent', 'temporaire', 'visiteur', 'permanent', 'permanent', 'permanent', 'desactive'];
+        $badgeUsers = ['superadmin', 'admin_defense', 'admin_interieur', 'user_defense_1', 'user_defense_2', 'user_interieur_1', 'user_interieur_2', 'user_economie_1', 'user_deactivated'];
 
         foreach ($badgeNumbers as $index => $number) {
             $badge = new Badge();

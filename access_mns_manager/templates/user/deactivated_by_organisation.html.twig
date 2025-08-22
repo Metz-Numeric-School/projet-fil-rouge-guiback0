@@ -1,0 +1,314 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	Employés désactivés - {{ organisation.nomOrganisation }} - ACCESS MNS MANAGER
+{% endblock %}
+
+{% block breadcrumb %}
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">
+					<i class="bi bi-house-door"></i>
+					Tableau de bord
+				</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_index') }}">Organisations</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a>
+			</li>
+			<li class="breadcrumb-item active" aria-current="page">Employés désactivés</li>
+		</ol>
+	</nav>
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<!-- Page Header -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-start">
+					<div>
+						<h1 class="h3 mb-1">
+							<i class="bi bi-pause-circle text-warning"></i>
+							Employés désactivés
+						</h1>
+						<p class="text-muted mb-0">
+							<i class="bi bi-building"></i>
+							{{ organisation.nomOrganisation }}
+							• {{ deactivated_users|length }} employé{{ deactivated_users|length > 1 ? 's' : '' }} désactivé{{ deactivated_users|length > 1 ? 's' : '' }}
+						</p>
+					</div>
+					<div>
+						<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
+							<i class="bi bi-arrow-left"></i>
+							Retour à l'organisation
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- GDPR Information Alert -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="alert alert-warning" role="alert">
+					<div class="d-flex">
+						<div class="me-3">
+							<i class="bi bi-shield-exclamation fs-4"></i>
+						</div>
+						<div>
+							<h6 class="alert-heading mb-2">
+								<i class="bi bi-info-circle me-1"></i>
+								Conformité RGPD - Données en conservation
+							</h6>
+							<p class="mb-2">
+								Les comptes désactivés sont conservés pendant <strong>5 ans</strong> selon la politique RGPD.
+								Les utilisateurs conservent leurs badges et données de pointage durant cette période.
+							</p>
+							<small class="text-muted">
+								<i class="bi bi-calendar-x me-1"></i>
+								Suppression automatique après expiration du délai de conservation.
+								Seuls les super administrateurs peuvent effectuer une suppression définitive anticipée.
+							</small>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Deactivated Users List -->
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<i class="bi bi-people text-warning"></i>
+							Liste des employés désactivés ({{ deactivated_users|length }})
+						</h5>
+						<small class="text-muted">Comptes désactivés avec conservation des données</small>
+					</div>
+					
+					{% if deactivated_users|length > 0 %}
+						<div class="table-responsive">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>Employé</th>
+										<th>Email</th>
+										<th>Poste</th>
+										<th>Date de désactivation</th>
+										<th>Suppression prévue</th>
+										<th>Services</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for user in deactivated_users %}
+										<tr>
+											<td>
+												<div class="d-flex align-items-center">
+													<div class="avatar-circle me-3">
+														<i class="bi bi-person-slash text-warning"></i>
+													</div>
+													<div>
+														<div class="fw-medium text-muted">
+															{{ user.prenom }} {{ user.nom }}
+														</div>
+														<small class="text-muted">
+															ID: {{ user.id }}
+															<span class="badge bg-warning ms-1">
+																<i class="bi bi-pause-circle me-1"></i>Désactivé
+															</span>
+														</small>
+													</div>
+												</div>
+											</td>
+											<td class="text-muted">
+												<i class="bi bi-envelope me-2"></i>
+												{{ user.email }}
+											</td>
+											<td>
+												{% if user.poste %}
+													<span class="badge bg-secondary">{{ user.poste }}</span>
+												{% else %}
+													<span class="text-muted">Non défini</span>
+												{% endif %}
+											</td>
+											<td>
+												{% if user.dateDerniereModification %}
+													<div>
+														<div class="fw-medium">{{ user.dateDerniereModification|date('d/m/Y') }}</div>
+														<small class="text-muted">{{ user.dateDerniereModification|date('H:i') }}</small>
+													</div>
+												{% else %}
+													<span class="text-muted">Non disponible</span>
+												{% endif %}
+											</td>
+											<td>
+												{% if user.dateSuppressionPrevue %}
+													<div class="text-warning">
+														<i class="bi bi-calendar-x me-1"></i>
+														<div class="fw-medium">{{ user.dateSuppressionPrevue|date('d/m/Y') }}</div>
+														{% set daysLeft = date().diff(user.dateSuppressionPrevue).days %}
+														{% if user.dateSuppressionPrevue > date() %}
+															<small class="text-muted">Dans {{ daysLeft }} jour{{ daysLeft > 1 ? 's' : '' }}</small>
+														{% else %}
+															<small class="text-danger">
+																<i class="bi bi-exclamation-triangle me-1"></i>Expiré
+															</small>
+														{% endif %}
+													</div>
+												{% else %}
+													<span class="text-muted">Non définie</span>
+												{% endif %}
+											</td>
+											<td>
+												{% set serviceCount = 0 %}
+												{% for service in organisation.services %}
+													{% for travail in service.travail %}
+														{% if travail.utilisateur == user %}
+															{% set serviceCount = serviceCount + 1 %}
+															{% if travail.isPrincipal %}
+																<span class="badge bg-primary me-1 mb-1" title="Service principal">
+																	<i class="bi bi-star-fill me-1"></i>
+																	{{ service.nomService }}
+																</span>
+															{% else %}
+																<span class="badge bg-secondary me-1 mb-1">{{ service.nomService }}</span>
+															{% endif %}
+														{% endif %}
+													{% endfor %}
+												{% endfor %}
+												{% if serviceCount == 0 %}
+													<span class="text-muted">Aucun service</span>
+												{% endif %}
+											</td>
+											<td>
+												<div class="btn-group" role="group">
+													<a href="{{ path('app_user_show', {'id': user.id}) }}" class="btn btn-sm btn-outline-primary" title="Voir les détails">
+														<i class="bi bi-eye"></i>
+													</a>
+													<button type="button" class="btn btn-sm btn-outline-success" onclick="confirmActivate({{ user.id }}, '{{ user.prenom|e('js') }} {{ user.nom|e('js') }}', '{{ csrf_token('activate' ~ user.id) }}')" title="Réactiver le compte">
+														<i class="bi bi-play-circle"></i>
+													</button>
+													{% if is_granted('ROLE_SUPER_ADMIN') and user.shouldBeDeleted %}
+														<button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmPermanentDelete({{ user.id }}, '{{ user.prenom|e('js') }} {{ user.nom|e('js') }}', '{{ csrf_token('permanent_delete' ~ user.id) }}')" title="Supprimer définitivement (RGPD)">
+															<i class="bi bi-trash"></i>
+														</button>
+													{% endif %}
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% else %}
+						<div class="text-center py-5">
+							<i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+							<h4 class="text-muted mt-3">Aucun employé désactivé</h4>
+							<p class="text-muted">Cette organisation n'a aucun employé désactivé actuellement.</p>
+							<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-primary">
+								<i class="bi bi-arrow-left"></i>
+								Retour à l'organisation
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Activation Confirmation Modal -->
+	<div class="modal fade" id="activateModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirmer la réactivation</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<p>Êtes-vous sûr de vouloir réactiver l'utilisateur <strong id="activateUserName"></strong> ?</p>
+					<p class="text-success">
+						<small>Le compte sera réactivé et la suppression programmée sera annulée.</small>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+					<form id="activateForm" method="post" style="display: inline;">
+						<input type="hidden" name="_token" id="activateToken">
+						<button type="submit" class="btn btn-success">Réactiver</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Permanent Delete Confirmation Modal -->
+	<div class="modal fade" id="permanentDeleteModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title text-danger">Confirmer la suppression définitive</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<p>Êtes-vous sûr de vouloir supprimer définitivement l'utilisateur <strong id="deleteUserName"></strong> ?</p>
+					<div class="alert alert-danger">
+						<i class="bi bi-exclamation-triangle me-1"></i>
+						<strong>Attention :</strong> Cette action est irréversible et supprimera toutes les données utilisateur après expiration du délai RGPD.
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+					<form id="permanentDeleteForm" method="post" style="display: inline;">
+						<input type="hidden" name="_token" id="permanentDeleteToken">
+						<button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block stylesheets %}
+	<style>
+		.avatar-circle {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background-color: #ffeaa7;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #e17055;
+			flex-shrink: 0;
+		}
+		.alert-warning {
+			border-left: 4px solid #f39c12;
+		}
+	</style>
+{% endblock %}
+
+{% block javascripts %}
+	<script>
+		function confirmActivate(userId, userName, csrfToken) {
+			document.getElementById('activateUserName').textContent = userName;
+			document.getElementById('activateForm').action = `/manager/user/${userId}/activate`;
+			document.getElementById('activateToken').value = csrfToken;
+			
+			new bootstrap.Modal(document.getElementById('activateModal')).show();
+		}
+
+		function confirmPermanentDelete(userId, userName, csrfToken) {
+			document.getElementById('deleteUserName').textContent = userName;
+			document.getElementById('permanentDeleteForm').action = `/manager/user/${userId}/permanent-delete`;
+			document.getElementById('permanentDeleteToken').value = csrfToken;
+			
+			new bootstrap.Modal(document.getElementById('permanentDeleteModal')).show();
+		}
+	</script>
+{% endblock %}

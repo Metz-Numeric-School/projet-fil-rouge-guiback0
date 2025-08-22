@@ -67,15 +67,6 @@
             }) }}
         </div>
         
-        <div class="col-12">
-            {{ form_row(form.adresse, {
-                'label': 'Adresse',
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': '12 rue de la République, 75001 Paris'
-                }
-            }) }}
-        </div>
         
         <!-- Séparateur -->
         <div class="col-12">
@@ -221,6 +212,62 @@
                 }
             }) }}
         </div>
+        {% endif %}
+
+        <!-- GDPR Compliance Section for Admins -->
+        {% if form.compte_actif is defined or form.date_derniere_connexion is defined or form.date_suppression_prevue is defined %}
+        <div class="col-12">
+            <hr>
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-shield-lock"></i>
+                Conformité RGPD
+            </h6>
+        </div>
+
+        {% if form.compte_actif is defined %}
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="form-check form-switch">
+                        {{ form_widget(form.compte_actif, {'attr': {'class': 'form-check-input', 'role': 'switch'}}) }}
+                        <label class="form-check-label" for="{{ form.compte_actif.vars.id }}">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-person-check me-2 text-success"></i>
+                                <div>
+                                    <div class="fw-medium">{{ form.compte_actif.vars.label }}</div>
+                                    <small class="text-muted">Décochez pour désactiver le compte</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if form.date_derniere_connexion is defined %}
+        <div class="col-md-6">
+            {{ form_row(form.date_derniere_connexion, {
+                'label': 'Dernière connexion',
+                'attr': {
+                    'class': 'form-control',
+                    'disabled': true
+                }
+            }) }}
+        </div>
+        {% endif %}
+
+        {% if form.date_suppression_prevue is defined %}
+        <div class="col-md-6">
+            {{ form_row(form.date_suppression_prevue, {
+                'label': 'Suppression prévue (RGPD)',
+                'help': 'Date automatique de suppression après désactivation (5 ans)',
+                'attr': {
+                    'class': 'form-control'
+                }
+            }) }}
+        </div>
+        {% endif %}
         {% endif %}
         
         {{ form_rest(form) }}

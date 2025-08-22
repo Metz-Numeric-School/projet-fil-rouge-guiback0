@@ -52,8 +52,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date_inscription = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $adresse = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $horraire = null;
@@ -66,6 +64,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $poste = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $date_derniere_connexion = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $date_derniere_modification = null;
+
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $compte_actif = true;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $date_suppression_prevue = null;
 
     /**
      * @var Collection<int, UserBadge>
@@ -98,6 +108,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->manageur = new ArrayCollection();
         $this->employe = new ArrayCollection();
         $this->date_inscription = new \DateTime();
+        $this->date_derniere_modification = new \DateTime();
+        $this->compte_actif = true;
     }
 
 
@@ -235,17 +247,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAdresse(): ?string
-    {
-        return $this->adresse;
-    }
-
-    public function setAdresse(?string $adresse): static
-    {
-        $this->adresse = $adresse;
-
-        return $this;
-    }
 
     public function getHorraire(): ?\DateTimeInterface
     {
@@ -444,6 +445,93 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
         return $services;
+    }
+
+    public function getDateDerniereConnexion(): ?\DateTimeInterface
+    {
+        return $this->date_derniere_connexion;
+    }
+
+    public function setDateDerniereConnexion(?\DateTimeInterface $date_derniere_connexion): static
+    {
+        $this->date_derniere_connexion = $date_derniere_connexion;
+        return $this;
+    }
+
+    public function getDateDerniereModification(): ?\DateTimeInterface
+    {
+        return $this->date_derniere_modification;
+    }
+
+    public function setDateDerniereModification(?\DateTimeInterface $date_derniere_modification): static
+    {
+        $this->date_derniere_modification = $date_derniere_modification;
+        return $this;
+    }
+
+    public function isCompteActif(): bool
+    {
+        return $this->compte_actif;
+    }
+
+    public function setCompteActif(bool $compte_actif): static
+    {
+        $this->compte_actif = $compte_actif;
+        if (!$compte_actif && !$this->date_suppression_prevue) {
+            // Set deletion date to 5 years from now when deactivating
+            $this->date_suppression_prevue = (new \DateTime())->add(new \DateInterval('P5Y'));
+        }
+        return $this;
+    }
+
+    public function getDateSuppressionPrevue(): ?\DateTimeInterface
+    {
+        return $this->date_suppression_prevue;
+    }
+
+    public function setDateSuppressionPrevue(?\DateTimeInterface $date_suppression_prevue): static
+    {
+        $this->date_suppression_prevue = $date_suppression_prevue;
+        return $this;
+    }
+
+    /**
+     * Check if user should be permanently deleted (5 years after deactivation)
+     */
+    public function shouldBeDeleted(): bool
+    {
+        return !$this->compte_actif && 
+               $this->date_suppression_prevue && 
+               $this->date_suppression_prevue <= new \DateTime();
+    }
+
+    /**
+     * Deactivate user account for GDPR compliance
+     */
+    public function deactivate(): static
+    {
+        $this->compte_actif = false;
+        $this->date_suppression_prevue = (new \DateTime())->add(new \DateInterval('P5Y'));
+        $this->date_derniere_modification = new \DateTime();
+        return $this;
+    }
+
+    /**
+     * Update last login timestamp
+     */
+    public function updateLastLogin(): static
+    {
+        $this->date_derniere_connexion = new \DateTime();
+        return $this;
+    }
+
+    /**
+     * Update last modification timestamp
+     */
+    public function updateLastModification(): static
+    {
+        $this->date_derniere_modification = new \DateTime();
+        return $this;
     }
 
 }

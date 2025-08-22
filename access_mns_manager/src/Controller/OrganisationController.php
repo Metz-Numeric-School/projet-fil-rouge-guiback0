@@ -92,9 +92,25 @@ final class OrganisationController extends AbstractController
             $recentPointages = [];
         }
 
+        // Get deactivated users count for admins only
+        $deactivatedUsersCount = 0;
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $deactivatedUsers = [];
+            foreach ($organisation->getServices() as $service) {
+                foreach ($service->getTravail() as $travail) {
+                    $user = $travail->getUtilisateur();
+                    if ($user && !$user->isCompteActif() && !in_array($user, $deactivatedUsers)) {
+                        $deactivatedUsers[] = $user;
+                    }
+                }
+            }
+            $deactivatedUsersCount = count($deactivatedUsers);
+        }
+
         return $this->render('organisation/show.html.twig', [
             'organisation' => $organisation,
             'recent_pointages' => $recentPointages,
+            'deactivated_users_count' => $deactivatedUsersCount,
         ]);
     }
 

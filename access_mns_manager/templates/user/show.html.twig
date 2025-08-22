@@ -53,10 +53,23 @@
 							<i class="bi bi-pencil"></i>
 							Modifier
 						</a>
-						<button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ user.id }}, '{{ user.prenom|e('js') }} {{ user.nom|e('js') }}', '{{ csrf_token('delete' ~ user.id) }}')">
-							<i class="bi bi-trash"></i>
-							Supprimer
-						</button>
+						{% if user.compteActif %}
+							<button type="button" class="btn btn-outline-warning" onclick="confirmDeactivate({{ user.id }}, '{{ user.prenom|e('js') }} {{ user.nom|e('js') }}', '{{ csrf_token('deactivate' ~ user.id) }}')">
+								<i class="bi bi-pause-circle"></i>
+								Désactiver
+							</button>
+						{% else %}
+							<button type="button" class="btn btn-outline-success" onclick="confirmActivate({{ user.id }}, '{{ user.prenom|e('js') }} {{ user.nom|e('js') }}', '{{ csrf_token('activate' ~ user.id) }}')">
+								<i class="bi bi-play-circle"></i>
+								Réactiver
+							</button>
+						{% endif %}
+						{% if is_granted('ROLE_SUPER_ADMIN') and not user.compteActif and user.shouldBeDeleted %}
+							<button type="button" class="btn btn-outline-danger" onclick="confirmPermanentDelete({{ user.id }}, '{{ user.prenom|e('js') }} {{ user.nom|e('js') }}', '{{ csrf_token('permanent_delete' ~ user.id) }}')">
+								<i class="bi bi-trash"></i>
+								Supprimer définitivement
+							</button>
+						{% endif %}
 						{% if user.principalService and user.principalService.organisation %}
 							<a href="{{ path('app_organisation_show', {'id': user.principalService.organisation.id}) }}" class="btn btn-secondary">
 								<i class="bi bi-arrow-left"></i>
@@ -101,14 +114,6 @@
 											{{ user.telephone }}</div>
 									</div>
 								{% endif %}
-								{% if user.adresse %}
-									<div class="mb-3">
-										<label class="text-muted small">Adresse</label>
-										<div>
-											<i class="bi bi-geo-alt me-2"></i>
-											{{ user.adresse }}</div>
-									</div>
-								{% endif %}
 							</div>
 							<div class="col-md-6">
 								<h6 class="text-primary mb-3">Informations générales</h6>
@@ -137,6 +142,47 @@
 										<label class="text-muted small">Poste</label>
 										<div>
 											<span class="badge bg-secondary">{{ user.poste }}</span>
+										</div>
+									</div>
+								{% endif %}
+								<div class="mb-3">
+									<label class="text-muted small">Statut du compte</label>
+									<div>
+										{% if user.compteActif %}
+											<span class="badge bg-success">
+												<i class="bi bi-check-circle me-1"></i>Actif
+											</span>
+										{% else %}
+											<span class="badge bg-warning">
+												<i class="bi bi-pause-circle me-1"></i>Désactivé
+											</span>
+										{% endif %}
+									</div>
+								</div>
+								{% if user.dateDerniereConnexion %}
+									<div class="mb-3">
+										<label class="text-muted small">Dernière connexion</label>
+										<div>
+											<i class="bi bi-clock me-2"></i>
+											{{ user.dateDerniereConnexion|date('d/m/Y H:i') }}
+										</div>
+									</div>
+								{% endif %}
+								{% if user.dateDerniereModification %}
+									<div class="mb-3">
+										<label class="text-muted small">Dernière modification</label>
+										<div>
+											<i class="bi bi-pencil me-2"></i>
+											{{ user.dateDerniereModification|date('d/m/Y H:i') }}
+										</div>
+									</div>
+								{% endif %}
+								{% if not user.compteActif and user.dateSuppressionPrevue %}
+									<div class="mb-3">
+										<label class="text-muted small">Suppression prévue (RGPD)</label>
+										<div>
+											<i class="bi bi-calendar-x me-2 text-warning"></i>
+											<span class="text-warning">{{ user.dateSuppressionPrevue|date('d/m/Y') }}</span>
 										</div>
 									</div>
 								{% endif %}
@@ -482,11 +528,48 @@ window.location.href = row.dataset.href;
 });
 });
 
-function confirmDelete(userId, userName, csrfToken) {
+function confirmDeactivate(userId, userName, csrfToken) {
 document.getElementById('userName').textContent = userName;
-document.getElementById('deleteForm').action = `/manager/user/${userId}`;
+document.getElementById('deleteForm').action = `/manager/user/${userId}/deactivate`;
+document.getElementById('deleteModal').querySelector('.modal-title').textContent = 'Confirmer la désactivation';
+document.getElementById('deleteModal').querySelector('.modal-body p').innerHTML = `Êtes-vous sûr de vouloir désactiver l'utilisateur <strong>${userName}</strong> ?`;
+document.getElementById('deleteModal').querySelector('.modal-body .text-danger small').textContent = 'Le compte sera désactivé et automatiquement supprimé après 5 ans (conformité RGPD).';
+document.getElementById('deleteModal').querySelector('button[type="submit"]').textContent = 'Désactiver';
+document.getElementById('deleteModal').querySelector('button[type="submit"]').className = 'btn btn-warning';
 
-// Set CSRF token for deletion
+// Set CSRF token for deactivation
+document.getElementById('deleteToken').value = csrfToken;
+document.getElementById('deleteToken').name = '_token';
+
+new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+function confirmActivate(userId, userName, csrfToken) {
+document.getElementById('userName').textContent = userName;
+document.getElementById('deleteForm').action = `/manager/user/${userId}/activate`;
+document.getElementById('deleteModal').querySelector('.modal-title').textContent = 'Confirmer la réactivation';
+document.getElementById('deleteModal').querySelector('.modal-body p').innerHTML = `Êtes-vous sûr de vouloir réactiver l'utilisateur <strong>${userName}</strong> ?`;
+document.getElementById('deleteModal').querySelector('.modal-body .text-danger small').textContent = 'Le compte sera réactivé et la suppression programmée sera annulée.';
+document.getElementById('deleteModal').querySelector('button[type="submit"]').textContent = 'Réactiver';
+document.getElementById('deleteModal').querySelector('button[type="submit"]').className = 'btn btn-success';
+
+// Set CSRF token for activation
+document.getElementById('deleteToken').value = csrfToken;
+document.getElementById('deleteToken').name = '_token';
+
+new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+function confirmPermanentDelete(userId, userName, csrfToken) {
+document.getElementById('userName').textContent = userName;
+document.getElementById('deleteForm').action = `/manager/user/${userId}/permanent-delete`;
+document.getElementById('deleteModal').querySelector('.modal-title').textContent = 'Confirmer la suppression définitive';
+document.getElementById('deleteModal').querySelector('.modal-body p').innerHTML = `Êtes-vous sûr de vouloir supprimer définitivement l'utilisateur <strong>${userName}</strong> ?`;
+document.getElementById('deleteModal').querySelector('.modal-body .text-danger small').textContent = 'Cette action est irréversible et supprimera toutes les données après expiration du délai RGPD.';
+document.getElementById('deleteModal').querySelector('button[type="submit"]').textContent = 'Supprimer définitivement';
+document.getElementById('deleteModal').querySelector('button[type="submit"]').className = 'btn btn-danger';
+
+// Set CSRF token for permanent deletion
 document.getElementById('deleteToken').value = csrfToken;
 document.getElementById('deleteToken').name = '_token';
 
