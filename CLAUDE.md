@@ -29,6 +29,11 @@ docker exec -it access_mns_manager php bin/console assets:install
 
 # Testing
 docker exec -it access_mns_manager php bin/phpunit
+
+# Code generation (using MakerBundle)
+docker exec -it access_mns_manager php bin/console make:entity
+docker exec -it access_mns_manager php bin/console make:controller
+docker exec -it access_mns_manager php bin/console make:migration
 ```
 
 ### Frontend (Angular - access_mns_client/)
@@ -44,6 +49,11 @@ cd access_mns_client && npm test
 
 # Watch build
 cd access_mns_client && npm run watch
+
+# Angular CLI commands
+cd access_mns_client && ng generate component [name]
+cd access_mns_client && ng generate service [name]
+cd access_mns_client && ng generate guard [name]
 ```
 
 ### Docker Operations
@@ -64,11 +74,14 @@ docker-compose down
 ## Architecture & Key Components
 
 ### Backend (Symfony)
+- **Architecture**: Monolithic Symfony 7.2 app with FrankenPHP runtime
 - **Authentication**: JWT-based auth via LexikJWTAuthenticationBundle
 - **API Controllers**: Located in `src/Controller/API/` with JSON responses
-- **Entities**: Doctrine ORM entities for User, Organisation, Badge, Service, etc.
+- **Web Controllers**: Traditional Symfony controllers with Twig templates for admin interface
+- **Entities**: Doctrine ORM entities for User, Organisation, Badge, Service, Zone, Pointage
 - **Security**: Role-based access (ROLE_USER, ROLE_ADMIN, ROLE_SUPER_ADMIN)
 - **Database**: PostgreSQL with Doctrine migrations
+- **Services**: Custom business logic in `src/Service/` (BadgeService, OrganisationService, PresenceService)
 
 ### Frontend (Angular)
 - **Architecture**: Standalone components with Angular 19

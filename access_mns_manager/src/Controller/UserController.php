@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Entity\Service;
 use App\Entity\Organisation;
 use App\Entity\Travailler;
+use App\Entity\UserBadge;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use App\Repository\ServiceRepository;
@@ -69,7 +70,7 @@ final class UserController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Utilisateur créé avec succès et assigné au service principal.');
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('user/new.html.twig', [
@@ -96,7 +97,7 @@ final class UserController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Utilisateur modifié avec succès.');
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('user/edit.html.twig', [
@@ -108,20 +109,43 @@ final class UserController extends AbstractController
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
+        // Get user's organisation before deletion
+        $organisation = null;
+        $principalService = $user->getPrincipalService();
+        if ($principalService) {
+            $organisation = $principalService->getOrganisation();
+        }
+        
         if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->getPayload()->getString('_token'))) {
-            // Check if user has principal service assignment
-            $principalService = $user->getPrincipalService();
-            if ($principalService) {
-                $this->addFlash('error', 'Impossible de supprimer un utilisateur assigné à un service principal. Veuillez d\'abord réassigner l\'utilisateur.');
-                return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+            // Remove all Travailler relations directly from the database to avoid foreign key constraint violation
+            $travaillerRepository = $entityManager->getRepository(Travailler::class);
+            $travaillers = $travaillerRepository->findBy(['Utilisateur' => $user]);
+            foreach ($travaillers as $travail) {
+                $entityManager->remove($travail);
             }
-
+            
+            // Remove all UserBadge relations directly from the database to avoid foreign key constraint violation
+            $userBadgeRepository = $entityManager->getRepository(UserBadge::class);
+            $userBadges = $userBadgeRepository->findBy(['Utilisateur' => $user]);
+            foreach ($userBadges as $userBadge) {
+                $entityManager->remove($userBadge);
+            }
+            
+            // Flush to ensure all relations are removed before deleting the user
+            $entityManager->flush();
+            
+            // Then remove the user
             $entityManager->remove($user);
             $entityManager->flush();
 
             $this->addFlash('success', 'Utilisateur supprimé avec succès.');
         }
 
+        // Redirect to user's organisation if found, otherwise to user index
+        if ($organisation) {
+            return $this->redirectToRoute('app_organisation_show', ['id' => $organisation->getId()], Response::HTTP_SEE_OTHER);
+        }
+        
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
     }
 

@@ -1,260 +1,282 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Pointages - {{ organisation.nomOrganisation }} - ACCESS MNS MANAGER{% endblock %}
+{% block title %}Pointages -
+	{{ organisation.nomOrganisation }}
+	- ACCESS MNS MANAGER
+{% endblock %}
 
 {% block breadcrumb %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_index') }}">Organisations</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Pointages</li>
-    </ol>
-</nav>
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">
+					<i class="bi bi-house-door"></i>
+					Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_index') }}">Organisations</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a>
+			</li>
+			<li class="breadcrumb-item active" aria-current="page">Pointages</li>
+		</ol>
+	</nav>
 {% endblock %}
 
 {% block body %}
-<div class="container">
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h1 class="h3 mb-1">Pointages - {{ organisation.nomOrganisation }}</h1>
-                    <p class="text-muted mb-0">
-                        <i class="bi bi-clock"></i> Historique des pointages
-                        • {{ pointages|length }} pointage{{ pointages|length > 1 ? 's' : '' }}
-                    </p>
-                </div>
-                <div>
-                    <a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Retour à l'organisation
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div
+		class="container">
+		<!-- Page Header -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-start">
+					<div>
+						<h1 class="h3 mb-1">Pointages -
+							{{ organisation.nomOrganisation }}</h1>
+						<p class="text-muted mb-0">
+							<i class="bi bi-clock"></i>
+							Historique des pointages
+														                        •
+							{{ pointages|length }}
+							pointage{{ pointages|length > 1 ? 's' : '' }}
+							{% if pointages|length >= limit %}
+								•
+								<span class="text-warning">Limité à
+									{{ limit }}
+									résultats</span>
+							{% endif %}
+						</p>
+					</div>
+					<div>
+						<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
+							<i class="bi bi-arrow-left"></i>
+							Retour à l'organisation
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Search and Filters -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                <input type="text" class="form-control" id="searchInput" placeholder="Rechercher un pointage...">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select" id="typeFilter">
-                                <option value="">Tous les types</option>
-                                <option value="entrée">Entrée</option>
-                                <option value="sortie">Sortie</option>
-                                <option value="refuse">Refusé</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="date" class="form-control" id="dateFilter" placeholder="Date">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-outline-secondary" id="clearFilters">
-                                <i class="bi bi-x-circle"></i> Effacer
-                            </button>
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+		<!-- Search and Filters -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+						<div class="row g-3">
+							<div class="col-md-4">
+								<div class="input-group">
+									<span class="input-group-text">
+										<i class="bi bi-search"></i>
+									</span>
+									<input type="text" class="form-control" id="searchInput" placeholder="Rechercher un pointage...">
+								</div>
+							</div>
+							<div class="col-md-3">
+								<select class="form-select" id="typeFilter">
+									<option value="">Tous les types</option>
+									<option value="entrée">Entrée</option>
+									<option value="sortie">Sortie</option>
+									<option value="refuse">Refusé</option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<input type="date" class="form-control" id="dateFilter" placeholder="Date">
+							</div>
+							<div class="col-md-2">
+								<select class="form-select" id="limitFilter" onchange="changeLimitAndReload()">
+									<option value="50" {% if limit == 50 %} selected {% endif %}>50 résultats</option>
+									<option value="100" {% if limit == 100 %} selected {% endif %}>100 résultats</option>
+									<option value="200" {% if limit == 200 %} selected {% endif %}>200 résultats</option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<button type="button" class="btn btn-outline-secondary" id="clearFilters">
+									<i class="bi bi-x-circle"></i>
+									Effacer
+								</button>
+							</div>
 
-    <!-- Pointages List -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-clock"></i>
-                        Pointages ({{ pointages|length }})
-                    </h5>
-                    <div>
-                        <!-- Creation disabled -->
-                    </div>
-                </div>
-                {% if pointages|length > 0 %}
-                    <div class="table-responsive">
-                        <table class="table table-hover" id="pointagesTable">
-                            <thead>
-                                <tr>
-                                    <th>Badge</th>
-                                    <th>Utilisateur</th>
-                                    <th>Heure</th>
-                                    <th>Type</th>
-                                    <th>Badgeuse</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for pointage in pointages %}
-                                <tr class="clickable-row" data-href="{{ path('app_pointage_show', {'id': pointage.id}) }}" 
-                                    data-type="{{ pointage.type }}" 
-                                    data-date="{{ pointage.heure ? pointage.heure|date('Y-m-d') : '' }}"
-                                    data-badge="{{ pointage.badge ? pointage.badge.numeroBadge : '' }}"
-                                    data-user="{% set user = null %}{% if pointage.badge %}{% for userBadge in pointage.badge.userBadges %}{% if userBadge.utilisateur and user is null %}{% set user = userBadge.utilisateur %}{% endif %}{% endfor %}{% endif %}{{ user ? (user.prenom ~ ' ' ~ user.nom ~ ' ' ~ user.email) : '' }}"
-                                >
-                                    <td>
-                                        {% if pointage.badge %}
-                                            <div>
-                                                <span class="fw-medium">Badge #{{ pointage.badge.numeroBadge }}</span>
-                                                <br><small class="text-muted">{{ pointage.badge.typeBadge }}</small>
-                                            </div>
-                                        {% else %}
-                                            <span class="text-muted">Non défini</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% set user = null %}
-                                        {% if pointage.badge %}
-                                            {% for userBadge in pointage.badge.userBadges %}
-                                                {% if userBadge.utilisateur and user is null %}
-                                                    {% set user = userBadge.utilisateur %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                        {% if user %}
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar-circle me-3">
-                                                    <i class="bi bi-person fs-6"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-medium">{{ user.prenom }} {{ user.nom }}</div>
-                                                    <small class="text-muted">{{ user.email }}</small>
-                                                </div>
-                                            </div>
-                                        {% else %}
-                                            <span class="text-muted">Utilisateur non trouvé</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <div class="fw-medium">{{ pointage.heure ? pointage.heure|date('d/m/Y') : '' }}</div>
-                                            <small class="text-muted">{{ pointage.heure ? pointage.heure|date('H:i:s') : '' }}</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{% if pointage.type == 'entrée' %}primary{% elseif pointage.type == 'sortie' %}warning{% elseif pointage.type == 'refuse' %}danger{% else %}secondary{% endif %}">
-                                            <i class="bi bi-{% if pointage.type == 'entrée' %}box-arrow-in-right{% elseif pointage.type == 'sortie' %}box-arrow-right{% elseif pointage.type == 'refuse' %}x-circle{% else %}question-circle{% endif %} me-1"></i>
-                                            {{ pointage.type|capitalize }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="text-muted">Badgeuse info</span>
-                                    </td>
-                                    
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-clock text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="text-muted mt-3">Aucun pointage</h4>
-                        <p class="text-muted">Cette organisation n'a pas encore de pointages enregistrés.</p>
-                        <!-- Creation disabled -->
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Pointages List -->
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header d-flex justify-content-between align-items-center">
+						<h5 class="mb-0">
+							<i class="bi bi-clock"></i>
+							Pointages ({{ pointages|length }}
+							{% if pointages|length >= limit %}/{{ limit }}
+							{% endif %})
+						</h5>
+						<div>
+							<!-- Creation disabled -->
+						</div>
+					</div>
+					{% if pointages|length > 0 %}
+						<div class="table-responsive">
+							<table class="table table-hover" id="pointagesTable">
+								<thead>
+									<tr>
+										<th>Badge</th>
+										<th>Utilisateur</th>
+										<th>Heure</th>
+										<th>Type</th>
+										<th>Badgeuse</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for pointage in pointages %}
+										<tr data-type="{{ pointage.type }}" data-date="{{ pointage.heure ? pointage.heure|date('Y-m-d') : '' }}" data-badge="{{ pointage.badge ? pointage.badge.numeroBadge : '' }}" data-user="{% set user = null %}{% if pointage.badge %}{% for userBadge in pointage.badge.userBadges %}{% if userBadge.utilisateur and user is null %}{% set user = userBadge.utilisateur %}{% endif %}{% endfor %}{% endif %}{{ user ? (user.prenom ~ ' ' ~ user.nom ~ ' ' ~ user.email) : '' }}">
+											<td>
+												{% if pointage.badge %}
+													<div>
+														<span class="fw-medium">Badge #{{ pointage.badge.numeroBadge }}</span>
+														<br><small class="text-muted">{{ pointage.badge.typeBadge }}</small>
+													</div>
+												{% else %}
+													<span class="text-muted">Non défini</span>
+												{% endif %}
+											</td>
+											<td>
+												{% set user = null %}
+												{% if pointage.badge %}
+													{% for userBadge in pointage.badge.userBadges %}
+														{% if userBadge.utilisateur and user is null %}
+															{% set user = userBadge.utilisateur %}
+														{% endif %}
+													{% endfor %}
+												{% endif %}
+												{% if user %}
+													<div class="d-flex align-items-center">
+														<div class="avatar-circle me-3">
+															<i class="bi bi-person fs-6"></i>
+														</div>
+														<div>
+															<div class="fw-medium">{{ user.prenom }}
+																{{ user.nom }}</div>
+															<small class="text-muted">{{ user.email }}</small>
+														</div>
+													</div>
+												{% else %}
+													<span class="text-muted">Utilisateur non trouvé</span>
+												{% endif %}
+											</td>
+											<td>
+												<div>
+													<div class="fw-medium">{{ pointage.heure ? pointage.heure|date('d/m/Y') : '' }}</div>
+													<small class="text-muted">{{ pointage.heure ? pointage.heure|date('H:i:s') : '' }}</small>
+												</div>
+											</td>
+											<td>
+												<span class="badge bg-{% if pointage.type == 'entrée' %}primary{% elseif pointage.type == 'sortie' %}warning{% elseif pointage.type == 'refuse' %}danger{% else %}secondary{% endif %}">
+													<i class="bi bi-{% if pointage.type == 'entrée' %}box-arrow-in-right{% elseif pointage.type == 'sortie' %}box-arrow-right{% elseif pointage.type == 'refuse' %}x-circle{% else %}question-circle{% endif %} me-1"></i>
+													{{ pointage.type|capitalize }}
+												</span>
+											</td>
+											<td>
+												<span class="text-muted">Badgeuse info</span>
+											</td>
+
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% else %}
+						<div class="text-center py-5">
+							<i class="bi bi-clock text-muted" style="font-size: 4rem;"></i>
+							<h4 class="text-muted mt-3">Aucun pointage</h4>
+							<p class="text-muted">Cette organisation n'a pas encore de pointages enregistrés.</p>
+							<!-- Creation disabled -->
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block stylesheets %}
-<style>
-.avatar-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #6c757d;
-    flex-shrink: 0;
-}
-.clickable-row {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-.clickable-row:hover {
-    background-color: rgba(13, 110, 253, 0.1) !important;
-}
-</style>
+	<style>
+		.avatar-circle {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			background-color: #e9ecef;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #6c757d;
+			flex-shrink: 0;
+		}
+	</style>
 {% endblock %}
 
 {% block javascripts %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Make table rows clickable
-    document.querySelectorAll('.clickable-row').forEach(row => {
-        row.addEventListener('click', (e) => {
-            // Don't trigger if clicking on buttons or links
-            if (e.target.closest('a, button')) {
-                return;
-            }
-            window.location.href = row.dataset.href;
-        });
-    });
+	<script>
+		// Function to change limit and reload page
+function changeLimitAndReload() {
+const limitSelect = document.getElementById('limitFilter');
+const currentUrl = new URL(window.location);
+currentUrl.searchParams.set('limit', limitSelect.value);
+window.location.href = currentUrl.toString();
+}
 
-    // Search and filter functionality
-    const searchInput = document.getElementById('searchInput');
-    const typeFilter = document.getElementById('typeFilter');
-    const dateFilter = document.getElementById('dateFilter');
-    const clearFilters = document.getElementById('clearFilters');
-    const tableRows = document.querySelectorAll('#pointagesTable tbody tr');
-    const countDisplay = document.getElementById('countDisplay');
+document.addEventListener('DOMContentLoaded', () => { // Search and filter functionality
+const searchInput = document.getElementById('searchInput');
+const typeFilter = document.getElementById('typeFilter');
+const dateFilter = document.getElementById('dateFilter');
+const clearFilters = document.getElementById('clearFilters');
+const tableRows = document.querySelectorAll('#pointagesTable tbody tr');
+const countDisplay = document.getElementById('countDisplay');
 
-    function filterTable() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const selectedType = typeFilter.value;
-        const selectedDate = dateFilter.value;
-        let visibleCount = 0;
+function filterTable() {
+const searchTerm = searchInput.value.toLowerCase();
+const selectedType = typeFilter.value;
+const selectedDate = dateFilter.value;
+let visibleCount = 0;
 
-        tableRows.forEach(row => {
-            const rowText = (row.dataset.user + ' ' + row.dataset.badge).toLowerCase();
-            const rowType = row.dataset.type;
-            const rowDate = row.dataset.date;
-            
-            const matchesSearch = !searchTerm || rowText.includes(searchTerm);
-            const matchesType = !selectedType || rowType === selectedType;
-            const matchesDate = !selectedDate || rowDate === selectedDate;
-            
-            if (matchesSearch && matchesType && matchesDate) {
-                row.style.display = '';
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
-            }
-        });
+tableRows.forEach(row => {
+const rowText = (row.dataset.user + ' ' + row.dataset.badge).toLowerCase();
+const rowType = row.dataset.type;
+const rowDate = row.dataset.date;
 
-        // Update count display
-        if (countDisplay) {
-            countDisplay.textContent = `${visibleCount} pointage${visibleCount !== 1 ? 's' : ''}`;
-        }
-    }
+const matchesSearch = ! searchTerm || rowText.includes(searchTerm);
+const matchesType = ! selectedType || rowType === selectedType;
+const matchesDate = ! selectedDate || rowDate === selectedDate;
 
-    searchInput.addEventListener('input', filterTable);
-    typeFilter.addEventListener('change', filterTable);
-    dateFilter.addEventListener('change', filterTable);
-    
-    clearFilters.addEventListener('click', () => {
-        searchInput.value = '';
-        typeFilter.value = '';
-        dateFilter.value = '';
-        filterTable();
-    });
+if (matchesSearch && matchesType && matchesDate) {
+row.style.display = '';
+visibleCount++;
+} else {
+row.style.display = 'none';
+}
 });
-</script>
+
+// Update count display
+if (countDisplay) {
+countDisplay.textContent = `${visibleCount} pointage${
+visibleCount !== 1 ? 's' : ''
+}`;
+}
+}
+
+searchInput.addEventListener('input', filterTable);
+typeFilter.addEventListener('change', filterTable);
+dateFilter.addEventListener('change', filterTable);
+
+clearFilters.addEventListener('click', () => {
+searchInput.value = '';
+typeFilter.value = '';
+dateFilter.value = '';
+filterTable();
+});
+});
+	</script>
 {% endblock %}

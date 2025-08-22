@@ -19,7 +19,7 @@ class PointageRepository extends ServiceEntityRepository
     /**
      * @return Pointage[] Returns an array of Pointage objects for a specific organisation
      */
-    public function findByOrganisation($organisationId): array
+    public function findByOrganisation($organisationId, $limit = null): array
     {
         // Use a simpler approach to avoid entity loading issues
         $sql = '
@@ -32,12 +32,23 @@ class PointageRepository extends ServiceEntityRepository
             WHERE s.organisation_id = :organisationId
             ORDER BY p.heure DESC
         ';
-        
+
+        // Add limit if specified
+        if ($limit !== null && $limit > 0) {
+            $sql .= ' LIMIT :limit';
+        }
+
         $connection = $this->getEntityManager()->getConnection();
         $stmt = $connection->prepare($sql);
-        $result = $stmt->executeQuery(['organisationId' => $organisationId]);
+        $params = ['organisationId' => $organisationId];
+
+        if ($limit !== null && $limit > 0) {
+            $params['limit'] = $limit;
+        }
+
+        $result = $stmt->executeQuery($params);
         $rows = $result->fetchAllAssociative();
-        
+
         // Convert to entities
         $pointages = [];
         foreach ($rows as $row) {
@@ -46,7 +57,7 @@ class PointageRepository extends ServiceEntityRepository
                 $pointages[] = $pointage;
             }
         }
-        
+
         return $pointages;
     }
 }

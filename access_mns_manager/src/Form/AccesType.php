@@ -15,17 +15,17 @@ class AccesType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('numero_badgeuse')
+            ->add('nom_acces')
             ->add('date_installation', null, [
                 'widget' => 'single_text'
             ])
             ->add('zone', EntityType::class, [
                 'class' => Zone::class,
-'choice_label' => 'id',
+                'choice_label' => 'nom_zone',
             ])
             ->add('badgeuse', EntityType::class, [
                 'class' => Badgeuse::class,
-'choice_label' => 'id',
+                'choice_label' => 'reference',
             ])
         ;
     }

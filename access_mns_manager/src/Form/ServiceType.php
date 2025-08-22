@@ -22,6 +22,7 @@ class ServiceType extends AbstractType
             $builder->add('organisation', EntityType::class, [
                 'class' => Organisation::class,
                 'choice_label' => 'nom_organisation',
+                'disabled' => $options['read_only_organisation'],
             ]);
         }
     }
@@ -31,6 +32,7 @@ class ServiceType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Service::class,
             'hide_organisation' => false,
+            'read_only_organisation' => false,
         ]);
     }
 }

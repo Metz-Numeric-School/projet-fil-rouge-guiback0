@@ -1,406 +1,509 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ user.prenom }} {{ user.nom }} - ACCESS MNS MANAGER{% endblock %}
+{% block title %}
+	{{ user.prenom }}
+	{{ user.nom }}
+	- ACCESS MNS MANAGER
+{% endblock %}
 
 {% block breadcrumb %}
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_index') }}">Organisations</a></li>
-        {% if user.principalService and user.principalService.organisation %}
-            <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': user.principalService.organisation.id}) }}">{{ user.principalService.organisation.nomOrganisation }}</a></li>
-        {% endif %}
-        <li class="breadcrumb-item active" aria-current="page">{{ user.prenom }} {{ user.nom }}</li>
-    </ol>
-</nav>
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">
+					<i class="bi bi-house-door"></i>
+					Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_index') }}">Organisations</a>
+			</li>
+			{% if user.principalService and user.principalService.organisation %}
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_organisation_show', {'id': user.principalService.organisation.id}) }}">{{ user.principalService.organisation.nomOrganisation }}</a>
+				</li>
+			{% endif %}
+			<li class="breadcrumb-item active" aria-current="page">{{ user.prenom }}
+				{{ user.nom }}</li>
+		</ol>
+	</nav>
 {% endblock %}
 
 {% block body %}
-<div class="container">
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h1 class="h3 mb-1">{{ user.prenom }} {{ user.nom }}</h1>
-                    <p class="text-muted mb-0">
-                        <i class="bi bi-person"></i> Utilisateur
-                        {% if user.poste %}
-                            • {{ user.poste }}
-                        {% endif %}
-                    </p>
-                </div>
-                <div>
-                    <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-outline-primary">
-                        <i class="bi bi-pencil"></i> Modifier
-                    </a>
-                    <button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ user.id }}, '{{ user.prenom|e('js') }} {{ user.nom|e('js') }}', '{{ csrf_token('delete' ~ user.id) }}')">
-                        <i class="bi bi-trash"></i> Supprimer
-                    </button>
-                    {% if user.principalService and user.principalService.organisation %}
-                        <a href="{{ path('app_organisation_show', {'id': user.principalService.organisation.id}) }}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Retour
-                        </a>
-                    {% else %}
-                        <a href="{{ path('app_user_index') }}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Retour
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+	<div
+		class="container">
+		<!-- Page Header -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-start">
+					<div>
+						<h1 class="h3 mb-1">{{ user.prenom }}
+							{{ user.nom }}</h1>
+						<p class="text-muted mb-0">
+							<i class="bi bi-person"></i>
+							Utilisateur
+							{% if user.poste %}
+								•
+								{{ user.poste }}
+							{% endif %}
+						</p>
+					</div>
+					<div>
+						<a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-outline-primary">
+							<i class="bi bi-pencil"></i>
+							Modifier
+						</a>
+						<button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ user.id }}, '{{ user.prenom|e('js') }} {{ user.nom|e('js') }}', '{{ csrf_token('delete' ~ user.id) }}')">
+							<i class="bi bi-trash"></i>
+							Supprimer
+						</button>
+						{% if user.principalService and user.principalService.organisation %}
+							<a href="{{ path('app_organisation_show', {'id': user.principalService.organisation.id}) }}" class="btn btn-secondary">
+								<i class="bi bi-arrow-left"></i>
+								Retour
+							</a>
+						{% else %}
+							<a href="{{ path('app_user_index') }}" class="btn btn-secondary">
+								<i class="bi bi-arrow-left"></i>
+								Retour
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- User Details -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-info-circle"></i>
-                        Informations personnelles
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <h6 class="text-primary mb-3">Contact</h6>
-                            <div class="mb-3">
-                                <label class="text-muted small">Email</label>
-                                <div><i class="bi bi-envelope me-2"></i>{{ user.email }}</div>
-                            </div>
-                            {% if user.telephone %}
-                            <div class="mb-3">
-                                <label class="text-muted small">Téléphone</label>
-                                <div><i class="bi bi-telephone me-2"></i>{{ user.telephone }}</div>
-                            </div>
-                            {% endif %}
-                            {% if user.adresse %}
-                            <div class="mb-3">
-                                <label class="text-muted small">Adresse</label>
-                                <div><i class="bi bi-geo-alt me-2"></i>{{ user.adresse }}</div>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-primary mb-3">Informations générales</h6>
-                            <div class="mb-3">
-                                <label class="text-muted small">ID utilisateur</label>
-                                <div><code>{{ user.id }}</code></div>
-                            </div>
-                            {% if user.dateNaissance %}
-                            <div class="mb-3">
-                                <label class="text-muted small">Date de naissance</label>
-                                <div><i class="bi bi-calendar me-2"></i>{{ user.dateNaissance|date('d/m/Y') }}</div>
-                            </div>
-                            {% endif %}
-                            <div class="mb-3">
-                                <label class="text-muted small">Date d'inscription</label>
-                                <div><i class="bi bi-calendar-plus me-2"></i>{{ user.dateInscription|date('d/m/Y') }}</div>
-                            </div>
-                            {% if user.poste %}
-                            <div class="mb-3">
-                                <label class="text-muted small">Poste</label>
-                                <div><span class="badge bg-secondary">{{ user.poste }}</span></div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    {% if user.heureDebut or user.horraire or user.joursSemaineTravaille %}
-                    <hr>
-                    <div class="row">
-                        <div class="col-12">
-                            <h6 class="text-primary mb-3">Horaires de travail</h6>
-                            <div class="row">
-                                {% if user.heureDebut %}
-                                <div class="col-md-4">
-                                    <label class="text-muted small">Heure de début</label>
-                                    <div><i class="bi bi-clock me-2"></i>{{ user.heureDebut|date('H:i') }}</div>
-                                </div>
-                                {% endif %}
-                                {% if user.horraire %}
-                                <div class="col-md-4">
-                                    <label class="text-muted small">Durée journalière</label>
-                                    <div><i class="bi bi-clock-history me-2"></i>{{ user.horraire|date('H:i') }}</div>
-                                </div>
-                                {% endif %}
-                                {% if user.joursSemaineTravaille %}
-                                <div class="col-md-4">
-                                    <label class="text-muted small">Jours travaillés</label>
-                                    <div><i class="bi bi-calendar-week me-2"></i>{{ user.joursSemaineTravaille }}</div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+		<!-- User Details -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<i class="bi bi-info-circle"></i>
+							Informations personnelles
+						</h5>
+					</div>
+					<div class="card-body">
+						<div class="row g-4">
+							<div class="col-md-6">
+								<h6 class="text-primary mb-3">Contact</h6>
+								<div class="mb-3">
+									<label class="text-muted small">Email</label>
+									<div>
+										<i class="bi bi-envelope me-2"></i>
+										{{ user.email }}</div>
+								</div>
+								{% if user.telephone %}
+									<div class="mb-3">
+										<label class="text-muted small">Téléphone</label>
+										<div>
+											<i class="bi bi-telephone me-2"></i>
+											{{ user.telephone }}</div>
+									</div>
+								{% endif %}
+								{% if user.adresse %}
+									<div class="mb-3">
+										<label class="text-muted small">Adresse</label>
+										<div>
+											<i class="bi bi-geo-alt me-2"></i>
+											{{ user.adresse }}</div>
+									</div>
+								{% endif %}
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-primary mb-3">Informations générales</h6>
+								<div class="mb-3">
+									<label class="text-muted small">ID utilisateur</label>
+									<div>
+										<code>{{ user.id }}</code>
+									</div>
+								</div>
+								{% if user.dateNaissance %}
+									<div class="mb-3">
+										<label class="text-muted small">Date de naissance</label>
+										<div>
+											<i class="bi bi-calendar me-2"></i>
+											{{ user.dateNaissance|date('d/m/Y') }}</div>
+									</div>
+								{% endif %}
+								<div class="mb-3">
+									<label class="text-muted small">Date d'inscription</label>
+									<div>
+										<i class="bi bi-calendar-plus me-2"></i>
+										{{ user.dateInscription|date('d/m/Y') }}</div>
+								</div>
+								{% if user.poste %}
+									<div class="mb-3">
+										<label class="text-muted small">Poste</label>
+										<div>
+											<span class="badge bg-secondary">{{ user.poste }}</span>
+										</div>
+									</div>
+								{% endif %}
+								<div class="mb-3">
+									<label class="text-muted small">Organisation</label>
+									<div>
+										{% if user.principalService and user.principalService.organisation %}
+											<i class="bi bi-building me-2"></i>
+											<a href="{{ path('app_organisation_show', {'id': user.principalService.organisation.id}) }}">
+												{{ user.principalService.organisation.nomOrganisation }}
+											</a>
+										{% else %}
+											<span class="text-muted">Aucune organisation assignée</span>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						</div>
 
-    <!-- Badges Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-credit-card"></i>
-                        Badges attribués ({{ user.userBadges|length }})
-                    </h5>
-                    <small class="text-muted">Badges d'accès attribués à cet utilisateur</small>
-                </div>
-                {% if user.userBadges|length > 0 %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Badge</th>
-                                    <th>Type</th>
-                                    <th>Numéro</th>
-                                    <th>Date de création</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for userBadge in user.userBadges %}
-                                <tr class="clickable-row" data-href="{{ path('app_badge_show', {'id': userBadge.badge.id}) }}">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="badge-icon me-3">
-                                                <i class="bi bi-credit-card text-info fs-5"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-medium">Badge #{{ userBadge.badge.id }}</div>
-                                                <small class="text-muted">ID: {{ userBadge.badge.id }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">{{ userBadge.badge.typeBadge }}</span>
-                                    </td>
-                                    <td>
-                                        {% if userBadge.badge.numeroBadge %}
-                                            <code>{{ userBadge.badge.numeroBadge }}</code>
-                                        {% else %}
-                                            <span class="text-muted">Non défini</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if userBadge.badge.dateCreation %}
-                                            <small class="text-muted">
-                                                <i class="bi bi-calendar me-1"></i>
-                                                {{ userBadge.badge.dateCreation|date('d/m/Y') }}
-                                            </small>
-                                        {% else %}
-                                            <span class="text-muted">Non définie</span>
-                                        {% endif %}
-                                    </td>
-                                    <td onclick="event.stopPropagation();">
-                                        <a href="{{ path('app_badge_show', {'id': userBadge.badge.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails du badge">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-credit-card text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="text-muted mt-3">Aucun badge</h4>
-                        <p class="text-muted">Aucun badge d'accès n'est attribué à cet utilisateur.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+						{% if user.heureDebut or user.horraire or user.joursSemaineTravaille %}
+							<hr>
+							<div class="row">
+								<div class="col-12">
+									<h6 class="text-primary mb-3">Horaires de travail</h6>
+									<div class="row">
+										{% if user.heureDebut %}
+											<div class="col-md-4">
+												<label class="text-muted small">Heure de début</label>
+												<div>
+													<i class="bi bi-clock me-2"></i>
+													{{ user.heureDebut|date('H:i') }}</div>
+											</div>
+										{% endif %}
+										{% if user.horraire %}
+											<div class="col-md-4">
+												<label class="text-muted small">Durée journalière</label>
+												<div>
+													<i class="bi bi-clock-history me-2"></i>
+													{{ user.horraire|date('H:i') }}</div>
+											</div>
+										{% endif %}
+										{% if user.joursSemaineTravaille %}
+											<div class="col-md-4">
+												<label class="text-muted small">Jours travaillés</label>
+												<div>
+													<i class="bi bi-calendar-week me-2"></i>
+													{{ user.joursSemaineTravaille }}</div>
+											</div>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Services Section -->
-    <div class="row ">
-        <div class="col-12">
-            <div class="card">
-                {% set userServices = [] %}
-                {% for travail in user.travail %}
-                    {% if travail.service and travail.service not in userServices %}
-                        {% set userServices = userServices|merge([travail.service]) %}
-                    {% endif %}
-                {% endfor %}
-                
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-0">
-                            <i class="bi bi-briefcase"></i>
-                            Services ({{ userServices|length }})
-                        </h5>
-                        <small class="text-muted">Services auxquels cet utilisateur est affecté</small>
-                    </div>
-                </div>
-                {% if userServices|length > 0 %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Organisation</th>
-                                    <th>Statut</th>
-                                    <th>Période</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for service in userServices %}
-                                <tr class="clickable-row" data-href="{{ path('app_service_show', {'id': service.id}) }}">
-                                    <td>
-                                        <div>
-                                            <div class="fw-medium">
-                                                <i class="bi bi-briefcase text-primary me-2"></i>
-                                                {{ service.nomService }}
-                                            </div>
-                                            <small class="text-muted">Niveau {{ service.niveauService }}</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% if service.organisation %}
-                                            <i class="bi bi-building text-muted me-2"></i>
-                                            {{ service.organisation.nomOrganisation }}
-                                        {% else %}
-                                            <span class="text-muted">Non définie</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% for travail in user.travail %}
-                                            {% if travail.service == service %}
-                                                {% if travail.isPrincipal %}
-                                                    <span class="badge bg-primary">
-                                                        <i class="bi bi-star-fill me-1"></i>Principal
-                                                    </span>
-                                                {% else %}
-                                                    <span class="badge bg-secondary">Secondaire</span>
-                                                {% endif %}
-                                                {% if not travail.dateFin %}
-                                                    <span class="badge bg-success ms-1">Actif</span>
-                                                {% endif %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% for travail in user.travail %}
-                                            {% if travail.service == service %}
-                                                <small class="text-muted">
-                                                    {% if travail.dateDebut %}
-                                                        Du {{ travail.dateDebut|date('d/m/Y') }}
-                                                    {% endif %}
-                                                    {% if travail.dateFin %}
-                                                        au {{ travail.dateFin|date('d/m/Y') }}
-                                                    {% else %}
-                                                        (en cours)
-                                                    {% endif %}
-                                                </small>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td onclick="event.stopPropagation();">
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-sm btn-primary" title="Voir le service">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="text-muted mt-3">Aucun service</h4>
-                        <p class="text-muted">Cet utilisateur n'est affecté à aucun service.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+		<!-- Badges Section -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<i class="bi bi-credit-card"></i>
+							Badges attribués ({{ user.userBadges|length }})
+						</h5>
+						<small class="text-muted">Badges d'accès attribués à cet utilisateur</small>
+					</div>
+					{% if user.userBadges|length > 0 %}
+						<div class="table-responsive">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>Badge</th>
+										<th>Type</th>
+										<th>Numéro</th>
+										<th>Date de création</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for userBadge in user.userBadges %}
+										<tr>
+											<td>
+												<div class="d-flex align-items-center">
+													<div class="badge-icon me-3">
+														<i class="bi bi-credit-card text-info fs-5"></i>
+													</div>
+													<div>
+														<div class="fw-medium">Badge #{{ userBadge.badge.id }}</div>
+														<small class="text-muted">ID:
+															{{ userBadge.badge.id }}</small>
+													</div>
+												</div>
+											</td>
+											<td>
+												<span class="badge bg-info">{{ userBadge.badge.typeBadge }}</span>
+											</td>
+											<td>
+												{% if userBadge.badge.numeroBadge %}
+													<code>{{ userBadge.badge.numeroBadge }}</code>
+												{% else %}
+													<span class="text-muted">Non défini</span>
+												{% endif %}
+											</td>
+											<td>
+												{% if userBadge.badge.dateCreation %}
+													<small class="text-muted">
+														<i class="bi bi-calendar me-1"></i>
+														{{ userBadge.badge.dateCreation|date('d/m/Y') }}
+													</small>
+												{% else %}
+													<span class="text-muted">Non définie</span>
+												{% endif %}
+											</td>
+											<td>
+												<div class="btn-group" role="group">
+													<a href="{{ path('app_badge_show', {'id': userBadge.badge.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails du badge">
+														<i class="bi bi-eye"></i>
+													</a>
+													<button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDeleteBadge({{ userBadge.badge.id }}, '{{ userBadge.badge.numeroBadge ?? userBadge.badge.id }}', '{{ csrf_token('delete_badge_from_user' ~ userBadge.badge.id) }}')" title="Supprimer le badge">
+														<i class="bi bi-trash"></i>
+													</button>
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% else %}
+						<div class="text-center py-5">
+							<i class="bi bi-credit-card text-muted" style="font-size: 4rem;"></i>
+							<h4 class="text-muted mt-3">Aucun badge</h4>
+							<p class="text-muted">Aucun badge d'accès n'est attribué à cet utilisateur.</p>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
 
-   
-</div>
+		<!-- Services Section -->
+		<div class="row ">
+			<div class="col-12">
+				<div class="card">
+					{% set userServices = [] %}
+					{% for travail in user.travail %}
+						{% if travail.service and travail.service not in userServices %}
+							{% set userServices = userServices|merge([travail.service]) %}
+						{% endif %}
+					{% endfor %}
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmer la suppression</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer l'utilisateur <strong id="userName"></strong> ?</p>
-                <p class="text-danger"><small>Cette action est irréversible.</small></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form id="deleteForm" method="post" style="display: inline;">
-                    <input type="hidden" name="_token" id="deleteToken">
-                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+					<div class="card-header d-flex justify-content-between align-items-center">
+						<div>
+							<h5 class="mb-0">
+								<i class="bi bi-briefcase"></i>
+								Services ({{ userServices|length }})
+							</h5>
+							<small class="text-muted">Services auxquels cet utilisateur est affecté</small>
+						</div>
+					</div>
+					{% if userServices|length > 0 %}
+						<div class="table-responsive">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>Service</th>
+										<th>Organisation</th>
+										<th>Statut</th>
+										<th>Période</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for service in userServices %}
+										<tr class="clickable-row" data-href="{{ path('app_service_show', {'id': service.id}) }}">
+											<td>
+												<div>
+													<div class="fw-medium">
+														<i class="bi bi-briefcase text-primary me-2"></i>
+														{{ service.nomService }}
+													</div>
+													<small class="text-muted">Niveau
+														{{ service.niveauService }}</small>
+												</div>
+											</td>
+											<td>
+												{% if service.organisation %}
+													<i class="bi bi-building text-muted me-2"></i>
+													{{ service.organisation.nomOrganisation }}
+												{% else %}
+													<span class="text-muted">Non définie</span>
+												{% endif %}
+											</td>
+											<td>
+												{% for travail in user.travail %}
+													{% if travail.service == service %}
+														{% if travail.isPrincipal %}
+															<span class="badge bg-primary">
+																<i class="bi bi-star-fill me-1"></i>Principal
+															</span>
+														{% else %}
+															<span class="badge bg-secondary">Secondaire</span>
+														{% endif %}
+														{% if not travail.dateFin %}
+															<span class="badge bg-success ms-1">Actif</span>
+														{% endif %}
+													{% endif %}
+												{% endfor %}
+											</td>
+											<td>
+												{% for travail in user.travail %}
+													{% if travail.service == service %}
+														<small class="text-muted">
+															{% if travail.dateDebut %}
+																Du
+																{{ travail.dateDebut|date('d/m/Y') }}
+															{% endif %}
+															{% if travail.dateFin %}
+																au
+																{{ travail.dateFin|date('d/m/Y') }}
+															{% else %}
+																(en cours)
+															{% endif %}
+														</small>
+													{% endif %}
+												{% endfor %}
+											</td>
+											<td onclick="event.stopPropagation();">
+												<div class="btn-group" role="group">
+													<a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-sm btn-primary" title="Voir le service">
+														<i class="bi bi-eye"></i>
+													</a>
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% else %}
+						<div class="text-center py-5">
+							<i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
+							<h4 class="text-muted mt-3">Aucun service</h4>
+							<p class="text-muted">Cet utilisateur n'est affecté à aucun service.</p>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+
+	</div>
+
+	<!-- Delete Confirmation Modal -->
+	<div class="modal fade" id="deleteModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirmer la suppression</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<p>Êtes-vous sûr de vouloir supprimer l'utilisateur
+						<strong id="userName"></strong>
+						?</p>
+					<p class="text-danger">
+						<small>Cette action est irréversible.</small>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+					<form id="deleteForm" method="post" style="display: inline;">
+						<input type="hidden" name="_token" id="deleteToken">
+						<button type="submit" class="btn btn-danger">Supprimer</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Delete Badge Confirmation Modal -->
+	<div class="modal fade" id="deleteBadgeModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirmer la suppression du badge</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<p>Êtes-vous sûr de vouloir supprimer le badge 
+						<strong id="badgeNumber"></strong>
+						?</p>
+					<p class="text-danger">
+						<small>Cette action est irréversible et supprimera définitivement le badge.</small>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+					<form id="deleteBadgeForm" method="post" style="display: inline;">
+						<input type="hidden" name="_token" id="deleteBadgeToken">
+						<button type="submit" class="btn btn-danger">Supprimer</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block stylesheets %}
-<style>
-.clickable-row {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-.clickable-row:hover {
-    background-color: rgba(13, 110, 253, 0.1) !important;
-}
-.badge-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #e1f5fe;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-</style>
+	<style>
+		.clickable-row {
+			cursor: pointer;
+			transition: background-color 0.2s ease;
+		}
+		.clickable-row:hover {
+			background-color: rgba(13, 110, 253, 0.1) !important;
+		}
+		.badge-icon {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background-color: #e1f5fe;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+	</style>
 {% endblock %}
 
 {% block javascripts %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Make table rows clickable
-    document.querySelectorAll('.clickable-row').forEach(row => {
-        row.addEventListener('click', (e) => {
-            if (e.target.closest('a, button')) {
-                return;
-            }
-            window.location.href = row.dataset.href;
-        });
-    });
+	<script>
+		document.addEventListener('DOMContentLoaded', () => { // Make service table rows clickable (exclude badge rows)
+document.querySelectorAll('.clickable-row').forEach(row => {
+row.addEventListener('click', (e) => {
+if (e.target.closest('a, button')) {
+return;
+}
+window.location.href = row.dataset.href;
+});
+});
 });
 
 function confirmDelete(userId, userName, csrfToken) {
-    document.getElementById('userName').textContent = userName;
-    document.getElementById('deleteForm').action = `/manager/user/${userId}`;
-    
-    // Set CSRF token for deletion
-    document.getElementById('deleteToken').value = csrfToken;
-    document.getElementById('deleteToken').name = '_token';
-    
-    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+document.getElementById('userName').textContent = userName;
+document.getElementById('deleteForm').action = `/manager/user/${userId}`;
+
+// Set CSRF token for deletion
+document.getElementById('deleteToken').value = csrfToken;
+document.getElementById('deleteToken').name = '_token';
+
+new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
 
-</script>
+function confirmDeleteBadge(badgeId, badgeNumber, csrfToken) {
+document.getElementById('badgeNumber').textContent = badgeNumber;
+document.getElementById('deleteBadgeForm').action = `/manager/badge/${badgeId}/delete-from-user`;
+
+// Set CSRF token for badge deletion
+document.getElementById('deleteBadgeToken').value = csrfToken;
+document.getElementById('deleteBadgeToken').name = '_token';
+
+new bootstrap.Modal(document.getElementById('deleteBadgeModal')).show();
+}
+	</script>
 
 
 {% endblock %}

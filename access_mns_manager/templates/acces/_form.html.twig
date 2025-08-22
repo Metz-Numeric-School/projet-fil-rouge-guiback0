@@ -1,74 +1,73 @@
 <!-- Configuration Mode Form -->
 <form method="POST" action="{{ path('app_acces_new') }}" id="configureForm">
-        <input type="hidden" name="organisation" value="{{ selectedOrganisation.id }}">
-        
-        <!-- Zone Selection -->
-        <div class="mb-4">
-            <label class="form-label">Zone d'accès *</label>
-            <div class="row">
-                {% for zone in zones %}
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card zone-card h-100">
-                        <div class="card-body">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" 
-                                       name="zone" value="{{ zone.id }}" id="zone{{ zone.id }}">
-                                <label class="form-check-label w-100" for="zone{{ zone.id }}">
-                                    <div class="d-flex align-items-start">
-                                        <div class="zone-icon me-3">
-                                            <i class="bi bi-geo-alt text-primary fs-5"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="fw-medium">{{ zone.nomZone }}</div>
-                                            {% if zone.description %}
-                                                <small class="text-muted">{{ zone.description|length > 50 ? zone.description|slice(0, 50) ~ '...' : zone.description }}</small>
-                                            {% endif %}
-                                            {% if zone.capacite %}
-                                                <div class="mt-1">
-                                                    <span class="badge bg-info">{{ zone.capacite }} pers.</span>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+	<input
+	type="hidden" name="organisation" value="{{ selectedOrganisation.id }}">
 
-        <!-- Badgeuse Information -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h6 class="text-primary mb-3">
-                    <i class="bi bi-3-circle-fill"></i>
-                    Informations de la badgeuse
-                </h6>
-            </div>
-            <div class="col-md-6">
-                <label for="numero_badgeuse" class="form-label">Numéro de badgeuse *</label>
-                <input type="number" class="form-control" id="numero_badgeuse" 
-                       name="numero_badgeuse" required min="1" max="99999"
-                       placeholder="Ex: 12345">
-            </div>
-            <div class="col-md-6">
-                <label for="reference_badgeuse" class="form-label">Référence badgeuse *</label>
-                <input type="text" class="form-control" id="reference_badgeuse" 
-                       name="reference_badgeuse" required maxlength="255"
-                       placeholder="Ex: BGS-2024-001">
-            </div>
-        </div>
+	<!-- Zone Selection -->
+	<div class="mb-4">
+		<label class="form-label">Zone d'accès *</label>
+		<div class="row">
+			{% for zone in zones %}
+				<div class="col-md-6 col-lg-4 mb-3">
+					<div class="card zone-card h-100">
+						<div class="card-body">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="zone" value="{{ zone.id }}" id="zone{{ zone.id }}">
+								<label class="form-check-label w-100" for="zone{{ zone.id }}">
+									<div class="d-flex align-items-start">
+										<div class="zone-icon me-3">
+											<i class="bi bi-geo-alt text-primary fs-5"></i>
+										</div>
+										<div class="flex-grow-1">
+											<div class="fw-medium">{{ zone.nomZone }}</div>
+											{% if zone.description %}
+												<small class="text-muted">{{ zone.description|length > 50 ? zone.description|slice(0, 50) ~ '...' : zone.description }}</small>
+											{% endif %}
+											{% if zone.capacite %}
+												<div class="mt-1">
+													<span class="badge bg-info">{{ zone.capacite }}
+														pers.</span>
+												</div>
+											{% endif %}
+										</div>
+									</div>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
 
-        <!-- Form Actions -->
-        <div class="d-flex justify-content-end gap-2">
-            <a href="{{ path('app_acces_new') }}" class="btn btn-secondary">
-                <i class="bi bi-x-circle"></i> Annuler
-            </a>
-            <button type="submit" class="btn btn-primary" id="submitBtn">
-                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                <i class="bi bi-gear-fill"></i> {{ button_label|default('Configurer les accès') }}
-            </button>
-        </div>
-    </form>
+	<!-- Badgeuse Information -->
+	<div class="row mb-4">
+		<div class="col-12">
+			<h6 class="text-primary mb-3">
+				<i class="bi bi-3-circle-fill"></i>
+				Informations de la badgeuse
+			</h6>
+		</div>
+		<div class="col-md-6">
+			<label for="nom_acces" class="form-label">Nom d'accès *</label>
+			<input type="text" class="form-control" id="nom_acces" name="nom_acces" required maxlength="255" placeholder="Ex: Accès Principal Hall">
+		</div>
+		<div class="col-md-6">
+			<label for="reference_badgeuse" class="form-label">Référence badgeuse *</label>
+			<input type="text" class="form-control" id="reference_badgeuse" name="reference_badgeuse" required maxlength="255" placeholder="Ex: BGS-2024-001">
+		</div>
+	</div>
+
+	<!-- Form Actions -->
+	<div class="d-flex justify-content-end gap-2">
+		<a href="{{ path('app_acces_new') }}" class="btn btn-secondary">
+			<i class="bi bi-x-circle"></i>
+			Annuler
+		</a>
+		<button type="submit" class="btn btn-primary" id="submitBtn">
+			<span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+			<i class="bi bi-gear-fill"></i>
+			{{ button_label|default('Configurer les accès') }}
+		</button>
+	</div>
+</form>

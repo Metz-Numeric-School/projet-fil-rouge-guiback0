@@ -88,7 +88,7 @@ final class ZoneController extends AbstractController{
                     $entityManager->commit();
                     
                     $this->addFlash('success', 'Zone "' . $zone->getNomZone() . '" créée avec succès.');
-                    return $this->redirectToRoute('app_zone_index', [], Response::HTTP_SEE_OTHER);
+                    return $this->redirectToRoute('app_zone_show', ['id' => $zone->getId()], Response::HTTP_SEE_OTHER);
                 }
             } catch (\Exception) {
                 $entityManager->rollback();
@@ -120,7 +120,7 @@ final class ZoneController extends AbstractController{
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_zone_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_zone_show', ['id' => $zone->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('zone/edit.html.twig', [

@@ -119,7 +119,7 @@ final class BadgeController extends AbstractController{
                         
                         $this->addFlash('success', "Badge #{$badge->getId()} créé et attribué avec succès à {$user->getPrenom()} {$user->getNom()}.");
                         
-                        return $this->redirectToRoute('app_badge_index', [], Response::HTTP_SEE_OTHER);
+                        return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
                     }
                 } else {
                     $this->addFlash('error', 'Utilisateur introuvable.');
@@ -174,6 +174,37 @@ final class BadgeController extends AbstractController{
             $entityManager->flush();
         }
 
+        return $this->redirectToRoute('app_badge_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/delete-from-user', name: 'app_badge_delete_from_user', methods: ['POST'])]
+    public function deleteFromUser(Request $request, Badge $badge, EntityManagerInterface $entityManager): Response
+    {
+        $user = null;
+        // Get the user associated with this badge
+        foreach ($badge->getUserBadges() as $userBadge) {
+            $user = $userBadge->getUtilisateur();
+            break;
+        }
+
+        if ($this->isCsrfTokenValid('delete_badge_from_user'.$badge->getId(), $request->getPayload()->getString('_token'))) {
+            // Remove the UserBadge relationships first
+            foreach ($badge->getUserBadges() as $userBadge) {
+                $entityManager->remove($userBadge);
+            }
+            
+            // Then remove the badge itself
+            $entityManager->remove($badge);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Badge supprimé avec succès.');
+        }
+
+        // Redirect back to user show page if we found the user, otherwise to badge index
+        if ($user) {
+            return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+        }
+        
         return $this->redirectToRoute('app_badge_index', [], Response::HTTP_SEE_OTHER);
     }
 }

@@ -403,7 +403,7 @@
 								</thead>
 								<tbody>
 									{% for pointage in recent_pointages|slice(0, 5) %}
-										<tr class="clickable-row" data-href="{{ path('app_pointage_show', {'id': pointage.id}) }}">
+										<tr>
 											<td>
 												{% if pointage.badge %}
 													<div>
@@ -521,7 +521,6 @@
 		.clickable-row:hover {
 			background-color: rgba(13, 110, 253, 0.1) !important;
 		}
-		
 	</style>
 {% endblock %}
 

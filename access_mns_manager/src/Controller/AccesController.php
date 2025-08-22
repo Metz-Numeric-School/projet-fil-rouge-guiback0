@@ -15,7 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/acces')]
-final class AccesController extends AbstractController{
+final class AccesController extends AbstractController
+{
     #[Route(name: 'app_acces_index', methods: ['GET'])]
     public function index(AccesRepository $accesRepository): Response
     {
@@ -34,7 +35,7 @@ final class AccesController extends AbstractController{
         $organisations = $organisationRepository->findAll();
         $selectedOrganisation = null;
         $zones = [];
-        
+
         // Handle organisation selection
         $organisationId = $request->query->get('organisation') ?: $request->request->get('organisation');
         if ($organisationId) {
@@ -47,27 +48,13 @@ final class AccesController extends AbstractController{
         // Handle form submission
         if ($request->isMethod('POST') && $selectedOrganisation) {
             $selectedZone = $request->request->get('zone');
-            $numeroBadgeuseRaw = $request->request->get('numero_badgeuse');
+            $nomAcces = trim($request->request->get('nom_acces'));
             $referenceBadgeuse = trim($request->request->get('reference_badgeuse'));
-
-            // Validate numero_badgeuse
-            $numeroBadgeuse = null;
-            if (!empty(trim($numeroBadgeuseRaw))) {
-                $numeroBadgeuse = filter_var($numeroBadgeuseRaw, FILTER_VALIDATE_INT);
-                if ($numeroBadgeuse === false || $numeroBadgeuse <= 0) {
-                    $this->addFlash('error', 'Le numéro de badgeuse doit être un nombre entier positif.');
-                    return $this->render('acces/new.html.twig', [
-                        'organisations' => $organisations,
-                        'selectedOrganisation' => $selectedOrganisation,
-                        'zones' => $zones,
-                    ]);
-                }
-            }
 
             if (!$selectedZone) {
                 $this->addFlash('error', 'Veuillez sélectionner une zone.');
-            } elseif (!$numeroBadgeuse || empty($referenceBadgeuse)) {
-                $this->addFlash('error', 'Veuillez renseigner le numéro et la référence de la badgeuse.');
+            } elseif (empty($nomAcces) || empty($referenceBadgeuse)) {
+                $this->addFlash('error', 'Veuillez renseigner le nom d\'accès et la référence de la badgeuse.');
             } else {
                 try {
                     $entityManager->beginTransaction();
@@ -84,15 +71,15 @@ final class AccesController extends AbstractController{
                     if ($zoneId === false || $zoneId <= 0) {
                         throw new \Exception('ID de zone invalide');
                     }
-                    
+
                     $zone = $zoneRepository->find($zoneId);
                     if ($zone) {
                         $acces = new Acces();
-                        $acces->setNumeroBadgeuse($numeroBadgeuse);
+                        $acces->setNomAcces($nomAcces);
                         $acces->setDateInstallation(new \DateTime());
                         $acces->setZone($zone);
                         $acces->setBadgeuse($badgeuse);
-                        
+
                         $entityManager->persist($acces);
                         $createdAccess = [$zone->getNomZone()];
                     } else {
@@ -102,13 +89,14 @@ final class AccesController extends AbstractController{
                     $entityManager->flush();
                     $entityManager->commit();
 
-                    $this->addFlash('success', 
+                    $this->addFlash(
+                        'success',
                         'Badgeuse "' . $referenceBadgeuse . '" créée avec succès. ' .
-                        'Accès configuré pour la zone: ' . $createdAccess[0]
+                            'Accès configuré pour la zone: ' . $createdAccess[0]
                     );
 
-                    return $this->redirectToRoute('app_acces_index');
-
+                    // Redirect to the zone show page
+                    return $this->redirectToRoute('app_zone_show', ['id' => $zone->getId()]);
                 } catch (\Exception) {
                     $entityManager->rollback();
                     $this->addFlash('error', 'Erreur lors de la création des accès. Veuillez réessayer.');
@@ -152,7 +140,7 @@ final class AccesController extends AbstractController{
     #[Route('/{id}', name: 'app_acces_delete', methods: ['POST'])]
     public function delete(Request $request, Acces $acce, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$acce->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $acce->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($acce);
             $entityManager->flush();
         }

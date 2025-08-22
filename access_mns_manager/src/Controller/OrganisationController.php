@@ -67,7 +67,7 @@ final class OrganisationController extends AbstractController
 
                 $entityManager->commit();
 
-                return $this->redirectToRoute('app_organisation_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_organisation_show', ['id' => $organisation->getId()], Response::HTTP_SEE_OTHER);
             } catch (\Exception) {
                 $entityManager->rollback();
                 $this->addFlash('error', 'Erreur lors de la création de l\'organisation. Veuillez réessayer.');
@@ -148,7 +148,7 @@ final class OrganisationController extends AbstractController
                 $entityManager->commit();
 
                 $this->addFlash('success', 'Service créé avec succès !');
-                return $this->redirectToRoute('app_organisation_show', ['id' => $organisation->getId()], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_service_show', ['id' => $service->getId()], Response::HTTP_SEE_OTHER);
             } catch (\Exception) {
                 $entityManager->rollback();
                 $this->addFlash('error', 'Erreur lors de la création du service. Veuillez réessayer.');
@@ -171,7 +171,7 @@ final class OrganisationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_organisation_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_organisation_show', ['id' => $organisation->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('organisation/edit.html.twig', [
@@ -243,7 +243,7 @@ final class OrganisationController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Utilisateur créé avec succès et assigné à l\'organisation.');
-            return $this->redirectToRoute('app_organisation_show', ['id' => $organisation->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('organisation/new_user.html.twig', [

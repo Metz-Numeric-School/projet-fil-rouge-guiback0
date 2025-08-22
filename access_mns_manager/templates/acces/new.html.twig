@@ -1,248 +1,262 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Configurer un accès - ACCESS MNS MANAGER{% endblock %}
+{% block title %}Configurer un accès - ACCESS MNS MANAGER
+{% endblock %}
 
 {% block breadcrumb %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Configurer un accès</li>
-    </ol>
-</nav>
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">
+					<i class="bi bi-house-door"></i>
+					Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item active" aria-current="page">Configurer un accès</li>
+		</ol>
+	</nav>
 {% endblock %}
 
 {% block body %}
-<div class="container">
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0">Configurer un accès</h1>
-                    <p class="text-muted">Configuration de nouveaux accès avec badgeuse</p>
-                </div>
-                <div>
-                    <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Retour au tableau de bord
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div
+		class="container">
+		<!-- Page Header -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-center">
+					<div>
+						<h1 class="h3 mb-0">Configurer un accès</h1>
+						<p class="text-muted">Configuration de nouveaux accès avec badgeuse</p>
+					</div>
+					<div>
+						<a href="{{ path('app_dashboard') }}" class="btn btn-secondary">
+							<i class="bi bi-arrow-left"></i>
+							Retour au tableau de bord
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Flash Messages -->
-    {% for type, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
-                <i class="bi bi-{{ type == 'success' ? 'check-circle' : type == 'error' ? 'exclamation-triangle' : 'info-circle' }}"></i>
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endfor %}
+		<!-- Flash Messages -->
+		{% for type, messages in app.flashes %}
+			{% for message in messages %}
+				<div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+					<i class="bi bi-{{ type == 'success' ? 'check-circle' : type == 'error' ? 'exclamation-triangle' : 'info-circle' }}"></i>
+					{{ message }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+			{% endfor %}
+		{% endfor %}
 
-    <!-- Organisation Selection -->
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-building"></i>
-                        Sélectionner une organisation
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if organisations is empty %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
-                            <h4 class="text-muted mt-3">Aucune organisation</h4>
-                            <p class="text-muted">Aucune organisation n'est disponible pour la configuration d'accès.</p>
-                            <a href="{{ path('app_organisation_new') }}" class="btn btn-primary">
-                                <i class="bi bi-plus-circle"></i> Créer une organisation
-                            </a>
-                        </div>
-                    {% else %}
-                        <form method="GET" action="{{ path('app_acces_new') }}" id="organisationForm">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <label for="organisation" class="form-label">Organisation *</label>
-                                    <select name="organisation" id="organisation" class="form-select" required onchange="this.form.submit()">
-                                        <option value="">Sélectionner une organisation...</option>
-                                        {% for organisation in organisations %}
-                                            <option value="{{ organisation.id }}" 
-                                                {% if selectedOrganisation and selectedOrganisation.id == organisation.id %}selected{% endif %}>
-                                                {{ organisation.nomOrganisation }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-4 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-search"></i> Charger les zones
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+		<!-- Organisation Selection -->
+		<div class="row justify-content-center">
+			<div class="col-lg-10">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<i class="bi bi-building"></i>
+							Sélectionner une organisation
+						</h5>
+					</div>
+					<div class="card-body">
+						{% if organisations is empty %}
+							<div class="text-center py-5">
+								<i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
+								<h4 class="text-muted mt-3">Aucune organisation</h4>
+								<p class="text-muted">Aucune organisation n'est disponible pour la configuration d'accès.</p>
+								<a href="{{ path('app_organisation_new') }}" class="btn btn-primary">
+									<i class="bi bi-plus-circle"></i>
+									Créer une organisation
+								</a>
+							</div>
+						{% else %}
+							<form method="GET" action="{{ path('app_acces_new') }}" id="organisationForm">
+								<div class="row">
+									<div class="col-md-8">
+										<label for="organisation" class="form-label">Organisation *</label>
+										<select name="organisation" id="organisation" class="form-select" required onchange="this.form.submit()">
+											<option value="">Sélectionner une organisation...</option>
+											{% for organisation in organisations %}
+												<option value="{{ organisation.id }}" {% if selectedOrganisation and selectedOrganisation.id == organisation.id %} selected {% endif %}>
+													{{ organisation.nomOrganisation }}
+												</option>
+											{% endfor %}
+										</select>
+									</div>
+									<div class="col-md-4 d-flex align-items-end">
+										<button type="submit" class="btn btn-primary">
+											<i class="bi bi-search"></i>
+											Charger les zones
+										</button>
+									</div>
+								</div>
+							</form>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
 
-    {% if selectedOrganisation %}
-    <!-- Zone Selection -->
-    <div class="row justify-content-center mt-4">
-        <div class="col-lg-10">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-geo-alt"></i>
-                        Sélectionner une zone d'accès
-                    </h5>
-                    <small class="text-muted">Organisation: {{ selectedOrganisation.nomOrganisation }}</small>
-                </div>
-                <div class="card-body">
-                    {% if zones is empty %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-geo-alt text-muted" style="font-size: 4rem;"></i>
-                            <h4 class="text-muted mt-3">Aucune zone disponible</h4>
-                            <p class="text-muted">Cette organisation n'a pas encore de zones configurées.</p>
-                            <a href="{{ path('app_zone_new') }}" class="btn btn-primary">
-                                <i class="bi bi-plus-circle"></i> Créer une zone
-                            </a>
-                        </div>
-                    {% else %}
-                        {{ include('acces/_form.html.twig', {
+		{% if selectedOrganisation %}
+			<!-- Zone Selection -->
+			<div class="row justify-content-center mt-4">
+				<div class="col-lg-10">
+					<div class="card">
+						<div class="card-header">
+							<h5 class="mb-0">
+								<i class="bi bi-geo-alt"></i>
+								Sélectionner une zone d'accès
+							</h5>
+							<small class="text-muted">Organisation:
+								{{ selectedOrganisation.nomOrganisation }}</small>
+						</div>
+						<div class="card-body">
+							{% if zones is empty %}
+								<div class="text-center py-5">
+									<i class="bi bi-geo-alt text-muted" style="font-size: 4rem;"></i>
+									<h4 class="text-muted mt-3">Aucune zone disponible</h4>
+									<p class="text-muted">Cette organisation n'a pas encore de zones configurées.</p>
+									<a href="{{ path('app_zone_new') }}" class="btn btn-primary">
+										<i class="bi bi-plus-circle"></i>
+										Créer une zone
+									</a>
+								</div>
+							{% else %}
+								{{ include('acces/_form.html.twig', {
                             'button_label': 'Configurer les accès',
                             'selectedOrganisation': selectedOrganisation,
                             'zones': zones
                         }) }}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endif %}
+	</div>
 {% endblock %}
 
 {% block stylesheets %}
-<style>
-.zone-card {
-    transition: all 0.2s ease;
-    border: 2px solid transparent;
-}
+	<style>
+		.zone-card {
+			transition: all 0.2s ease;
+			border: 2px solid transparent;
+		}
 
-.zone-card:hover {
-    border-color: #0d6efd;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
+		.zone-card:hover {
+			border-color: #0d6efd;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		}
 
-.zone-card .form-check-input:checked ~ .form-check-label .zone-card {
-    border-color: #0d6efd;
-    background-color: rgba(13, 110, 253, 0.05);
-}
+		.zone-card .form-check-input:checked ~ .form-check-label .zone-card {
+			border-color: #0d6efd;
+			background-color: rgba(13, 110, 253, 0.05);
+		}
 
-.zone-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
+		.zone-icon {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background-color: #e9ecef;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
 
-.form-check-input:checked ~ .form-check-label .zone-icon {
-    background-color: rgba(13, 110, 253, 0.1);
-}
+		.form-check-input:checked ~ .form-check-label .zone-icon {
+			background-color: rgba(13, 110, 253, 0.1);
+		}
 
-.form-check-label {
-    cursor: pointer;
-}
+		.form-check-label {
+			cursor: pointer;
+		}
 
-.card-header h5 i {
-    color: white;
-}
-</style>
+		.card-header h5 i {
+			color: white;
+		}
+	</style>
 {% endblock %}
 
 {% block javascripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('configureForm');
-    if (!form) return;
-    
-    const submitBtn = document.getElementById('submitBtn');
-    const spinner = submitBtn.querySelector('.spinner-border');
-    
-    // Zone selection validation
-    const zoneRadios = form.querySelectorAll('input[name="zone"]');
-    const numeroBadgeuse = form.querySelector('#numero_badgeuse');
-    const referenceBadgeuse = form.querySelector('#reference_badgeuse');
-    
-    // Real-time validation
-    function validateForm() {
-        const hasSelectedZone = Array.from(zoneRadios).some(radio => radio.checked);
-        updateSubmitButton(hasSelectedZone && numeroBadgeuse.value && referenceBadgeuse.value);
-    }
-    
-    function updateSubmitButton(isValid) {
-        submitBtn.disabled = !isValid;
-        if (!isValid) {
-            submitBtn.classList.add('btn-outline-primary');
-            submitBtn.classList.remove('btn-primary');
-        } else {
-            submitBtn.classList.remove('btn-outline-primary');
-            submitBtn.classList.add('btn-primary');
-        }
-    }
-    
-    // Add event listeners
-    zoneRadios.forEach(radio => {
-        radio.addEventListener('change', validateForm);
-    });
-    
-    numeroBadgeuse.addEventListener('input', validateForm);
-    referenceBadgeuse.addEventListener('input', validateForm);
-    
-    // Initial validation
-    validateForm();
-    
-    // Form submission
-    form.addEventListener('submit', function(e) {
-        const hasSelectedZone = Array.from(zoneRadios).some(radio => radio.checked);
-        
-        if (!hasSelectedZone) {
-            e.preventDefault();
-            alert('Veuillez sélectionner une zone.');
-            return;
-        }
-        
-        if (!numeroBadgeuse.value || !referenceBadgeuse.value) {
-            e.preventDefault();
-            alert('Veuillez renseigner toutes les informations de la badgeuse.');
-            return;
-        }
-        
-        // Show loading state
-        submitBtn.disabled = true;
-        spinner.classList.remove('d-none');
-    });
-    
-    // Zone card click handling
-    const zoneCards = document.querySelectorAll('.zone-card');
-    zoneCards.forEach(card => {
-        card.addEventListener('click', function(e) {
-            if (e.target.type === 'radio') return;
-            
-            const radio = this.querySelector('input[type="radio"]');
-            radio.checked = true;
-            radio.dispatchEvent(new Event('change'));
-        });
-    });
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+const form = document.getElementById('configureForm');
+if (! form) 
+return;
+
+
+const submitBtn = document.getElementById('submitBtn');
+const spinner = submitBtn.querySelector('.spinner-border');
+
+// Zone selection validation
+const zoneRadios = form.querySelectorAll('input[name="zone"]');
+const nomAcces = form.querySelector('#nom_acces');
+const referenceBadgeuse = form.querySelector('#reference_badgeuse');
+
+// Real-time validation
+function validateForm() {
+const hasSelectedZone = Array.from(zoneRadios).some(radio => radio.checked);
+updateSubmitButton(hasSelectedZone && nomAcces.value && referenceBadgeuse.value);
+}
+
+function updateSubmitButton(isValid) {
+submitBtn.disabled = ! isValid;
+if (! isValid) {
+submitBtn.classList.add('btn-outline-primary');
+submitBtn.classList.remove('btn-primary');
+} else {
+submitBtn.classList.remove('btn-outline-primary');
+submitBtn.classList.add('btn-primary');
+}
+}
+
+// Add event listeners
+zoneRadios.forEach(radio => {
+radio.addEventListener('change', validateForm);
 });
-</script>
+
+nomAcces.addEventListener('input', validateForm);
+referenceBadgeuse.addEventListener('input', validateForm);
+
+// Initial validation
+validateForm();
+
+// Form submission
+form.addEventListener('submit', function (e) {
+const hasSelectedZone = Array.from(zoneRadios).some(radio => radio.checked);
+
+if (! hasSelectedZone) {
+e.preventDefault();
+alert('Veuillez sélectionner une zone.');
+return;
+}
+
+if (! nomAcces.value || ! referenceBadgeuse.value) {
+e.preventDefault();
+alert('Veuillez renseigner toutes les informations de la badgeuse.');
+return;
+}
+
+// Show loading state
+submitBtn.disabled = true;
+spinner.classList.remove('d-none');
+});
+
+// Zone card click handling
+const zoneCards = document.querySelectorAll('.zone-card');
+zoneCards.forEach(card => {
+card.addEventListener('click', function (e) {
+if (e.target.type === 'radio') 
+return;
+
+
+const radio = this.querySelector('input[type="radio"]');
+radio.checked = true;
+radio.dispatchEvent(new Event('change'));
+});
+});
+});
+	</script>
 {% endblock %}

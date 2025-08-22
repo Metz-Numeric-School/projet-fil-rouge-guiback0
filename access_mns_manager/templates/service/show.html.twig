@@ -508,10 +508,11 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 				</div>
 				<div class="modal-body">
-					<div id="deleteWarning" class="alert alert-warning d-none">
-						<i class="bi bi-exclamation-triangle"></i>
-						<strong>Attention !</strong>
-						<p class="mb-0">Ce service ne peut pas être supprimé car des utilisateurs y sont assignés. Veuillez d'abord réassigner les utilisateurs à un autre service.</p>
+					<div id="userWarning" class="alert alert-info d-none">
+						<i class="bi bi-info-circle"></i>
+						<strong>Information :</strong>
+						<span id="userCount"></span>
+						utilisateur(s) assigné(s) seront également retirés de ce service.
 					</div>
 					<div id="deleteConfirmation">
 						<p>Êtes-vous sûr de vouloir supprimer le service
@@ -613,25 +614,28 @@ document.getElementById('deleteForm').action = `/manager/service/${serviceId}`;
 document.getElementById('deleteToken').value = csrfToken;
 document.getElementById('deleteToken').name = '_token';
 
-// Check if service has assigned users
-const hasUsers = {{ service.travail|length }} > 0;
+// Check if service has assigned users and zones
+const userCount = {{ service.travail|length }};
 const zoneCount = {{ service.serviceZones|length }};
-const deleteWarning = document.getElementById('deleteWarning');
+const userWarning = document.getElementById('userWarning');
 const deleteConfirmation = document.getElementById('deleteConfirmation');
 const zoneWarning = document.getElementById('zoneWarning');
 const zoneCountSpan = document.getElementById('zoneCount');
+const userCountSpan = document.getElementById('userCount');
 const deleteButton = document.getElementById('deleteButton');
 
-if (hasUsers) {
-deleteWarning.classList.remove('d-none');
-deleteConfirmation.classList.add('d-none');
-deleteButton.disabled = true;
-deleteButton.textContent = 'Suppression impossible';
-} else {
-deleteWarning.classList.add('d-none');
+// Always show confirmation (no longer preventing deletion)
 deleteConfirmation.classList.remove('d-none');
 deleteButton.disabled = false;
 deleteButton.textContent = 'Supprimer';
+
+// Show user warning if there are users assigned
+if (userCount > 0) {
+userWarning.classList.remove('d-none');
+userCountSpan.textContent = userCount;
+} else {
+userWarning.classList.add('d-none');
+}
 
 // Show zone deletion warning if there are zones
 if (zoneCount > 0) {
@@ -639,7 +643,6 @@ zoneWarning.classList.remove('d-none');
 zoneCountSpan.textContent = zoneCount;
 } else {
 zoneWarning.classList.add('d-none');
-}
 }
 
 new bootstrap.Modal(document.getElementById('deleteModal')).show();

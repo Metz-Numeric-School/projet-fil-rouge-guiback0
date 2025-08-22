@@ -13,7 +13,6 @@ use App\Entity\UserBadge;
 use App\Entity\Travailler;
 use App\Entity\Pointage;
 use App\Entity\ServiceZone;
-use App\Entity\Gerer;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -31,7 +30,7 @@ class AppFixtures extends Fixture
     {
         // ========== ORGANISATIONS ==========
         $organisations = [];
-        
+
         $organisation1 = new Organisation();
         $organisation1->setNomOrganisation('Ministère de la Défense');
         $organisation1->setEmail('contact@defense.gouv.fr');
@@ -79,11 +78,33 @@ class AppFixtures extends Fixture
 
         // ========== SERVICES ==========
         $services = [];
-        
+
+        // Service principal pour chaque organisation
+        $servicePrincipalDefense = new Service();
+        $servicePrincipalDefense->setNomService('Service principal');
+        $servicePrincipalDefense->setNiveauService(1);
+        $servicePrincipalDefense->setOrganisation($organisations['defense']);
+        $manager->persist($servicePrincipalDefense);
+        $services['principal_defense'] = $servicePrincipalDefense;
+
+        $servicePrincipalInterieur = new Service();
+        $servicePrincipalInterieur->setNomService('Service principal');
+        $servicePrincipalInterieur->setNiveauService(1);
+        $servicePrincipalInterieur->setOrganisation($organisations['interieur']);
+        $manager->persist($servicePrincipalInterieur);
+        $services['principal_interieur'] = $servicePrincipalInterieur;
+
+        $servicePrincipalEconomie = new Service();
+        $servicePrincipalEconomie->setNomService('Service principal');
+        $servicePrincipalEconomie->setNiveauService(1);
+        $servicePrincipalEconomie->setOrganisation($organisations['economie']);
+        $manager->persist($servicePrincipalEconomie);
+        $services['principal_economie'] = $servicePrincipalEconomie;
+
         // Services Ministère de la Défense
         $serviceIT = new Service();
         $serviceIT->setNomService('Service Informatique');
-        $serviceIT->setNiveauService(1);
+        $serviceIT->setNiveauService(2);
         $serviceIT->setOrganisation($organisations['defense']);
         $manager->persist($serviceIT);
         $services['it_defense'] = $serviceIT;
@@ -127,7 +148,15 @@ class AppFixtures extends Fixture
 
         // ========== ZONES ==========
         $zones = [];
-        
+
+        // Zone principale (partagée entre toutes les organisations)
+        $zonePrincipale = new Zone();
+        $zonePrincipale->setNomZone('Zone principale');
+        $zonePrincipale->setDescription('Zone principale créée automatiquement');
+        $zonePrincipale->setCapacite(100);
+        $manager->persist($zonePrincipale);
+        $zones['principale'] = $zonePrincipale;
+
         $zoneSA = new Zone();
         $zoneSA->setNomZone('Zone Sécurisée Alpha');
         $zoneSA->setDescription('Zone d\'accès ultra-restreint - Niveau Secret Défense');
@@ -165,7 +194,7 @@ class AppFixtures extends Fixture
 
         // ========== UTILISATEURS ==========
         $users = [];
-        
+
         // Super Admin
         $superAdmin = new User();
         $superAdmin->setEmail('superadmin@access-mns.fr');
@@ -262,30 +291,30 @@ class AppFixtures extends Fixture
 
         // ========== BADGES ==========
         $badges = [];
-        
+
         $badgeNumbers = [200001, 200002, 200003, 200004, 200005, 200006, 200007, 200008];
         $badgeTypes = ['administrateur', 'permanent', 'permanent', 'temporaire', 'visiteur', 'permanent', 'permanent', 'permanent'];
         $badgeUsers = ['superadmin', 'admin_defense', 'admin_interieur', 'user_defense_1', 'user_defense_2', 'user_interieur_1', 'user_interieur_2', 'user_economie_1'];
-        
+
         foreach ($badgeNumbers as $index => $number) {
             $badge = new Badge();
             $badge->setNumeroBadge($number);
             $badge->setTypeBadge($badgeTypes[$index]);
             $badge->setDateCreation(new \DateTime('2021-01-0' . ($index + 1)));
-            
+
             if ($badgeTypes[$index] === 'temporaire') {
                 $badge->setDateExpiration(new \DateTime('2025-12-31'));
             } elseif ($badgeTypes[$index] === 'visiteur') {
                 $badge->setDateExpiration(new \DateTime('2024-06-30'));
             }
-            
+
             $manager->persist($badge);
             $badges[$badgeUsers[$index]] = $badge;
         }
 
         // ========== BADGEUSES ==========
         $badgeuses = [];
-        
+
         $badgeuseData = [
             ['ref' => 'BADGE-ALPHA-001', 'date' => '2020-01-01'],
             ['ref' => 'BADGE-BETA-001', 'date' => '2020-01-01'],
@@ -305,17 +334,17 @@ class AppFixtures extends Fixture
 
         // ========== ACCÈS ==========
         $accesData = [
-            ['badgeuse' => 'badgeuse_1', 'zone' => 'alpha', 'numero' => 1],
-            ['badgeuse' => 'badgeuse_2', 'zone' => 'beta', 'numero' => 2],
-            ['badgeuse' => 'badgeuse_3', 'zone' => 'public', 'numero' => 3],
-            ['badgeuse' => 'badgeuse_4', 'zone' => 'bureau', 'numero' => 4],
-            ['badgeuse' => 'badgeuse_5', 'zone' => 'technique', 'numero' => 5],
-            ['badgeuse' => 'badgeuse_6', 'zone' => 'beta', 'numero' => 6],
+            ['badgeuse' => 'badgeuse_1', 'zone' => 'alpha', 'nom' => 'Accès Alpha Principal'],
+            ['badgeuse' => 'badgeuse_2', 'zone' => 'beta', 'nom' => 'Accès Beta Secondaire'],
+            ['badgeuse' => 'badgeuse_3', 'zone' => 'public', 'nom' => 'Accès Hall Public'],
+            ['badgeuse' => 'badgeuse_4', 'zone' => 'bureau', 'nom' => 'Accès Bureau Direction'],
+            ['badgeuse' => 'badgeuse_5', 'zone' => 'technique', 'nom' => 'Accès Zone Technique'],
+            ['badgeuse' => 'badgeuse_6', 'zone' => 'beta', 'nom' => 'Accès Beta Test'],
         ];
 
         foreach ($accesData as $data) {
             $acces = new Acces();
-            $acces->setNumeroBadgeuse($data['numero']);
+            $acces->setNomAcces($data['nom']);
             $acces->setDateInstallation(new \DateTime('2020-01-01'));
             $acces->setZone($zones[$data['zone']]);
             $acces->setBadgeuse($badgeuses[$data['badgeuse']]);
@@ -331,10 +360,30 @@ class AppFixtures extends Fixture
         }
 
         // ========== TRAVAILLER (User-Service relationships) ==========
-        $travaillerData = [
-            ['user' => 'superadmin', 'service' => 'it_defense', 'date' => '2020-01-01'],
+        // Principal service assignments (mandatory)
+        $principalTravaillerData = [
+            ['user' => 'superadmin', 'service' => 'principal_defense', 'date' => '2020-01-01'],
+            ['user' => 'admin_defense', 'service' => 'principal_defense', 'date' => '2020-01-15'],
+            ['user' => 'admin_interieur', 'service' => 'principal_interieur', 'date' => '2020-02-01'],
+            ['user' => 'user_defense_1', 'service' => 'principal_defense', 'date' => '2021-03-15'],
+            ['user' => 'user_defense_2', 'service' => 'principal_defense', 'date' => '2021-04-10'],
+            ['user' => 'user_interieur_1', 'service' => 'principal_interieur', 'date' => '2021-06-01'],
+            ['user' => 'user_interieur_2', 'service' => 'principal_interieur', 'date' => '2021-08-01'],
+            ['user' => 'user_economie_1', 'service' => 'principal_economie', 'date' => '2021-09-15'],
+        ];
+
+        foreach ($principalTravaillerData as $data) {
+            $travailler = new Travailler();
+            $travailler->setUtilisateur($users[$data['user']]);
+            $travailler->setService($services[$data['service']]);
+            $travailler->setDateDebut(new \DateTime($data['date']));
+            $travailler->setIsPrincipal(true);
+            $manager->persist($travailler);
+        }
+
+        // Secondary service assignments (optional)
+        $secondaryTravaillerData = [
             ['user' => 'admin_defense', 'service' => 'security_defense', 'date' => '2020-01-15'],
-            ['user' => 'admin_interieur', 'service' => 'rh_interieur', 'date' => '2020-02-01'],
             ['user' => 'user_defense_1', 'service' => 'it_defense', 'date' => '2021-03-15'],
             ['user' => 'user_defense_2', 'service' => 'logistics_defense', 'date' => '2021-04-10'],
             ['user' => 'user_interieur_1', 'service' => 'rh_interieur', 'date' => '2021-06-01'],
@@ -342,16 +391,23 @@ class AppFixtures extends Fixture
             ['user' => 'user_economie_1', 'service' => 'finance_economie', 'date' => '2021-09-15'],
         ];
 
-        foreach ($travaillerData as $data) {
+        foreach ($secondaryTravaillerData as $data) {
             $travailler = new Travailler();
             $travailler->setUtilisateur($users[$data['user']]);
             $travailler->setService($services[$data['service']]);
             $travailler->setDateDebut(new \DateTime($data['date']));
+            $travailler->setIsPrincipal(false);
             $manager->persist($travailler);
         }
 
         // ========== SERVICE ZONES ==========
         $serviceZoneData = [
+            // Principal services linked to Zone principale
+            ['service' => 'principal_defense', 'zone' => 'principale'],
+            ['service' => 'principal_interieur', 'zone' => 'principale'],
+            ['service' => 'principal_economie', 'zone' => 'principale'],
+            
+            // Other service zones
             ['service' => 'security_defense', 'zone' => 'alpha'],
             ['service' => 'security_defense', 'zone' => 'beta'],
             ['service' => 'it_defense', 'zone' => 'technique'],
@@ -369,22 +425,6 @@ class AppFixtures extends Fixture
             $manager->persist($serviceZone);
         }
 
-        // ========== GERER (Management relationships) ==========
-        $gererData = [
-            ['manageur' => 'superadmin', 'employe' => 'admin_defense'],
-            ['manageur' => 'superadmin', 'employe' => 'admin_interieur'],
-            ['manageur' => 'admin_defense', 'employe' => 'user_defense_1'],
-            ['manageur' => 'admin_defense', 'employe' => 'user_defense_2'],
-            ['manageur' => 'admin_interieur', 'employe' => 'user_interieur_1'],
-            ['manageur' => 'admin_interieur', 'employe' => 'user_interieur_2'],
-        ];
-
-        foreach ($gererData as $data) {
-            $gerer = new Gerer();
-            $gerer->setManageur($users[$data['manageur']]);
-            $gerer->setEmploye($users[$data['employe']]);
-            $manager->persist($gerer);
-        }
 
         // ========== POINTAGES (Time tracking) ==========
         $today = new \DateTime();
@@ -395,10 +435,10 @@ class AppFixtures extends Fixture
             ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_2', 'heure' => $today->format('Y-m-d') . ' 08:30:00', 'type' => 'entrée'],
             ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_2', 'heure' => $today->format('Y-m-d') . ' 12:00:00', 'type' => 'sortie'],
             ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_2', 'heure' => $today->format('Y-m-d') . ' 13:30:00', 'type' => 'entrée'],
-            
+
             ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_4', 'heure' => $yesterday->format('Y-m-d') . ' 09:00:00', 'type' => 'entrée'],
             ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_4', 'heure' => $yesterday->format('Y-m-d') . ' 17:30:00', 'type' => 'sortie'],
-            
+
             ['badge' => 'user_defense_2', 'badgeuse' => 'badgeuse_4', 'heure' => $lastWeek->format('Y-m-d') . ' 08:15:00', 'type' => 'entrée'],
             ['badge' => 'user_defense_2', 'badgeuse' => 'badgeuse_4', 'heure' => $lastWeek->format('Y-m-d') . ' 18:00:00', 'type' => 'sortie'],
         ];

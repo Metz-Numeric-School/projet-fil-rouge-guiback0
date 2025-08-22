@@ -1,148 +1,253 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Services - {{ organisation.nomOrganisation }} - ACCESS MNS MANAGER{% endblock %}
+{% block title %}Services -
+	{{ organisation.nomOrganisation }}
+	- ACCESS MNS MANAGER
+{% endblock %}
 
 {% block breadcrumb %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_index') }}">Organisations</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Services</li>
-    </ol>
-</nav>
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">
+					<i class="bi bi-house-door"></i>
+					Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_index') }}">Organisations</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a>
+			</li>
+			<li class="breadcrumb-item active" aria-current="page">Services</li>
+		</ol>
+	</nav>
 {% endblock %}
 
 {% block body %}
-<div class="container">
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h1 class="h3 mb-1">Services - {{ organisation.nomOrganisation }}</h1>
-                    <p class="text-muted mb-0">
-                        <i class="bi bi-briefcase"></i> Liste des services
-                        • {{ services|length }} service{{ services|length > 1 ? 's' : '' }}
-                    </p>
-                </div>
-                <div>
-                    <a href="{{ path('app_organisation_service_new', {'id': organisation.id}) }}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Nouveau service
-                    </a>
-                    <a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Retour à l'organisation
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div
+		class="container">
+		<!-- Page Header -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-start">
+					<div>
+						<h1 class="h3 mb-1">Services -
+							{{ organisation.nomOrganisation }}</h1>
+						<p class="text-muted mb-0">
+							<i class="bi bi-briefcase"></i>
+							Liste des services
+							                        •
+							{{ services|length }}
+							service{{ services|length > 1 ? 's' : '' }}
+						</p>
+					</div>
+					<div>
+						<a href="{{ path('app_organisation_service_new', {'id': organisation.id}) }}" class="btn btn-primary">
+							<i class="bi bi-plus-circle"></i>
+							Nouveau service
+						</a>
+						<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
+							<i class="bi bi-arrow-left"></i>
+							Retour à l'organisation
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Services List -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-briefcase"></i>
-                        Services ({{ services|length }})
-                    </h5>
-                </div>
-                {% if services|length > 0 %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Niveau</th>
-                                    <th>Employés</th>
-                                    <th>Zones d'accès</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for service in services %}
-                                <tr class="clickable-row" data-href="{{ path('app_service_show', {'id': service.id}) }}">
-                                    <td>
-                                        <div>
-                                            <div class="fw-medium">
-                                                <i class="bi bi-briefcase text-primary me-2"></i>
-                                                {{ service.nomService }}
-                                            </div>
-                                            <small class="text-muted">ID: {{ service.id }}</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-primary">Niveau {{ service.niveauService }}</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-people text-success me-2"></i>
-                                            <span>{{ service.travail|length }} employé{{ service.travail|length > 1 ? 's' : '' }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-geo-alt text-info me-2"></i>
-                                            <span>{{ service.serviceZones|length }} zone{{ service.serviceZones|length > 1 ? 's' : '' }}</span>
-                                        </div>
-                                    </td>
-                                    <td onclick="event.stopPropagation();">
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <a href="{{ path('app_service_edit', {'id': service.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="text-muted mt-3">Aucun service</h4>
-                        <p class="text-muted">Cette organisation n'a pas encore de services configurés.</p>
-                        <a href="{{ path('app_organisation_service_new', {'id': organisation.id}) }}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i>
-                            Créer le premier service
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
+		<!-- Search and Filters -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+						<div class="row g-3">
+							<div class="col-md-6">
+								<div class="input-group">
+									<span class="input-group-text">
+										<i class="bi bi-search"></i>
+									</span>
+									<input type="text" class="form-control" id="searchInput" placeholder="Rechercher un service...">
+								</div>
+							</div>
+							<div class="col-md-3">
+								<select class="form-select" id="levelFilter">
+									<option value="">Tous les niveaux</option>
+									<option value="1">Niveau 1</option>
+									<option value="2">Niveau 2</option>
+									<option value="3">Niveau 3</option>
+									<option value="4">Niveau 4</option>
+									<option value="5">Niveau 5</option>
+								</select>
+							</div>
+							<div class="col-md-3">
+								<button type="button" class="btn btn-outline-secondary" id="clearFilters">
+									<i class="bi bi-x-circle"></i>
+									Effacer
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Services List -->
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<i class="bi bi-briefcase"></i>
+							Services ({{ services|length }})
+						</h5>
+					</div>
+					{% if services|length > 0 %}
+						<div class="table-responsive">
+							<table class="table table-hover" id="servicesTable">
+								<thead>
+									<tr>
+										<th>Service</th>
+										<th>Niveau</th>
+										<th>Employés</th>
+										<th>Zones d'accès</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for service in services %}
+										<tr class="clickable-row" data-href="{{ path('app_service_show', {'id': service.id}) }}" data-service="{{ service.nomService }}" data-level="{{ service.niveauService }}" data-employees="{{ service.travail|length }}" data-zones="{{ service.serviceZones|length }}">
+											<td>
+												<div>
+													<div class="fw-medium">
+														<i class="bi bi-briefcase text-primary me-2"></i>
+														{{ service.nomService }}
+													</div>
+													<small class="text-muted">ID:
+														{{ service.id }}</small>
+												</div>
+											</td>
+											<td>
+												<span class="badge bg-primary">Niveau
+													{{ service.niveauService }}</span>
+											</td>
+											<td>
+												<div class="d-flex align-items-center">
+													<i class="bi bi-people text-success me-2"></i>
+													<span>{{ service.travail|length }}
+														employé{{ service.travail|length > 1 ? 's' : '' }}</span>
+												</div>
+											</td>
+											<td>
+												<div class="d-flex align-items-center">
+													<i class="bi bi-geo-alt text-info me-2"></i>
+													<span>{{ service.serviceZones|length }}
+														zone{{ service.serviceZones|length > 1 ? 's' : '' }}</span>
+												</div>
+											</td>
+											<td onclick="event.stopPropagation();">
+												<div class="btn-group" role="group">
+													<a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
+														<i class="bi bi-eye"></i>
+													</a>
+													<a href="{{ path('app_service_edit', {'id': service.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+														<i class="bi bi-pencil"></i>
+													</a>
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% else %}
+						<div class="text-center py-5">
+							<i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
+							<h4 class="text-muted mt-3">Aucun service</h4>
+							<p class="text-muted">Cette organisation n'a pas encore de services configurés.</p>
+							<a href="{{ path('app_organisation_service_new', {'id': organisation.id}) }}" class="btn btn-primary">
+								<i class="bi bi-plus-circle"></i>
+								Créer le premier service
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block stylesheets %}
-<style>
-.clickable-row {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-.clickable-row:hover {
-    background-color: rgba(13, 110, 253, 0.1) !important;
-}
-</style>
+	<style>
+		.clickable-row {
+			cursor: pointer;
+			transition: background-color 0.2s ease;
+		}
+		.clickable-row:hover {
+			background-color: rgba(13, 110, 253, 0.1) !important;
+		}
+	</style>
 {% endblock %}
 
 {% block javascripts %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Make table rows clickable
-    document.querySelectorAll('.clickable-row').forEach(row => {
-        row.addEventListener('click', (e) => {
-            if (e.target.closest('a, button')) {
-                return;
-            }
-            window.location.href = row.dataset.href;
-        });
-    });
+	<script>
+		document.addEventListener('DOMContentLoaded', () => { // Make table rows clickable
+document.querySelectorAll('.clickable-row').forEach(row => {
+row.addEventListener('click', (e) => {
+if (e.target.closest('a, button')) {
+return;
+}
+window.location.href = row.dataset.href;
 });
-</script>
+});
+
+// Search and filter functionality
+const searchInput = document.getElementById('searchInput');
+const levelFilter = document.getElementById('levelFilter');
+const clearFilters = document.getElementById('clearFilters');
+const tableRows = document.querySelectorAll('#servicesTable tbody tr');
+
+function filterTable() {
+const searchTerm = searchInput.value.toLowerCase();
+const selectedLevel = levelFilter.value;
+let visibleCount = 0;
+
+tableRows.forEach(row => {
+const serviceName = row.dataset.service.toLowerCase();
+const serviceLevel = row.dataset.level;
+
+const matchesSearch = ! searchTerm || serviceName.includes(searchTerm);
+const matchesLevel = ! selectedLevel || serviceLevel === selectedLevel;
+
+if (matchesSearch && matchesLevel) {
+row.style.display = '';
+visibleCount++;
+} else {
+row.style.display = 'none';
+}
+});
+
+// Update count in header
+const header = document.querySelector('.card-header h5');
+if (header) {
+header.innerHTML = `<i class="bi bi-briefcase"></i> Services (${visibleCount})`;
+}
+}
+
+if (searchInput) 
+searchInput.addEventListener('input', filterTable);
+
+if (levelFilter) 
+levelFilter.addEventListener('change', filterTable);
+
+
+if (clearFilters) {
+clearFilters.addEventListener('click', () => {
+searchInput.value = '';
+levelFilter.value = '';
+filterTable();
+});
+}
+});
+	</script>
 {% endblock %}

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Acces;
 use App\Entity\Service;
 use App\Entity\Organisation;
 use App\Entity\ServiceZone;
@@ -77,7 +78,7 @@ final class ServiceController extends AbstractController
 
                 $entityManager->commit();
 
-                return $this->redirectToRoute('app_service_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_service_show', ['id' => $service->getId()], Response::HTTP_SEE_OTHER);
             } catch (\Exception) {
                 $entityManager->rollback();
                 $this->addFlash('error', 'Erreur lors de la création du service. Veuillez réessayer.');
@@ -132,13 +133,15 @@ final class ServiceController extends AbstractController
     #[Route('/{id}/edit', name: 'app_service_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Service $service, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(ServiceType::class, $service);
+        $form = $this->createForm(ServiceType::class, $service, [
+            'read_only_organisation' => true
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_service_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_service_show', ['id' => $service->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('service/edit.html.twig', [
@@ -159,14 +162,30 @@ final class ServiceController extends AbstractController
 
             $organisation = $service->getOrganisation();
 
-            if ($service->getTravail()->count() > 0) {
-                $this->addFlash('error', 'Impossible de supprimer ce service car des utilisateurs y sont assignés. Veuillez d\'abord réassigner les utilisateurs à un autre service.');
-                return $this->redirectToRoute('app_service_show', ['id' => $service->getId()], Response::HTTP_SEE_OTHER);
+            // Remove all Travailler relations for this service
+            foreach ($service->getTravail() as $travail) {
+                $entityManager->remove($travail);
             }
 
-            // Remove associated ServiceZone entries first
+            // Remove associated ServiceZone entries and zones not used elsewhere
             foreach ($service->getServiceZones() as $serviceZone) {
+                $zone = $serviceZone->getZone();
                 $entityManager->remove($serviceZone);
+                
+                // Check if this zone is used by other services
+                if ($zone && $zone->getNomZone() !== 'Zone principale') {
+                    $otherServiceZones = $entityManager->getRepository(ServiceZone::class)
+                        ->findBy(['zone' => $zone]);
+                    
+                    // If this zone is only used by this service, delete it and its access points
+                    if (count($otherServiceZones) <= 1) { // <= 1 because we're about to remove the current one
+                        // Remove all access points in this zone
+                        foreach ($zone->getAcces() as $acces) {
+                            $entityManager->remove($acces);
+                        }
+                        $entityManager->remove($zone);
+                    }
+                }
             }
 
             $entityManager->remove($service);

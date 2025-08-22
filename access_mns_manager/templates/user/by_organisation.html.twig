@@ -1,177 +1,280 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Employés - {{ organisation.nomOrganisation }} - ACCESS MNS MANAGER{% endblock %}
+{% block title %}Employés -
+	{{ organisation.nomOrganisation }}
+	- ACCESS MNS MANAGER
+{% endblock %}
 
 {% block breadcrumb %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_index') }}">Organisations</a></li>
-        <li class="breadcrumb-item"><a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Employés</li>
-    </ol>
-</nav>
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">
+					<i class="bi bi-house-door"></i>
+					Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_index') }}">Organisations</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}">{{ organisation.nomOrganisation }}</a>
+			</li>
+			<li class="breadcrumb-item active" aria-current="page">Employés</li>
+		</ol>
+	</nav>
 {% endblock %}
 
 {% block body %}
-<div class="container">
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h1 class="h3 mb-1">Employés - {{ organisation.nomOrganisation }}</h1>
-                    <p class="text-muted mb-0">
-                        <i class="bi bi-people"></i> Liste des employés
-                        • {{ users|length }} employé{{ users|length > 1 ? 's' : '' }}
-                    </p>
-                </div>
-                <div>
-                    <a href="{{ path('app_organisation_user_new', {'id': organisation.id}) }}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Nouvel employé
-                    </a>
-                    <a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Retour à l'organisation
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div
+		class="container">
+		<!-- Page Header -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-start">
+					<div>
+						<h1 class="h3 mb-1">Employés -
+							{{ organisation.nomOrganisation }}</h1>
+						<p class="text-muted mb-0">
+							<i class="bi bi-people"></i>
+							Liste des employés
+							                        •
+							{{ users|length }}
+							employé{{ users|length > 1 ? 's' : '' }}
+						</p>
+					</div>
+					<div>
+						<a href="{{ path('app_organisation_user_new', {'id': organisation.id}) }}" class="btn btn-primary">
+							<i class="bi bi-plus-circle"></i>
+							Nouvel employé
+						</a>
+						<a href="{{ path('app_organisation_show', {'id': organisation.id}) }}" class="btn btn-secondary">
+							<i class="bi bi-arrow-left"></i>
+							Retour à l'organisation
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Users List -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-people"></i>
-                        Employés ({{ users|length }})
-                    </h5>
-                </div>
-                {% if users|length > 0 %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Employé</th>
-                                    <th>Email</th>
-                                    <th>Poste</th>
-                                    <th>Services</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in users %}
-                                <tr class="clickable-row" data-href="{{ path('app_user_show', {'id': user.id}) }}">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-circle me-3">
-                                                <i class="bi bi-person fs-5"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-medium">{{ user.prenom }} {{ user.nom }}</div>
-                                                <small class="text-muted">ID: {{ user.id }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <i class="bi bi-envelope text-muted me-2"></i>
-                                        {{ user.email }}
-                                    </td>
-                                    <td>
-                                        {% if user.poste %}
-                                            <span class="badge bg-secondary">{{ user.poste }}</span>
-                                        {% else %}
-                                            <span class="text-muted">Non défini</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% set serviceCount = 0 %}
-                                        {% for service in organisation.services %}
-                                            {% for travail in service.travail %}
-                                                {% if travail.utilisateur == user %}
-                                                    {% set serviceCount = serviceCount + 1 %}
-                                                    {% if travail.isPrincipal %}
-                                                        <span class="badge bg-primary me-1 mb-1" title="Service principal">
-                                                            <i class="bi bi-star-fill me-1"></i>{{ service.nomService }}
-                                                        </span>
-                                                    {% else %}
-                                                        <span class="badge bg-secondary me-1 mb-1">{{ service.nomService }}</span>
-                                                    {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endfor %}
-                                        {% if serviceCount == 0 %}
-                                            <span class="text-muted">Aucun service</span>
-                                        {% endif %}
-                                    </td>
-                                    <td onclick="event.stopPropagation();">
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ path('app_user_show', {'id': user.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="text-muted mt-3">Aucun employé</h4>
-                        <p class="text-muted">Cette organisation n'a pas encore d'employés assignés à ses services.</p>
-                        <a href="{{ path('app_organisation_user_new', {'id': organisation.id}) }}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i>
-                            Créer le premier employé
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
+		<!-- Search and Filters -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+						<div class="row g-3">
+							<div class="col-md-6">
+								<div class="input-group">
+									<span class="input-group-text">
+										<i class="bi bi-search"></i>
+									</span>
+									<input type="text" class="form-control" id="searchInput" placeholder="Rechercher un employé...">
+								</div>
+							</div>
+							<div class="col-md-3">
+								<select class="form-select" id="serviceFilter">
+									<option value="">Tous les services</option>
+									{% for service in organisation.services %}
+										<option value="{{ service.nomService }}">{{ service.nomService }}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div class="col-md-3">
+								<button type="button" class="btn btn-outline-secondary" id="clearFilters">
+									<i class="bi bi-x-circle"></i>
+									Effacer
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Users List -->
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<i class="bi bi-people"></i>
+							Employés ({{ users|length }})
+						</h5>
+					</div>
+					{% if users|length > 0 %}
+						<div class="table-responsive">
+							<table class="table table-hover" id="usersTable">
+								<thead>
+									<tr>
+										<th>Employé</th>
+										<th>Email</th>
+										<th>Poste</th>
+										<th>Services</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for user in users %}
+										<tr class="clickable-row" data-href="{{ path('app_user_show', {'id': user.id}) }}" data-user="{{ user.prenom }} {{ user.nom }} {{ user.email }}" data-poste="{{ user.poste ?? '' }}" data-services="{% for service in organisation.services %}{% for travail in service.travail %}{% if travail.utilisateur == user %}{{ service.nomService }} {% endif %}{% endfor %}{% endfor %}">
+											<td>
+												<div class="d-flex align-items-center">
+													<div class="avatar-circle me-3">
+														<i class="bi bi-person fs-5"></i>
+													</div>
+													<div>
+														<div class="fw-medium">{{ user.prenom }}
+															{{ user.nom }}</div>
+														<small class="text-muted">ID:
+															{{ user.id }}</small>
+													</div>
+												</div>
+											</td>
+											<td>
+												<i class="bi bi-envelope text-muted me-2"></i>
+												{{ user.email }}
+											</td>
+											<td>
+												{% if user.poste %}
+													<span class="badge bg-secondary">{{ user.poste }}</span>
+												{% else %}
+													<span class="text-muted">Non défini</span>
+												{% endif %}
+											</td>
+											<td>
+												{% set serviceCount = 0 %}
+												{% for service in organisation.services %}
+													{% for travail in service.travail %}
+														{% if travail.utilisateur == user %}
+															{% set serviceCount = serviceCount + 1 %}
+															{% if travail.isPrincipal %}
+																<span class="badge bg-primary me-1 mb-1" title="Service principal">
+																	<i class="bi bi-star-fill me-1"></i>
+																	{{ service.nomService }}
+																</span>
+															{% else %}
+																<span class="badge bg-secondary me-1 mb-1">{{ service.nomService }}</span>
+															{% endif %}
+														{% endif %}
+													{% endfor %}
+												{% endfor %}
+												{% if serviceCount == 0 %}
+													<span class="text-muted">Aucun service</span>
+												{% endif %}
+											</td>
+											<td onclick="event.stopPropagation();">
+												<div class="btn-group" role="group">
+													<a href="{{ path('app_user_show', {'id': user.id}) }}" class="btn btn-sm btn-primary" title="Voir les détails">
+														<i class="bi bi-eye"></i>
+													</a>
+													<a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+														<i class="bi bi-pencil"></i>
+													</a>
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% else %}
+						<div class="text-center py-5">
+							<i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+							<h4 class="text-muted mt-3">Aucun employé</h4>
+							<p class="text-muted">Cette organisation n'a pas encore d'employés assignés à ses services.</p>
+							<a href="{{ path('app_organisation_user_new', {'id': organisation.id}) }}" class="btn btn-primary">
+								<i class="bi bi-plus-circle"></i>
+								Créer le premier employé
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block stylesheets %}
-<style>
-.avatar-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #6c757d;
-    flex-shrink: 0;
-}
-.clickable-row {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-.clickable-row:hover {
-    background-color: rgba(13, 110, 253, 0.1) !important;
-}
-</style>
+	<style>
+		.avatar-circle {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background-color: #e9ecef;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #6c757d;
+			flex-shrink: 0;
+		}
+		.clickable-row {
+			cursor: pointer;
+			transition: background-color 0.2s ease;
+		}
+		.clickable-row:hover {
+			background-color: rgba(13, 110, 253, 0.1) !important;
+		}
+	</style>
 {% endblock %}
 
 {% block javascripts %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Make table rows clickable
-    document.querySelectorAll('.clickable-row').forEach(row => {
-        row.addEventListener('click', (e) => {
-            if (e.target.closest('a, button')) {
-                return;
-            }
-            window.location.href = row.dataset.href;
-        });
-    });
+	<script>
+		document.addEventListener('DOMContentLoaded', () => { // Make table rows clickable
+document.querySelectorAll('.clickable-row').forEach(row => {
+row.addEventListener('click', (e) => {
+if (e.target.closest('a, button')) {
+return;
+}
+window.location.href = row.dataset.href;
 });
-</script>
+});
+
+// Search and filter functionality
+const searchInput = document.getElementById('searchInput');
+const serviceFilter = document.getElementById('serviceFilter');
+const clearFilters = document.getElementById('clearFilters');
+const tableRows = document.querySelectorAll('#usersTable tbody tr');
+
+function filterTable() {
+const searchTerm = searchInput.value.toLowerCase();
+const selectedService = serviceFilter.value;
+let visibleCount = 0;
+
+tableRows.forEach(row => {
+const userData = row.dataset.user.toLowerCase();
+const userServices = row.dataset.services.toLowerCase();
+const userPoste = row.dataset.poste.toLowerCase();
+
+const matchesSearch = ! searchTerm || userData.includes(searchTerm) || userPoste.includes(searchTerm);
+const matchesService = ! selectedService || userServices.includes(selectedService.toLowerCase());
+
+if (matchesSearch && matchesService) {
+row.style.display = '';
+visibleCount++;
+} else {
+row.style.display = 'none';
+}
+});
+
+// Update count in header
+const header = document.querySelector('.card-header h5');
+if (header) {
+header.innerHTML = `<i class="bi bi-people"></i> Employés (${visibleCount})`;
+}
+}
+
+if (searchInput) 
+searchInput.addEventListener('input', filterTable);
+
+if (serviceFilter) 
+serviceFilter.addEventListener('change', filterTable);
+
+
+if (clearFilters) {
+clearFilters.addEventListener('click', () => {
+searchInput.value = '';
+serviceFilter.value = '';
+filterTable();
+});
+}
+});
+	</script>
 {% endblock %}
