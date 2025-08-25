@@ -1,0 +1,222 @@
+.pointage-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  
+  .status-card {
+    margin-bottom: 24px;
+    
+    mat-card-header mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 24px;
+      font-weight: 500;
+    }
+    
+    .working-time-section {
+      margin: 16px 0;
+      
+      .time-display {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+        
+        .time-value { font-size: 32px; font-weight: 600; color: #1976d2; }
+        .time-label { font-size: 14px; color: rgba(0, 0, 0, 0.6); margin-left: -4px; }
+      }
+      
+      .session-info { margin-left: 40px; }
+    }
+    
+    .last-action {
+      margin: 16px 0;
+      
+      .last-action-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        font-size: 16px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.7);
+      }
+      
+      mat-chip-set { gap: 8px; }
+    }
+    
+    .countdown-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background-color: #fff3e0;
+      border-radius: 8px;
+      margin: 16px 0;
+      
+      .countdown-text { font-weight: 500; color: #e65100; }
+    }
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px;
+    
+    p { margin: 0; color: rgba(0, 0, 0, 0.6); }
+  }
+  
+  .error-card {
+    margin-bottom: 24px;
+    background-color: #ffebee;
+    
+    .error-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      span {
+        flex: 1;
+        color: #c62828;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .badgeuses-section {
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 16px 0;
+      
+      .section-icon { font-size: 28px; width: 28px; height: 28px; color: #1976d2; }
+      h2 { margin: 0; font-size: 24px; font-weight: 600; color: rgba(0, 0, 0, 0.87); flex: 1; }
+      .service-badge { font-size: 12px; font-weight: 500; }
+    }
+    
+    .section-divider { margin: 32px 0 24px 0; }
+    .service-description { margin-bottom: 20px; }
+    
+    .secondary-service-section .section-icon { color: #00796b; }
+    .mixed-service-section .section-icon { color: #f57c00; }
+    
+    .badgeuse-card {
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+      
+      &:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+      
+      &.principal {
+        border: 2px solid #1976d2;
+        background: linear-gradient(135deg, #e3f2fd 0%, #fff 100%);
+        &:hover { box-shadow: 0 6px 16px rgba(25, 118, 210, 0.2); }
+      }
+      
+      &.secondary {
+        border: 2px solid #00796b;
+        background: linear-gradient(135deg, #e0f2f1 0%, #fff 100%);
+        &:hover { box-shadow: 0 6px 16px rgba(0, 121, 107, 0.2); }
+      }
+      
+      &.mixed {
+        border: 2px solid #f57c00;
+        background: linear-gradient(135deg, #fff3e0 0%, #fff 100%);
+        &:hover { box-shadow: 0 6px 16px rgba(245, 124, 0, 0.2); }
+      }
+      
+      mat-card-header {
+        mat-card-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 18px;
+          font-weight: 600;
+          
+          .access-type-chip { margin-left: auto; font-size: 10px; height: 20px; font-weight: 600; }
+        }
+        
+        mat-card-subtitle {
+          margin-top: 12px;
+          
+          .access-info { margin-bottom: 8px; font-size: 13px; color: rgba(0, 0, 0, 0.6); font-weight: 500; }
+          .zones-chips { gap: 6px; }
+        }
+      }
+      
+      mat-card-content {
+        .badgeuse-status {
+          display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+          padding: 8px 12px; border-radius: 8px; background-color: rgba(0, 0, 0, 0.02);
+          .status-text { font-weight: 600; font-size: 14px; }
+        }
+        
+        .installation-info {
+          display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+          color: rgba(0, 0, 0, 0.6); font-size: 12px;
+        }
+        
+        .block-reason {
+          display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+          background-color: #fff3e0; border-radius: 4px; color: #e65100; font-size: 14px;
+        }
+      }
+      
+      mat-card-actions {
+        padding: 16px;
+        
+        button {
+          min-width: 160px;
+          height: 44px;
+          font-weight: 600;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+          
+          &:hover:not([disabled]) { transform: translateY(-1px); }
+          mat-spinner { margin-right: 8px; }
+          mat-icon { margin-right: 6px; }
+        }
+      }
+    }
+    
+    .badgeuses-grid {
+      display: grid; gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+    
+    .no-badgeuses .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px;
+      
+      mat-icon { font-size: 64px; width: 64px; height: 64px; color: rgba(0, 0, 0, 0.26); margin-bottom: 16px; }
+      h3 { margin: 0 0 8px 0; color: rgba(0, 0, 0, 0.54); }
+      p { margin: 4px 0; color: rgba(0, 0, 0, 0.54); line-height: 1.5; }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .pointage-container {
+    padding: 16px;
+    .badgeuses-grid { grid-template-columns: 1fr; }
+    .status-card {
+      .time-display { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .session-info { margin-left: 0; }
+      mat-chip-set { flex-direction: column; align-items: flex-start; }
+    }
+    .badgeuse-card button { width: 100%; min-width: auto; }
+  }
+}
+
+:host ::ng-deep {
+  .success-snackbar { background-color: #4caf50 !important; color: white !important; }
+  .error-snackbar { background-color: #f44336 !important; color: white !important; }
+  .warning-snackbar { background-color: #ff9800 !important; color: white !important; }
+}

@@ -21,9 +21,9 @@ class PointageRepository extends ServiceEntityRepository
      */
     public function findByOrganisation($organisationId, $limit = null): array
     {
-        // Use a simpler approach to avoid entity loading issues
+        // Use DISTINCT to avoid duplicates caused by multiple services per user
         $sql = '
-            SELECT p.* FROM pointage p
+            SELECT DISTINCT p.* FROM pointage p
             INNER JOIN badge b ON p.badge_id = b.id
             INNER JOIN user_badge ub ON b.id = ub.badge_id
             INNER JOIN "user" usr ON ub.utilisateur_id = usr.id
@@ -49,12 +49,22 @@ class PointageRepository extends ServiceEntityRepository
         $result = $stmt->executeQuery($params);
         $rows = $result->fetchAllAssociative();
 
-        // Convert to entities
+        // Convert to entities - use array to avoid duplicates from find() calls
         $pointages = [];
+        $processedIds = [];
+        
         foreach ($rows as $row) {
-            $pointage = $this->find($row['id']);
+            $pointageId = $row['id'];
+            
+            // Skip if we already processed this pointage ID
+            if (in_array($pointageId, $processedIds)) {
+                continue;
+            }
+            
+            $pointage = $this->find($pointageId);
             if ($pointage) {
                 $pointages[] = $pointage;
+                $processedIds[] = $pointageId;
             }
         }
 

@@ -19,6 +19,10 @@ class Badge
     #[ORM\Column]
     private ?int $numero_badge = null;
 
+    /**
+     * Type de badge (technologie uniquement : RFID, NFC, MIFARE, etc.)
+     * N'INFLUENCE PAS les permissions d'accès aux zones/badgeuses
+     */
     #[ORM\Column(length: 255)]
     private ?string $type_badge = null;
 

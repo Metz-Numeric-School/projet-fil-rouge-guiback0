@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ServiceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
@@ -20,6 +21,9 @@ class Service
 
     #[ORM\Column]
     private ?int $niveau_service = null;
+
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $is_principal = false;
 
     #[ORM\ManyToOne(inversedBy: 'services')]
     #[ORM\JoinColumn(nullable: false)]
@@ -140,6 +144,18 @@ class Service
                 $travail->setService(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsPrincipal(): bool
+    {
+        return $this->is_principal;
+    }
+
+    public function setIsPrincipal(bool $is_principal): static
+    {
+        $this->is_principal = $is_principal;
 
         return $this;
     }

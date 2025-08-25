@@ -60,6 +60,9 @@ final class ServiceController extends AbstractController
 
                     // If this is the first service (only the one we just created)
                     if (count($existingServices) === 1) {
+                        // Mark as principal service
+                        $service->setIsPrincipal(true);
+                        $entityManager->persist($service);
                         // Create the principale zone
                         $principaleZone = new Zone();
                         $principaleZone->setNomZone('Zone principale');
@@ -104,7 +107,7 @@ final class ServiceController extends AbstractController
                 ->join('u.travail', 't')
                 ->join('t.service', 's')
                 ->where('s.organisation = :organisation')
-                ->andWhere('t.is_principal = true')
+                ->andWhere('s.is_principal = true')
                 ->setParameter('organisation', $organisation)
                 ->getQuery()
                 ->getResult();
@@ -154,9 +157,9 @@ final class ServiceController extends AbstractController
     public function delete(Request $request, Service $service, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $service->getId(), $request->getPayload()->getString('_token'))) {
-            // Prevent deletion of "Service principal"
-            if ($service->getNomService() === 'Service principal') {
-                $this->addFlash('error', 'Le Service principal ne peut pas être supprimé.');
+            // Prevent deletion of principal services
+            if ($service->isIsPrincipal()) {
+                $this->addFlash('error', 'Le service principal ne peut pas être supprimé.');
                 return $this->redirectToRoute('app_service_show', ['id' => $service->getId()], Response::HTTP_SEE_OTHER);
             }
 
@@ -261,7 +264,7 @@ final class ServiceController extends AbstractController
         $travailler->setUtilisateur($user);
         $travailler->setService($service);
         $travailler->setDateDebut(new \DateTime());
-        $travailler->setIsPrincipal(false); // Secondary service assignment
+        // Note: is_principal is now on the Service entity, not on Travailler
 
         $entityManager->persist($travailler);
         $entityManager->flush();
@@ -294,7 +297,7 @@ final class ServiceController extends AbstractController
         }
 
         // Check if this is the user's principal service
-        if ($travail->isIsPrincipal()) {
+        if ($service->isIsPrincipal()) {
             $this->addFlash('error', "Impossible de retirer {$user->getPrenom()} {$user->getNom()} de son service principal.");
             return $this->redirectToRoute('app_service_show', ['id' => $service->getId()]);
         }

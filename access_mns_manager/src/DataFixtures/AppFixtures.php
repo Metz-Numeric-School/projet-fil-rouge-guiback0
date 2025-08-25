@@ -83,6 +83,7 @@ class AppFixtures extends Fixture
         $servicePrincipalDefense = new Service();
         $servicePrincipalDefense->setNomService('Service principal');
         $servicePrincipalDefense->setNiveauService(1);
+        $servicePrincipalDefense->setIsPrincipal(true);
         $servicePrincipalDefense->setOrganisation($organisations['defense']);
         $manager->persist($servicePrincipalDefense);
         $services['principal_defense'] = $servicePrincipalDefense;
@@ -90,6 +91,7 @@ class AppFixtures extends Fixture
         $servicePrincipalInterieur = new Service();
         $servicePrincipalInterieur->setNomService('Service principal');
         $servicePrincipalInterieur->setNiveauService(1);
+        $servicePrincipalInterieur->setIsPrincipal(true);
         $servicePrincipalInterieur->setOrganisation($organisations['interieur']);
         $manager->persist($servicePrincipalInterieur);
         $services['principal_interieur'] = $servicePrincipalInterieur;
@@ -97,6 +99,7 @@ class AppFixtures extends Fixture
         $servicePrincipalEconomie = new Service();
         $servicePrincipalEconomie->setNomService('Service principal');
         $servicePrincipalEconomie->setNiveauService(1);
+        $servicePrincipalEconomie->setIsPrincipal(true);
         $servicePrincipalEconomie->setOrganisation($organisations['economie']);
         $manager->persist($servicePrincipalEconomie);
         $services['principal_economie'] = $servicePrincipalEconomie;
@@ -239,7 +242,7 @@ class AppFixtures extends Fixture
         $userDefense1 = new User();
         $userDefense1->setEmail('j.dupont@defense.gouv.fr');
         $userDefense1->setRoles(['ROLE_USER']);
-        $userDefense1->setPassword($this->hasher->hashPassword($userDefense1, 'UserDefense123!'));
+        $userDefense1->setPassword($this->hasher->hashPassword($userDefense1, 'UserDefense123'));
         $userDefense1->setNom('DUPONT');
         $userDefense1->setPrenom('Jean-Michel');
         $userDefense1->setTelephone('01.23.45.67.11');
@@ -312,18 +315,37 @@ class AppFixtures extends Fixture
         $manager->persist($userDeactivated);
         $users['user_deactivated'] = $userDeactivated;
 
+        // Utilisateur de test avec mot de passe simple - Configuration complète pour tests pointage
+        $userTest = new User();
+        $userTest->setEmail('test@test.com');
+        $userTest->setRoles(['ROLE_USER']);
+        $userTest->setPassword($this->hasher->hashPassword($userTest, 'test123'));
+        $userTest->setNom('TEST');
+        $userTest->setPrenom('User');
+        $userTest->setTelephone('01.00.00.00.00');
+        $userTest->setDateInscription(new \DateTime('2024-01-01'));
+        // Configuration horaires de travail pour tests automatiques
+        $userTest->setHeureDebut(\DateTime::createFromFormat('H:i', '08:30'));
+        $userTest->setHorraire(\DateTime::createFromFormat('H:i', '08:00')); // 8h par jour
+        $userTest->setJoursSemaineTravaille(5); // Lundi à vendredi
+        $userTest->setPoste('Testeur Automatique');
+        $userTest->setCompteActif(true);
+        $manager->persist($userTest);
+        $users['user_test'] = $userTest;
+
         // ========== BADGES ==========
         $badges = [];
 
-        $badgeNumbers = [200001, 200002, 200003, 200004, 200005, 200006, 200007, 200008, 200009];
-        $badgeTypes = ['administrateur', 'permanent', 'permanent', 'temporaire', 'visiteur', 'permanent', 'permanent', 'permanent', 'desactive'];
-        $badgeUsers = ['superadmin', 'admin_defense', 'admin_interieur', 'user_defense_1', 'user_defense_2', 'user_interieur_1', 'user_interieur_2', 'user_economie_1', 'user_deactivated'];
+        $badgeNumbers = [200001, 200002, 200003, 200004, 200005, 200006, 200007, 200008, 200009, 200010];
+        $badgeTypes = ['administrateur', 'permanent', 'permanent', 'temporaire', 'visiteur', 'permanent', 'permanent', 'permanent', 'desactive', 'permanent'];
+        $badgeUsers = ['superadmin', 'admin_defense', 'admin_interieur', 'user_defense_1', 'user_defense_2', 'user_interieur_1', 'user_interieur_2', 'user_economie_1', 'user_deactivated', 'user_test'];
 
         foreach ($badgeNumbers as $index => $number) {
             $badge = new Badge();
             $badge->setNumeroBadge($number);
             $badge->setTypeBadge($badgeTypes[$index]);
-            $badge->setDateCreation(new \DateTime('2021-01-0' . ($index + 1)));
+            $dateIndex = ($index + 1);
+            $badge->setDateCreation(new \DateTime('2021-01-' . sprintf('%02d', $dateIndex)));
 
             if ($badgeTypes[$index] === 'temporaire') {
                 $badge->setDateExpiration(new \DateTime('2025-12-31'));
@@ -356,13 +378,19 @@ class AppFixtures extends Fixture
         }
 
         // ========== ACCÈS ==========
+        // Logique modifiée : 
+        // - badgeuse_1 et badgeuse_2 : UNIQUEMENT zone principale (badgeuses d'entrée/sortie du bâtiment)
+        // - badgeuse_3, 4, 5, 6 : UNIQUEMENT zones secondaires (accès aux zones spécifiques)
         $accesData = [
-            ['badgeuse' => 'badgeuse_1', 'zone' => 'alpha', 'nom' => 'Accès Alpha Principal'],
-            ['badgeuse' => 'badgeuse_2', 'zone' => 'beta', 'nom' => 'Accès Beta Secondaire'],
-            ['badgeuse' => 'badgeuse_3', 'zone' => 'public', 'nom' => 'Accès Hall Public'],
-            ['badgeuse' => 'badgeuse_4', 'zone' => 'bureau', 'nom' => 'Accès Bureau Direction'],
-            ['badgeuse' => 'badgeuse_5', 'zone' => 'technique', 'nom' => 'Accès Zone Technique'],
-            ['badgeuse' => 'badgeuse_6', 'zone' => 'beta', 'nom' => 'Accès Beta Test'],
+            // Badgeuses principales (entrée/sortie du bâtiment)
+            ['badgeuse' => 'badgeuse_1', 'zone' => 'principale', 'nom' => 'Accès Principal - Entrée A'],
+            ['badgeuse' => 'badgeuse_2', 'zone' => 'principale', 'nom' => 'Accès Principal - Entrée B'],
+            
+            // Badgeuses secondaires (zones spécifiques)
+            ['badgeuse' => 'badgeuse_3', 'zone' => 'alpha', 'nom' => 'Accès Zone Alpha'],
+            ['badgeuse' => 'badgeuse_4', 'zone' => 'beta', 'nom' => 'Accès Zone Beta'],
+            ['badgeuse' => 'badgeuse_5', 'zone' => 'public', 'nom' => 'Accès Hall Public'],
+            ['badgeuse' => 'badgeuse_6', 'zone' => 'bureau', 'nom' => 'Accès Bureau Direction'],
         ];
 
         foreach ($accesData as $data) {
@@ -373,6 +401,10 @@ class AppFixtures extends Fixture
             $acces->setBadgeuse($badgeuses[$data['badgeuse']]);
             $manager->persist($acces);
         }
+
+        // ========== ACCÈS SIMPLIFIÉS ==========
+        // Les utilisateurs accèdent aux badgeuses via leur service principal
+        // Plus besoin d'accès utilisateur direct - tout passe par les ServiceZones
 
         // ========== USER BADGES ==========
         foreach ($badgeUsers as $userKey) {
@@ -393,6 +425,7 @@ class AppFixtures extends Fixture
             ['user' => 'user_interieur_1', 'service' => 'principal_interieur', 'date' => '2021-06-01'],
             ['user' => 'user_interieur_2', 'service' => 'principal_interieur', 'date' => '2021-08-01'],
             ['user' => 'user_economie_1', 'service' => 'principal_economie', 'date' => '2021-09-15'],
+            ['user' => 'user_test', 'service' => 'principal_defense', 'date' => '2024-01-01'],
         ];
 
         foreach ($principalTravaillerData as $data) {
@@ -400,7 +433,6 @@ class AppFixtures extends Fixture
             $travailler->setUtilisateur($users[$data['user']]);
             $travailler->setService($services[$data['service']]);
             $travailler->setDateDebut(new \DateTime($data['date']));
-            $travailler->setIsPrincipal(true);
             $manager->persist($travailler);
         }
 
@@ -419,16 +451,25 @@ class AppFixtures extends Fixture
             $travailler->setUtilisateur($users[$data['user']]);
             $travailler->setService($services[$data['service']]);
             $travailler->setDateDebut(new \DateTime($data['date']));
-            $travailler->setIsPrincipal(false);
             $manager->persist($travailler);
         }
 
         // ========== SERVICE ZONES ==========
         $serviceZoneData = [
-            // Principal services linked to Zone principale
+            // Tous les services principaux ont accès à la zone principale (entrée/sortie du bâtiment)
             ['service' => 'principal_defense', 'zone' => 'principale'],
             ['service' => 'principal_interieur', 'zone' => 'principale'],
             ['service' => 'principal_economie', 'zone' => 'principale'],
+            
+            // Accès aux zones spécifiques selon les besoins métier
+            ['service' => 'principal_defense', 'zone' => 'alpha'],    // Accès zone Alpha
+            ['service' => 'principal_defense', 'zone' => 'beta'],     // Accès zone Beta
+            ['service' => 'principal_defense', 'zone' => 'bureau'],   // Accès bureaux
+            ['service' => 'principal_defense', 'zone' => 'public'],   // Accès hall public
+            ['service' => 'principal_interieur', 'zone' => 'beta'],   // Accès zone Beta
+            ['service' => 'principal_interieur', 'zone' => 'bureau'], // Accès bureaux
+            ['service' => 'principal_interieur', 'zone' => 'public'], // Accès hall public
+            ['service' => 'principal_economie', 'zone' => 'bureau'],  // Accès bureaux
             
             // Other service zones
             ['service' => 'security_defense', 'zone' => 'alpha'],
@@ -454,17 +495,69 @@ class AppFixtures extends Fixture
         $yesterday = new \DateTime('-1 day');
         $lastWeek = new \DateTime('-7 days');
 
+        // CORRECTION : Utilisation de nouvelles badgeuses avec logique principale/secondaire
         $pointageData = [
-            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_2', 'heure' => $today->format('Y-m-d') . ' 08:30:00', 'type' => 'entrée'],
-            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_2', 'heure' => $today->format('Y-m-d') . ' 12:00:00', 'type' => 'sortie'],
-            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_2', 'heure' => $today->format('Y-m-d') . ' 13:30:00', 'type' => 'entrée'],
+            // user_defense_1 : entrée par badgeuse principale puis zones secondaires
+            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_1', 'heure' => $lastWeek->format('Y-m-d') . ' 08:30:00', 'type' => 'entree'], // Entrée principale
+            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_4', 'heure' => $lastWeek->format('Y-m-d') . ' 09:00:00', 'type' => 'entree'], // Zone beta
+            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_4', 'heure' => $lastWeek->format('Y-m-d') . ' 12:00:00', 'type' => 'sortie'],
+            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_4', 'heure' => $lastWeek->format('Y-m-d') . ' 13:30:00', 'type' => 'entree'],
+            ['badge' => 'user_defense_1', 'badgeuse' => 'badgeuse_1', 'heure' => $lastWeek->format('Y-m-d') . ' 17:30:00', 'type' => 'sortie'], // Sortie principale
 
-            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_4', 'heure' => $yesterday->format('Y-m-d') . ' 09:00:00', 'type' => 'entrée'],
-            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_4', 'heure' => $yesterday->format('Y-m-d') . ' 17:30:00', 'type' => 'sortie'],
+            // user_interieur_1 : entrée par badgeuse principale puis zones secondaires  
+            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_2', 'heure' => $lastWeek->format('Y-m-d') . ' 09:00:00', 'type' => 'entree'], // Entrée principale
+            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_6', 'heure' => $lastWeek->format('Y-m-d') . ' 09:30:00', 'type' => 'entree'], // Zone bureau
+            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_2', 'heure' => $lastWeek->format('Y-m-d') . ' 17:30:00', 'type' => 'sortie'], // Sortie principale
 
-            ['badge' => 'user_defense_2', 'badgeuse' => 'badgeuse_4', 'heure' => $lastWeek->format('Y-m-d') . ' 08:15:00', 'type' => 'entrée'],
-            ['badge' => 'user_defense_2', 'badgeuse' => 'badgeuse_4', 'heure' => $lastWeek->format('Y-m-d') . ' 18:00:00', 'type' => 'sortie'],
+            // user_defense_2 : entrée par badgeuse principale puis zones secondaires
+            ['badge' => 'user_defense_2', 'badgeuse' => 'badgeuse_1', 'heure' => $lastWeek->format('Y-m-d') . ' 08:15:00', 'type' => 'entree'], // Entrée principale
+            ['badge' => 'user_defense_2', 'badgeuse' => 'badgeuse_6', 'heure' => $lastWeek->format('Y-m-d') . ' 08:45:00', 'type' => 'entree'], // Zone bureau
+            ['badge' => 'user_defense_2', 'badgeuse' => 'badgeuse_1', 'heure' => $lastWeek->format('Y-m-d') . ' 18:00:00', 'type' => 'sortie'], // Sortie principale
         ];
+
+        // POINTAGES ÉTENDUS pour user_test : Historique sur 30 jours avec nouvelle logique
+        $testPointageData = [];
+        for ($i = 2; $i < 31; $i++) { // Commencer à 2 jours pour éviter aujourd'hui ET hier
+            $testDate = new \DateTime("-{$i} days");
+            $dayOfWeek = $testDate->format('N'); // 1=Lundi, 7=Dimanche
+            
+            // Jours de travail : Lundi à Vendredi (1-5)
+            if ($dayOfWeek <= 5) {
+                // Logique modifiée : toujours entrer par badgeuse principale, puis utiliser zones secondaires
+                $entryBadgeuse = ($i % 2 == 0) ? 'badgeuse_1' : 'badgeuse_2'; // Alternance entrées principales
+                $workBadgeuse = ($i % 3 == 0) ? 'badgeuse_6' : 'badgeuse_5'; // Alternance zones bureau/public
+                
+                // Entrée dans le bâtiment (badgeuse principale)
+                $testPointageData[] = ['badge' => 'user_test', 'badgeuse' => $entryBadgeuse, 'heure' => $testDate->format('Y-m-d') . ' 08:30:00', 'type' => 'entree'];
+                // Accès zone de travail (badgeuse secondaire)
+                $testPointageData[] = ['badge' => 'user_test', 'badgeuse' => $workBadgeuse, 'heure' => $testDate->format('Y-m-d') . ' 09:00:00', 'type' => 'entree'];
+                // Pause déjeuner
+                $testPointageData[] = ['badge' => 'user_test', 'badgeuse' => $workBadgeuse, 'heure' => $testDate->format('Y-m-d') . ' 12:00:00', 'type' => 'sortie'];
+                $testPointageData[] = ['badge' => 'user_test', 'badgeuse' => $workBadgeuse, 'heure' => $testDate->format('Y-m-d') . ' 13:30:00', 'type' => 'entree'];
+                // Sortie du bâtiment (badgeuse principale)
+                $testPointageData[] = ['badge' => 'user_test', 'badgeuse' => $entryBadgeuse, 'heure' => $testDate->format('Y-m-d') . ' 17:30:00', 'type' => 'sortie'];
+            } 
+            // Weekend : Pointages occasionnels
+            else {
+                // Samedi : demi-journée (seulement pour les 4 dernières semaines)
+                if ($dayOfWeek == 6 && $i <= 28) {
+                    $testPointageData[] = ['badge' => 'user_test', 'badgeuse' => 'badgeuse_1', 'heure' => $testDate->format('Y-m-d') . ' 09:00:00', 'type' => 'entree'];
+                    $testPointageData[] = ['badge' => 'user_test', 'badgeuse' => 'badgeuse_5', 'heure' => $testDate->format('Y-m-d') . ' 09:30:00', 'type' => 'entree'];
+                    $testPointageData[] = ['badge' => 'user_test', 'badgeuse' => 'badgeuse_1', 'heure' => $testDate->format('Y-m-d') . ' 13:00:00', 'type' => 'sortie'];
+                }
+                // Dimanche : pas de pointage (repos)
+            }
+        }
+        
+        // AJOUT : Pointage incomplet d'hier pour tester le statut "au travail"
+        $yesterday = new \DateTime('-1 day');
+        if ($yesterday->format('N') <= 5) { // Si hier était un jour de semaine
+            $testPointageData[] = ['badge' => 'user_test', 'badgeuse' => 'badgeuse_1', 'heure' => $yesterday->format('Y-m-d') . ' 08:30:00', 'type' => 'entree'];
+            // Pas de sortie pour simuler qu'il est encore au travail
+        }
+        
+        // Fusion des données de pointage
+        $pointageData = array_merge($pointageData, $testPointageData);
 
         foreach ($pointageData as $data) {
             $pointage = new Pointage();

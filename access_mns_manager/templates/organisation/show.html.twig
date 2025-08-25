@@ -194,6 +194,12 @@
 													<div class="fw-medium">
 														<i class="bi bi-briefcase text-primary me-2"></i>
 														{{ service.nomService }}
+														{% if service.isPrincipal %}
+															<span class="badge bg-warning text-dark ms-2" title="Service principal">
+																<i class="bi bi-star-fill"></i>
+																Principal
+															</span>
+														{% endif %}
 													</div>
 													<small class="text-muted">ID:
 														{{ service.id }}</small>
@@ -342,7 +348,7 @@
 													{% for travail in service.travail %}
 														{% if travail.utilisateur == user %}
 															{% set serviceCount = serviceCount + 1 %}
-															{% if travail.isPrincipal %}
+															{% if service.isPrincipal %}
 																<span class="badge bg-primary me-1 mb-1" title="Service principal">
 																	<i class="bi bi-star-fill me-1"></i>
 																	{{ service.nomService }}

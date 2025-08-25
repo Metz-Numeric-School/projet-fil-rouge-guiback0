@@ -122,6 +122,12 @@
 													<div class="fw-medium">
 														<i class="bi bi-briefcase text-primary me-2"></i>
 														{{ service.nomService }}
+														{% if service.isPrincipal %}
+															<span class="badge bg-warning text-dark ms-2" title="Service principal">
+																<i class="bi bi-star-fill"></i>
+																Principal
+															</span>
+														{% endif %}
 													</div>
 													<small class="text-muted">ID:
 														{{ service.id }}</small>

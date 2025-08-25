@@ -63,6 +63,11 @@ class APIAuthController extends AbstractController
             ], 401);
         }
 
+        // Mise à jour de la dernière connexion
+        $user->updateLastLogin();
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
         // Génération du token JWT
         $token = $this->JWTManager->create($user);
 
@@ -161,8 +166,14 @@ class APIAuthController extends AbstractController
                 'telephone' => $user->getTelephone(),
                 'date_naissance' => $user->getDateNaissance()?->format('Y-m-d'),
                 'date_inscription' => $user->getDateInscription()->format('Y-m-d'),
-                'adresse' => $user->getAdresse(),
+                'horraire' => $user->getHorraire()?->format('H:i'),
+                'heure_debut' => $user->getHeureDebut()?->format('H:i'),
+                'jours_semaine_travaille' => $user->getJoursSemaineTravaille(),
                 'poste' => $user->getPoste(),
+                'date_derniere_connexion' => $user->getDateDerniereConnexion()?->format('Y-m-d H:i:s'),
+                'date_derniere_modification' => $user->getDateDerniereModification()?->format('Y-m-d H:i:s'),
+                'compte_actif' => $user->isCompteActif(),
+                'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d'),
                 'roles' => $user->getRoles(),
                 'organisation' => $organisation ? [
                     'id' => $organisation->getId(),
@@ -171,7 +182,19 @@ class APIAuthController extends AbstractController
                     'telephone' => $organisation->getTelephone(),
                     'site_web' => $organisation->getSiteWeb()
                 ] : null,
-                'service' => $currentService
+                'service' => $currentService,
+                'principal_service' => $user->getPrincipalService() ? [
+                    'id' => $user->getPrincipalService()->getId(),
+                    'nom' => $user->getPrincipalService()->getNomService(),
+                    'niveau' => $user->getPrincipalService()->getNiveauService()
+                ] : null,
+                'secondary_services' => array_map(function($service) {
+                    return [
+                        'id' => $service->getId(),
+                        'nom' => $service->getNomService(),
+                        'niveau' => $service->getNiveauService()
+                    ];
+                }, $user->getSecondaryServices())
             ]
         ]);
     }

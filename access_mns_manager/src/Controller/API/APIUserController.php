@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/api/user', name: 'api_user_')]
+#[Route('/manager/api/user', name: 'api_user_')]
 class APIUserController extends AbstractController
 {
     public function __construct(
@@ -46,12 +46,15 @@ class APIUserController extends AbstractController
                 'telephone' => $user->getTelephone(),
                 'date_naissance' => $user->getDateNaissance()?->format('Y-m-d'),
                 'date_inscription' => $user->getDateInscription()->format('Y-m-d'),
-                'adresse' => $user->getAdresse(),
                 'poste' => $user->getPoste(),
                 'horraire' => $user->getHorraire()?->format('H:i'),
                 'heure_debut' => $user->getHeureDebut()?->format('H:i'),
                 'jours_semaine_travaille' => $user->getJoursSemaineTravaille(),
-                'roles' => $user->getRoles()
+                'roles' => $user->getRoles(),
+                'compte_actif' => $user->isCompteActif(),
+                'date_derniere_connexion' => $user->getDateDerniereConnexion()?->format('Y-m-d H:i:s'),
+                'date_derniere_modification' => $user->getDateDerniereModification()?->format('Y-m-d H:i:s'),
+                'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d')
             ];
 
             // Récupération de l'organisation
@@ -155,7 +158,7 @@ class APIUserController extends AbstractController
                                 
                                 $accesInfo = [
                                     'id' => $acces->getId(),
-                                    'numero_badgeuse' => $acces->getNumeroBadgeuse(),
+                                    'nom_acces' => $acces->getNomAcces(),
                                     'date_installation' => $acces->getDateInstallation()->format('Y-m-d H:i:s'),
                                     'zone' => [
                                         'id' => $zone->getId(),
@@ -258,9 +261,12 @@ class APIUserController extends AbstractController
                 'telephone' => $user->getTelephone(),
                 'date_naissance' => $user->getDateNaissance()?->format('Y-m-d'),
                 'date_inscription' => $user->getDateInscription()->format('Y-m-d'),
-                'adresse' => $user->getAdresse(),
                 'poste' => $user->getPoste(),
-                'roles' => $user->getRoles()
+                'roles' => $user->getRoles(),
+                'compte_actif' => $user->isCompteActif(),
+                'date_derniere_connexion' => $user->getDateDerniereConnexion()?->format('Y-m-d H:i:s'),
+                'date_derniere_modification' => $user->getDateDerniereModification()?->format('Y-m-d H:i:s'),
+                'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d')
             ];
 
             return new JsonResponse([
@@ -278,5 +284,223 @@ class APIUserController extends AbstractController
                 'message' => 'Erreur lors de la récupération des informations utilisateur'
             ], 500);
         }
+    }
+
+    /**
+     * Update user's last login timestamp
+     */
+    #[Route('/update-last-login', name: 'update_last_login', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function updateLastLogin(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'INVALID_USER',
+                'message' => 'Utilisateur invalide'
+            ], 401);
+        }
+
+        $this->entityManager->beginTransaction();
+        try {
+            $user->updateLastLogin();
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Dernière connexion mise à jour'
+            ]);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'SERVER_ERROR',
+                'message' => 'Erreur lors de la mise à jour'
+            ], 500);
+        }
+    }
+
+    /**
+     * Deactivate user account (GDPR compliance)
+     */
+    #[Route('/deactivate', name: 'deactivate_account', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function deactivateAccount(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'INVALID_USER',
+                'message' => 'Utilisateur invalide'
+            ], 401);
+        }
+
+        $this->entityManager->beginTransaction();
+        try {
+            $user->deactivate();
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Compte désactivé avec succès. Vos données seront automatiquement supprimées après 5 ans de conservation.',
+                'data' => [
+                    'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d')
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $this->entityManager->rollback();
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'SERVER_ERROR',
+                'message' => 'Erreur lors de la désactivation du compte'
+            ], 500);
+        }
+    }
+
+    /**
+     * Check if user should be permanently deleted (for administrators)
+     */
+    #[Route('/check-deletion-status/{id}', name: 'check_deletion_status', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function checkDeletionStatus(int $id): JsonResponse
+    {
+        $user = $this->entityManager->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'USER_NOT_FOUND',
+                'message' => 'Utilisateur non trouvé'
+            ], 404);
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'data' => [
+                'user_id' => $user->getId(),
+                'compte_actif' => $user->isCompteActif(),
+                'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d'),
+                'should_be_deleted' => $user->shouldBeDeleted(),
+                'days_until_deletion' => $user->getDateSuppressionPrevue() ? 
+                    (int) $user->getDateSuppressionPrevue()->diff(new \DateTime())->format('%a') : null
+            ]
+        ]);
+    }
+
+    /**
+     * Export user's personal data (GDPR data portability)
+     */
+    #[Route('/export-data', name: 'export_user_data', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function exportUserData(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'INVALID_USER',
+                'message' => 'Utilisateur invalide'
+            ], 401);
+        }
+
+        try {
+            // Get complete profile data for export
+            $completeProfile = $this->getCompleteProfileData($user);
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Données personnelles exportées avec succès',
+                'data' => $completeProfile,
+                'export_timestamp' => (new \DateTime())->format('Y-m-d H:i:s'),
+                'gdpr_notice' => 'Ces données ont été exportées conformément à l\'article 20 du RGPD (droit à la portabilité des données).'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'SERVER_ERROR',
+                'message' => 'Erreur lors de l\'exportation des données'
+            ], 500);
+        }
+    }
+
+    /**
+     * Helper method to get complete profile data
+     */
+    private function getCompleteProfileData(User $user): array
+    {
+        // Get organisation data
+        $organisation = $this->organisationService->getUserOrganisation($user);
+        $organisationData = null;
+        if ($organisation) {
+            $organisationData = [
+                'id' => $organisation->getId(),
+                'nom_organisation' => $organisation->getNomOrganisation(),
+                'email' => $organisation->getEmail(),
+                'telephone' => $organisation->getTelephone(),
+                'site_web' => $organisation->getSiteWeb(),
+                'siret' => $organisation->getSiret()
+            ];
+        }
+
+        // Get services data
+        $servicesData = [];
+        foreach ($user->getTravail() as $travailler) {
+            $service = $travailler->getService();
+            if ($service) {
+                $servicesData[] = [
+                    'nom_service' => $service->getNomService(),
+                    'niveau_service' => $service->getNiveauService(),
+                    'date_debut' => $travailler->getDateDebut()->format('Y-m-d'),
+                    'date_fin' => $travailler->getDateFin()?->format('Y-m-d'),
+                    'is_principal' => $travailler->getService() ? $travailler->getService()->isIsPrincipal() : false
+                ];
+            }
+        }
+
+        // Get badges data
+        $badgesData = [];
+        foreach ($user->getUserBadges() as $userBadge) {
+            $badge = $userBadge->getBadge();
+            if ($badge) {
+                $badgesData[] = [
+                    'numero_badge' => $badge->getNumeroBadge(),
+                    'type_badge' => $badge->getTypeBadge(),
+                    'date_creation' => $badge->getDateCreation()->format('Y-m-d'),
+                    'date_expiration' => $badge->getDateExpiration()?->format('Y-m-d')
+                ];
+            }
+        }
+
+        return [
+            'personal_information' => [
+                'email' => $user->getEmail(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'telephone' => $user->getTelephone(),
+                'date_naissance' => $user->getDateNaissance()?->format('Y-m-d'),
+                'date_inscription' => $user->getDateInscription()->format('Y-m-d'),
+                'poste' => $user->getPoste(),
+                'horraire' => $user->getHorraire()?->format('H:i'),
+                'heure_debut' => $user->getHeureDebut()?->format('H:i'),
+                'jours_semaine_travaille' => $user->getJoursSemaineTravaille()
+            ],
+            'account_information' => [
+                'compte_actif' => $user->isCompteActif(),
+                'date_derniere_connexion' => $user->getDateDerniereConnexion()?->format('Y-m-d H:i:s'),
+                'date_derniere_modification' => $user->getDateDerniereModification()?->format('Y-m-d H:i:s'),
+                'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d'),
+                'roles' => $user->getRoles()
+            ],
+            'organisation' => $organisationData,
+            'services' => $servicesData,
+            'badges' => $badgesData
+        ];
     }
 } 

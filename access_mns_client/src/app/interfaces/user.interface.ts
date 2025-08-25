@@ -13,6 +13,10 @@ export interface User {
   heure_debut?: string;
   jours_semaine_travaille?: string;
   roles: string[];
+  compte_actif?: boolean;
+  date_derniere_connexion?: string;
+  date_derniere_modification?: string;
+  date_suppression_prevue?: string;
 }
 
 // Organisation interface with complete address
@@ -55,7 +59,7 @@ export interface Zone {
 export interface Badge {
   id: number;
   numero_badge: string;
-  type_badge: string;
+  type_badge: string; // Technologie uniquement (RFID, NFC, MIFARE, etc.) - N'affecte PAS les permissions
   date_creation: string;
   date_expiration?: string;
   is_active: boolean;
@@ -64,7 +68,7 @@ export interface Badge {
 // Access interface
 export interface Acces {
   id: number;
-  numero_badgeuse: string;
+  nom_acces: string;
   date_installation: string;
   zone: {
     id: number;
@@ -125,6 +129,61 @@ export interface UserProfileResponse {
   data?: User & {
     organisation: Organisation | null;
     service: Service | null;
+  };
+  error?: string;
+  message?: string;
+}
+
+// GDPR-related interfaces
+export interface GDPRDataExport {
+  success: boolean;
+  data?: {
+    personal_information: {
+      email: string;
+      nom: string;
+      prenom: string;
+      telephone?: string;
+      date_naissance?: string;
+      date_inscription: string;
+      poste?: string;
+      horraire?: string;
+      heure_debut?: string;
+      jours_semaine_travaille?: string;
+    };
+    account_information: {
+      compte_actif: boolean;
+      date_derniere_connexion?: string;
+      date_derniere_modification?: string;
+      date_suppression_prevue?: string;
+      roles: string[];
+    };
+    organisation?: any;
+    services: any[];
+    badges: any[];
+  };
+  export_timestamp?: string;
+  gdpr_notice?: string;
+  error?: string;
+  message?: string;
+}
+
+export interface AccountDeactivationResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    date_suppression_prevue: string;
+  };
+  error?: string;
+}
+
+export interface DeletionStatusResponse {
+  success: boolean;
+  data?: {
+    user_id: number;
+    compte_actif: boolean;
+    date_suppression_prevue?: string;
+    should_be_deleted: boolean;
+    days_until_deletion?: number;
   };
   error?: string;
   message?: string;
