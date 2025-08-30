@@ -1,0 +1,54 @@
+<div class="coffee-container">
+  <div class="coffee-header">
+    <h1>
+      <mat-icon class="coffee-icon">local_cafe</mat-icon>
+      Buy me a coffee
+    </h1>
+    <p class="coffee-subtitle">Soutenez le projet ACCESS MNS avec une contribution</p>
+  </div>
+
+  <div class="coffee-loading" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Chargement des cafés...</p>
+  </div>
+
+  <div class="coffee-grid" *ngIf="!loading && coffees.length > 0">
+    <mat-card class="coffee-card" *ngFor="let coffee of coffees">
+      <mat-card-header>
+        <div mat-card-avatar class="coffee-avatar">
+          <mat-icon>local_cafe</mat-icon>
+        </div>
+        <mat-card-title>{{ coffee.name }}</mat-card-title>
+        <mat-card-subtitle>{{ coffee.price?.formatted_amount }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <p *ngIf="coffee.description">{{ coffee.description }}</p>
+        <div class="coffee-meta">
+          <span class="coffee-frequency">Par mois</span>
+          <span class="coffee-date">{{ coffee.created }}</span>
+        </div>
+      </mat-card-content>
+      
+      <mat-card-actions>
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="buyCoffee(coffee)"
+          class="buy-button">
+          <mat-icon>payment</mat-icon>
+          Offrir ce café
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="coffee-empty" *ngIf="!loading && coffees.length === 0">
+    <mat-icon class="empty-icon">local_cafe</mat-icon>
+    <p>Aucun café disponible pour le moment</p>
+  </div>
+
+  <div class="coffee-footer" *ngIf="!loading && coffees.length > 0">
+    <p class="result-count">{{ coffees.length }} résultat{{ coffees.length > 1 ? 's' : '' }}</p>
+  </div>
+</div>

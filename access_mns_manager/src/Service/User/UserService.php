@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\User;
 
 use App\Entity\Organisation;
 use App\Entity\User;
@@ -9,9 +9,9 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Bundle\SecurityBundle\Security as SecurityBundle;
 
 /**
- * Service pour la gestion des organisations et le filtrage des données
+ * Service pour la gestion des utilisateurs et des organisations
  */
-class OrganisationService
+class UserService
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -56,25 +56,9 @@ class OrganisationService
             return true;
         }
 
-        // Vérification des rôles manager/admin
-        if ($this->security->isGranted('ROLE_MANAGER') || $this->security->isGranted('ROLE_ADMIN')) {
-            // Vérification que les utilisateurs appartiennent à la même organisation
-            return $this->usersInSameOrganisation($currentUser, $targetUser);
-        }
-
         return false;
     }
 
-    /**
-     * Vérifie si deux utilisateurs appartiennent à la même organisation
-     */
-    public function usersInSameOrganisation(User $user1, User $user2): bool
-    {
-        $org1 = $this->getUserOrganisation($user1);
-        $org2 = $this->getUserOrganisation($user2);
-
-        return $org1 && $org2 && $org1->getId() === $org2->getId();
-    }
 
     /**
      * Récupère l'organisation d'un utilisateur donné
@@ -125,19 +109,4 @@ class OrganisationService
             ->getResult();
     }
 
-    /**
-     * Vérifie si l'utilisateur connecté est manager
-     */
-    public function isManager(): bool
-    {
-        return $this->security->isGranted('ROLE_MANAGER') || $this->security->isGranted('ROLE_ADMIN');
-    }
-
-    /**
-     * Vérifie si l'utilisateur connecté est admin
-     */
-    public function isAdmin(): bool
-    {
-        return $this->security->isGranted('ROLE_ADMIN');
-    }
 }
