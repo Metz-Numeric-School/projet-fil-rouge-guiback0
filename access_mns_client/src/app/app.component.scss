@@ -125,6 +125,35 @@ $desktop: 1024px;
         height: 1.2rem;
       }
     }
+
+    .coffee-button {
+      background-color: rgba(#8B4513, 0.2) !important;
+      border: 1px solid rgba(#8B4513, 0.3);
+
+      &:hover {
+        background-color: rgba(#8B4513, 0.3) !important;
+        border-color: #8B4513;
+        color: $white !important;
+      }
+
+      &.active-link {
+        background-color: #8B4513 !important;
+        border-color: #8B4513;
+
+        &:hover {
+          background-color: #A0522D !important;
+        }
+      }
+
+      mat-icon {
+        color: #8B4513;
+      }
+
+      &:hover mat-icon,
+      &.active-link mat-icon {
+        color: $white;
+      }
+    }
   }
 
   .navbar-actions {

@@ -47,6 +47,7 @@ final class OrganisationController extends AbstractController
                 $defaultService = new Service();
                 $defaultService->setNomService('Service principal');
                 $defaultService->setNiveauService(1);
+                $defaultService->setIsPrincipal(true);
                 $defaultService->setOrganisation($organisation);
                 $entityManager->persist($defaultService);
                 $entityManager->flush(); // Flush to get IDs
@@ -217,7 +218,7 @@ final class OrganisationController extends AbstractController
         $availableServices = [];
 
         foreach ($organisation->getServices() as $service) {
-            if ($service->getNomService() === 'Service principal') {
+            if ($service->isIsPrincipal()) {
                 $principalService = $service;
             } else {
                 $availableServices[] = $service;
@@ -239,7 +240,6 @@ final class OrganisationController extends AbstractController
                 $principalTravail->setUtilisateur($user);
                 $principalTravail->setService($principalService);
                 $principalTravail->setDateDebut(new \DateTime());
-                $principalTravail->setIsPrincipal(true);
                 $entityManager->persist($principalTravail);
             }
 
@@ -251,7 +251,6 @@ final class OrganisationController extends AbstractController
                     $secondaryTravail->setUtilisateur($user);
                     $secondaryTravail->setService($service);
                     $secondaryTravail->setDateDebut(new \DateTime());
-                    $secondaryTravail->setIsPrincipal(false);
                     $entityManager->persist($secondaryTravail);
                 }
             }

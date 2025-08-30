@@ -100,7 +100,15 @@
                                     <tr class="clickable-row" data-href="{{ path('app_service_show', {'id': service.id}) }}" data-organisation="{{ service.organisation ? service.organisation.nomOrganisation : '' }}">
                                         <td>
                                             <div>
-                                                <div class="fw-medium">{{ service.nomService ?? 'Service sans nom' }}</div>
+                                                <div class="fw-medium">
+                                                    {{ service.nomService ?? 'Service sans nom' }}
+                                                    {% if service.isPrincipal %}
+                                                        <span class="badge bg-warning text-dark ms-2" title="Service principal">
+                                                            <i class="bi bi-star-fill"></i>
+                                                            Principal
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
                                                 <small class="text-muted">ID: {{ service.id }}</small>
                                             </div>
                                         </td>

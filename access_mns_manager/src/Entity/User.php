@@ -148,7 +148,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_ADMIN';
+        $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
@@ -419,8 +419,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPrincipalService(): ?Service
     {
         foreach ($this->travail as $travail) {
-            if ($travail->isIsPrincipal()) {
-                return $travail->getService();
+            $service = $travail->getService();
+            if ($service && $service->isIsPrincipal()) {
+                return $service;
             }
         }
         return null;
@@ -429,7 +430,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPrincipalTravail(): ?Travailler
     {
         foreach ($this->travail as $travail) {
-            if ($travail->isIsPrincipal()) {
+            $service = $travail->getService();
+            if ($service && $service->isIsPrincipal()) {
                 return $travail;
             }
         }
@@ -440,8 +442,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $services = [];
         foreach ($this->travail as $travail) {
-            if (!$travail->isIsPrincipal() && $travail->getService()) {
-                $services[] = $travail->getService();
+            $service = $travail->getService();
+            if ($service && !$service->isIsPrincipal()) {
+                $services[] = $service;
             }
         }
         return $services;
