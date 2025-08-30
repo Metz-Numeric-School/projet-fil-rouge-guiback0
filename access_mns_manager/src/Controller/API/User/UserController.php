@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controller\API;
+namespace App\Controller\API\User;
 
 use App\Entity\User;
-use App\Service\OrganisationService;
+use App\Service\User\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,11 +12,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/manager/api/user', name: 'api_user_')]
-class APIUserController extends AbstractController
+class UserController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private OrganisationService $organisationService
+        private UserService $userService
     ) {}
 
     /**
@@ -58,7 +58,7 @@ class APIUserController extends AbstractController
             ];
 
             // Récupération de l'organisation
-            $organisation = $this->organisationService->getUserOrganisation($user);
+            $organisation = $this->userService->getUserOrganisation($user);
             $organisationData = null;
             if ($organisation) {
                 $organisationData = [
@@ -232,59 +232,6 @@ class APIUserController extends AbstractController
         }
     }
 
-    /**
-     * Récupère les informations d'un utilisateur spécifique (pour les administrateurs)
-     */
-    #[Route('/profile/{id}', name: 'profile_by_id', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function getUserProfileById(int $id): JsonResponse
-    {
-        $user = $this->entityManager->getRepository(User::class)->find($id);
-
-        if (!$user) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'USER_NOT_FOUND',
-                'message' => 'Utilisateur non trouvé'
-            ], 404);
-        }
-
-        // Utiliser la même logique que getCompleteProfile mais pour un utilisateur spécifique
-        // Pour des raisons de sécurité, on retourne les mêmes informations
-        try {
-            // Code similaire à getCompleteProfile mais adapté pour un utilisateur spécifique
-            $userData = [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'nom' => $user->getNom(),
-                'prenom' => $user->getPrenom(),
-                'telephone' => $user->getTelephone(),
-                'date_naissance' => $user->getDateNaissance()?->format('Y-m-d'),
-                'date_inscription' => $user->getDateInscription()->format('Y-m-d'),
-                'poste' => $user->getPoste(),
-                'roles' => $user->getRoles(),
-                'compte_actif' => $user->isCompteActif(),
-                'date_derniere_connexion' => $user->getDateDerniereConnexion()?->format('Y-m-d H:i:s'),
-                'date_derniere_modification' => $user->getDateDerniereModification()?->format('Y-m-d H:i:s'),
-                'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d')
-            ];
-
-            return new JsonResponse([
-                'success' => true,
-                'data' => [
-                    'user' => $userData,
-                    'message' => 'Informations utilisateur récupérées avec succès'
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'SERVER_ERROR',
-                'message' => 'Erreur lors de la récupération des informations utilisateur'
-            ], 500);
-        }
-    }
 
     /**
      * Update user's last login timestamp
@@ -363,35 +310,6 @@ class APIUserController extends AbstractController
         }
     }
 
-    /**
-     * Check if user should be permanently deleted (for administrators)
-     */
-    #[Route('/check-deletion-status/{id}', name: 'check_deletion_status', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function checkDeletionStatus(int $id): JsonResponse
-    {
-        $user = $this->entityManager->getRepository(User::class)->find($id);
-
-        if (!$user) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'USER_NOT_FOUND',
-                'message' => 'Utilisateur non trouvé'
-            ], 404);
-        }
-
-        return new JsonResponse([
-            'success' => true,
-            'data' => [
-                'user_id' => $user->getId(),
-                'compte_actif' => $user->isCompteActif(),
-                'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d'),
-                'should_be_deleted' => $user->shouldBeDeleted(),
-                'days_until_deletion' => $user->getDateSuppressionPrevue() ? 
-                    (int) $user->getDateSuppressionPrevue()->diff(new \DateTime())->format('%a') : null
-            ]
-        ]);
-    }
 
     /**
      * Export user's personal data (GDPR data portability)

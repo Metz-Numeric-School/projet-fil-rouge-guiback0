@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controller\API;
+namespace App\Controller\API\Auth;
 
 use App\Entity\User;
-use App\Service\OrganisationService;
+use App\Service\User\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,14 +15,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/auth', name: 'api_auth_')]
-class APIAuthController extends AbstractController
+class AuthController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
         private JWTTokenManagerInterface $JWTManager,
         private ValidatorInterface $validator,
-        private OrganisationService $organisationService
+        private UserService $userService
     ) {}
 
     /**
@@ -72,7 +72,7 @@ class APIAuthController extends AbstractController
         $token = $this->JWTManager->create($user);
 
         // Récupération des informations de l'organisation
-        $organisation = $this->organisationService->getUserOrganisation($user);
+        $organisation = $this->userService->getUserOrganisation($user);
 
         return new JsonResponse([
             'success' => true,
@@ -140,7 +140,7 @@ class APIAuthController extends AbstractController
         }
 
         // Récupération des informations de l'organisation
-        $organisation = $this->organisationService->getUserOrganisation($user);
+        $organisation = $this->userService->getUserOrganisation($user);
 
         // Récupération du service actuel
         $currentService = null;
