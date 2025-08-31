@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/manager/api/user', name: 'api_user_')]
+#[Route('/api/user', name: 'api_user_')]
 class UserController extends AbstractController
 {
     public function __construct(
@@ -354,7 +354,7 @@ class UserController extends AbstractController
     private function getCompleteProfileData(User $user): array
     {
         // Get organisation data
-        $organisation = $this->organisationService->getUserOrganisation($user);
+        $organisation = $this->userService->getUserOrganisation($user);
         $organisationData = null;
         if ($organisation) {
             $organisationData = [

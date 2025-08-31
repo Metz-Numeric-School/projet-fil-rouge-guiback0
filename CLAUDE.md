@@ -29,6 +29,8 @@ docker exec -it access_mns_manager php bin/console assets:install
 
 # Testing
 docker exec -it access_mns_manager php bin/phpunit
+docker exec -it access_mns_manager php bin/phpunit tests/  # Run specific test directory
+docker exec -it access_mns_manager php bin/phpunit --filter=TestClassName  # Run specific test
 
 # Code generation (using MakerBundle)
 docker exec -it access_mns_manager php bin/console make:entity

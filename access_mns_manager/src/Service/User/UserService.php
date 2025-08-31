@@ -5,7 +5,6 @@ namespace App\Service\User;
 use App\Entity\Organisation;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Bundle\SecurityBundle\Security as SecurityBundle;
 
 /**
@@ -28,11 +27,7 @@ class UserService
             return null;
         }
 
-        // Récupération de l'organisation via le service de l'utilisateur
-        $travailler = $this->entityManager->getRepository(\App\Entity\Travailler::class)
-            ->findOneBy(['Utilisateur' => $user, 'date_fin' => null]);
-
-        return $travailler?->getService()?->getOrganisation();
+        return $this->getUserOrganisation($user);
     }
 
     /**
@@ -65,10 +60,21 @@ class UserService
      */
     public function getUserOrganisation(User $user): ?Organisation
     {
-        $travailler = $this->entityManager->getRepository(\App\Entity\Travailler::class)
-            ->findOneBy(['Utilisateur' => $user, 'date_fin' => null]);
+        // Utilise la méthode getPrincipalService() de l'entité User
+        $principalService = $user->getPrincipalService();
+        
+        if ($principalService) {
+            return $principalService->getOrganisation();
+        }
 
-        return $travailler?->getService()?->getOrganisation();
+        // Si pas de service principal, prendre le premier service actif
+        foreach ($user->getTravail() as $travail) {
+            if ($travail->getDateFin() === null && $travail->getService()) {
+                return $travail->getService()->getOrganisation();
+            }
+        }
+
+        return null;
     }
 
     /**

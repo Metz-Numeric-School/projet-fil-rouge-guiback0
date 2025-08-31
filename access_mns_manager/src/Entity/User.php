@@ -420,7 +420,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         foreach ($this->travail as $travail) {
             $service = $travail->getService();
-            if ($service && $service->isIsPrincipal()) {
+            if ($service && $service->isIsPrincipal() && $travail->getDateFin() === null) {
                 return $service;
             }
         }
@@ -431,7 +431,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         foreach ($this->travail as $travail) {
             $service = $travail->getService();
-            if ($service && $service->isIsPrincipal()) {
+            if ($service && $service->isIsPrincipal() && $travail->getDateFin() === null) {
                 return $travail;
             }
         }
