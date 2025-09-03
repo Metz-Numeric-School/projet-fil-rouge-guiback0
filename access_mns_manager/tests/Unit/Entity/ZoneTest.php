@@ -5,15 +5,14 @@ namespace App\Tests\Unit\Entity;
 use App\Entity\Zone;
 use App\Entity\Acces;
 use App\Entity\ServiceZone;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class ZoneTest extends DatabaseKernelTestCase
+class ZoneTest extends TestCase
 {
     private Zone $zone;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->zone = new Zone();
     }
 

@@ -98,7 +98,7 @@ class StripeController extends AbstractController
                     'success' => false,
                     'error' => 'STRIPE_SESSION_ERROR',
                     'message' => 'Erreur lors de la création de la session de paiement'
-                ], 500);
+                ], 400);
             }
 
             return new JsonResponse([

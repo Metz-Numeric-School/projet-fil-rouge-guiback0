@@ -4,15 +4,14 @@ namespace App\Tests\Unit\Entity;
 
 use App\Entity\Organisation;
 use App\Entity\Service;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class OrganisationTest extends DatabaseKernelTestCase
+class OrganisationTest extends TestCase
 {
     private Organisation $organisation;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->organisation = new Organisation();
     }
 

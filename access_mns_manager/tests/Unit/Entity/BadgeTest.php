@@ -5,16 +5,17 @@ namespace App\Tests\Unit\Entity;
 use App\Entity\Badge;
 use App\Entity\Pointage;
 use App\Entity\UserBadge;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class BadgeTest extends DatabaseKernelTestCase
+class BadgeTest extends TestCase
 {
     private Badge $badge;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->badge = new Badge();
+        $this->badge->setTypeBadge('permanent');
+        $this->badge->setDateCreation(new \DateTime());
     }
 
     public function testInitialState(): void
@@ -30,11 +31,11 @@ class BadgeTest extends DatabaseKernelTestCase
         $expiration = new \DateTimeImmutable('2025-01-01');
         $this->badge
             ->setNumeroBadge(123456)
-            ->setTypeBadge('RFID')
+            ->setTypeBadge('administrateur')
             ->setDateCreation($creation)
             ->setDateExpiration($expiration);
         $this->assertSame(123456, $this->badge->getNumeroBadge());
-        $this->assertSame('RFID', $this->badge->getTypeBadge());
+        $this->assertSame('administrateur', $this->badge->getTypeBadge());
         $this->assertSame($creation, $this->badge->getDateCreation());
         $this->assertSame($expiration, $this->badge->getDateExpiration());
     }

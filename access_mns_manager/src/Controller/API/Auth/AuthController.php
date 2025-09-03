@@ -123,7 +123,7 @@ class AuthController extends AbstractController
     }
 
     /**
-     * Profil utilisateur connecté
+     * Profil utilisateur connecté (données basiques)
      */
     #[Route('/me', name: 'me', methods: ['GET'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -139,22 +139,11 @@ class AuthController extends AbstractController
             ], 401);
         }
 
-        // Récupération des informations de l'organisation
+        // Récupération des informations de base et services
         $organisation = $this->userService->getUserOrganisation($user);
-
-        // Récupération du service actuel
-        $currentService = null;
-        $travailler = $this->entityManager->getRepository(\App\Entity\Travailler::class)
-            ->findOneBy(['Utilisateur' => $user, 'date_fin' => null]);
-
-        if ($travailler && $travailler->getService()) {
-            $service = $travailler->getService();
-            $currentService = [
-                'id' => $service->getId(),
-                'nom' => $service->getNomService(),
-                'niveau' => $service->getNiveauService()
-            ];
-        }
+        $currentService = $this->userService->getCurrentServiceData($user);
+        $principalService = $this->userService->getPrincipalService($user);
+        $secondaryServices = $this->userService->getSecondaryServices($user);
 
         return new JsonResponse([
             'success' => true,
@@ -164,38 +153,18 @@ class AuthController extends AbstractController
                 'nom' => $user->getNom(),
                 'prenom' => $user->getPrenom(),
                 'telephone' => $user->getTelephone(),
-                'date_naissance' => $user->getDateNaissance()?->format('Y-m-d'),
-                'date_inscription' => $user->getDateInscription()->format('Y-m-d'),
-                'horraire' => $user->getHorraire()?->format('H:i'),
-                'heure_debut' => $user->getHeureDebut()?->format('H:i'),
-                'jours_semaine_travaille' => $user->getJoursSemaineTravaille(),
                 'poste' => $user->getPoste(),
-                'date_derniere_connexion' => $user->getDateDerniereConnexion()?->format('Y-m-d H:i:s'),
-                'date_derniere_modification' => $user->getDateDerniereModification()?->format('Y-m-d H:i:s'),
-                'compte_actif' => $user->isCompteActif(),
-                'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d'),
                 'roles' => $user->getRoles(),
+                'compte_actif' => $user->isCompteActif(),
                 'organisation' => $organisation ? [
                     'id' => $organisation->getId(),
-                    'nom' => $organisation->getNomOrganisation(),
-                    'email' => $organisation->getEmail(),
-                    'telephone' => $organisation->getTelephone(),
-                    'site_web' => $organisation->getSiteWeb()
+                    'nom' => $organisation->getNomOrganisation()
                 ] : null,
                 'service' => $currentService,
-                'principal_service' => $user->getPrincipalService() ? [
-                    'id' => $user->getPrincipalService()->getId(),
-                    'nom' => $user->getPrincipalService()->getNomService(),
-                    'niveau' => $user->getPrincipalService()->getNiveauService()
-                ] : null,
-                'secondary_services' => array_map(function($service) {
-                    return [
-                        'id' => $service->getId(),
-                        'nom' => $service->getNomService(),
-                        'niveau' => $service->getNiveauService()
-                    ];
-                }, $user->getSecondaryServices())
-            ]
+                'principal_service' => $principalService,
+                'secondary_services' => $secondaryServices
+            ],
+            'message' => 'Profil utilisateur récupéré'
         ]);
     }
 

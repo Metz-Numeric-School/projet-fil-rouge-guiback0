@@ -4,15 +4,14 @@ namespace App\Tests\Unit\Entity;
 
 use App\Entity\Gerer;
 use App\Entity\User;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class GererTest extends DatabaseKernelTestCase
+class GererTest extends TestCase
 {
     private Gerer $gerer;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->gerer = new Gerer();
     }
 

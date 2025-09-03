@@ -31,7 +31,7 @@ class PresenceService
                 'days' => $workingTime['days']
             ];
         } catch (\Exception $e) {
-            throw new PresenceException(PresenceException::CALCULATION_ERROR, 'Erreur lors du calcul de la présence hebdomadaire');
+            throw new PresenceException(PresenceException::CALCULATION_ERROR, 'Erreur lors du calcul de la présence hebdomadaire: ' . $e->getMessage());
         }
     }
 

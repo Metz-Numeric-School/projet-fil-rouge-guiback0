@@ -83,7 +83,11 @@ docker-compose down
 - **Entities**: Doctrine ORM entities for User, Organisation, Badge, Service, Zone, Pointage
 - **Security**: Role-based access (ROLE_USER, ROLE_ADMIN, ROLE_SUPER_ADMIN)
 - **Database**: PostgreSQL with Doctrine migrations
-- **Services**: Custom business logic in `src/Service/` (BadgeService, OrganisationService, PresenceService)
+- **Services**: Custom business logic in `src/Service/` organized by domain:
+  - `Pointage/`: Badge validation, time tracking, zone access, work time calculation
+  - `User/`: User management, presence tracking, GDPR compliance
+  - `Payment/`: Stripe payment integration
+  - `Database/`: Transaction management
 
 ### Frontend (Angular)
 - **Architecture**: Standalone components with Angular 19
@@ -103,8 +107,9 @@ docker-compose down
 Core entities include User, Organisation, Service, Badge, Zone, Pointage (time tracking), with relationships managed through junction tables like Travailler, UserBadge, ServiceZone.
 
 ### API Endpoints Structure
-- Authentication: `/api/auth/*`
-- User management: `/api/user/*`
+- Authentication: `/api/auth/*` (login, refresh, profile)
+- User management: `/api/user/*` (CRUD, GDPR exports)
+- Pointage: `/api/pointage/*` (time tracking, badge scanning)
 - Core business logic accessible through standard CRUD controllers
 
 ## Environment Configuration
@@ -119,3 +124,18 @@ Core entities include User, Organisation, Service, Badge, Zone, Pointage (time t
 - `backend`: Symfony with FrankenPHP
 - `frontend`: Angular development server
 - `proxy`: Nginx reverse proxy (optional)
+
+## Key Features & Integrations
+
+### Payment Integration
+- **Stripe**: Payment processing with Symfony StripeService (`src/Service/Payment/StripeService.php`)
+
+### Access Control System
+- **Badge-based Access**: Physical badge scanning for zone access and time tracking
+- **Zone Management**: Configurable access zones with permissions per service level
+- **Time Tracking**: Automated pointage (clocking) system with presence validation
+
+### GDPR Compliance
+- **Data Portability**: Export user data via GDPRService (`src/Service/User/GDPRService.php`)
+- **Account Deactivation**: GDPR-compliant account deactivation with scheduled deletion
+- **Data Export**: Structured export of personal, account, organization, service, and badge data

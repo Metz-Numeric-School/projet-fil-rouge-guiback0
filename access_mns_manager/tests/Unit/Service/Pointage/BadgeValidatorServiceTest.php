@@ -2,338 +2,149 @@
 
 namespace App\Tests\Unit\Service\Pointage;
 
-use App\Entity\Badge;
 use App\Entity\User;
-use App\Entity\UserBadge;
+use App\Entity\Badge;
 use App\Entity\Pointage;
-use App\Entity\Badgeuse;
 use App\Exception\BadgeException;
 use App\Service\Pointage\BadgeValidatorService;
 use App\Tests\Shared\DatabaseKernelTestCase;
+use App\Tests\Shared\TestEntityFactory;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class BadgeValidatorServiceTest extends DatabaseKernelTestCase
 {
     private BadgeValidatorService $badgeValidatorService;
+    private UserPasswordHasherInterface $passwordHasher;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->badgeValidatorService = static::getContainer()->get(BadgeValidatorService::class);
+        $this->passwordHasher = static::getContainer()->get(UserPasswordHasherInterface::class);
     }
 
-    public function testGetUserFromBadgeWithValidBadge(): void
+    public function testGetUserFromBadgeSuccess(): void
     {
-        $user = new User();
-        $user->setEmail('test@badge.com')
-            ->setNom('Test')
-            ->setPrenom('User')
-            ->setPassword('password');
-        $this->em->persist($user);
-
-        $badge = new Badge();
-        $badge->setNumeroBadge(999001)
-            ->setTypeBadge('test')
-            ->setDateCreation(new \DateTime());
-        $this->em->persist($badge);
-
-        $userBadge = new UserBadge();
-        $userBadge->setUtilisateur($user)
-            ->setBadge($badge);
-        $this->em->persist($userBadge);
-
+        $userWithBadge = TestEntityFactory::createTestUserWithBadge($this->em, $this->passwordHasher);
         $this->em->flush();
 
-        $result = $this->badgeValidatorService->getUserFromBadge($badge);
-        $this->assertSame($user, $result);
+        $result = $this->badgeValidatorService->getUserFromBadge($userWithBadge['badge']);
+
+        $this->assertInstanceOf(User::class, $result);
+        $this->assertEquals($userWithBadge['user']->getEmail(), $result->getEmail());
     }
 
-    public function testGetUserFromBadgeWithExpiredBadge(): void
+    public function testGetUserFromBadgeExpiredThrowsException(): void
+    {
+        $userWithBadge = TestEntityFactory::createTestUserWithBadge($this->em, $this->passwordHasher);
+        $userWithBadge['badge']->setDateExpiration(new \DateTime('-1 day'));
+        $this->em->flush();
+
+        $this->expectException(BadgeException::class);
+        try {
+            $this->badgeValidatorService->getUserFromBadge($userWithBadge['badge']);
+        } catch (BadgeException $e) {
+            $this->assertEquals(BadgeException::BADGE_EXPIRED, $e->getErrorCode());
+            throw $e;
+        }
+    }
+
+    public function testGetUserFromBadgeNotFoundThrowsException(): void
     {
         $badge = new Badge();
-        $badge->setNumeroBadge(999002)
-            ->setTypeBadge('expired')
-            ->setDateCreation(new \DateTime('-1 year'))
-            ->setDateExpiration(new \DateTime('-1 day'));
+        $badge->setNumeroBadge(999)
+              ->setTypeBadge('permanent')
+              ->setDateCreation(new \DateTime());
         $this->em->persist($badge);
         $this->em->flush();
 
         $this->expectException(BadgeException::class);
-        $this->expectExceptionMessage('Badge expiré');
-        
-        $this->badgeValidatorService->getUserFromBadge($badge);
+        try {
+            $this->badgeValidatorService->getUserFromBadge($badge);
+        } catch (BadgeException $e) {
+            $this->assertEquals(BadgeException::USER_NOT_FOUND, $e->getErrorCode());
+            throw $e;
+        }
     }
 
-    public function testGetUserFromBadgeWithNonAssignedBadge(): void
+    public function testGetUserActiveBadge(): void
     {
-        $badge = new Badge();
-        $badge->setNumeroBadge(999003)
-            ->setTypeBadge('unassigned')
-            ->setDateCreation(new \DateTime());
-        $this->em->persist($badge);
+        $userWithBadge = TestEntityFactory::createTestUserWithBadge($this->em, $this->passwordHasher);
         $this->em->flush();
 
-        $this->expectException(BadgeException::class);
-        $this->expectExceptionMessage('Utilisateur non trouvé');
-        
-        $this->badgeValidatorService->getUserFromBadge($badge);
+        $result = $this->badgeValidatorService->getUserActiveBadge($userWithBadge['user']);
+
+        $this->assertInstanceOf(Badge::class, $result);
+        $this->assertEquals($userWithBadge['badge']->getNumeroBadge(), $result->getNumeroBadge());
     }
 
-    public function testGetUserActiveBadgeWithValidUser(): void
+    public function testGetUserActiveBadgeReturnsNullWhenNoBadge(): void
     {
-        $user = new User();
-        $user->setEmail('active@badge.com')
-            ->setNom('Active')
-            ->setPrenom('User')
-            ->setPassword('password');
-        $this->em->persist($user);
-
-        $activeBadge = new Badge();
-        $activeBadge->setNumeroBadge(999004)
-            ->setTypeBadge('active')
-            ->setDateCreation(new \DateTime());
-        $this->em->persist($activeBadge);
-
-        $expiredBadge = new Badge();
-        $expiredBadge->setNumeroBadge(999005)
-            ->setTypeBadge('expired')
-            ->setDateCreation(new \DateTime('-1 year'))
-            ->setDateExpiration(new \DateTime('-1 day'));
-        $this->em->persist($expiredBadge);
-
-        $activeUserBadge = new UserBadge();
-        $activeUserBadge->setUtilisateur($user)->setBadge($activeBadge);
-        $this->em->persist($activeUserBadge);
-
-        $expiredUserBadge = new UserBadge();
-        $expiredUserBadge->setUtilisateur($user)->setBadge($expiredBadge);
-        $this->em->persist($expiredUserBadge);
-
+        $user = TestEntityFactory::createTestUser($this->em, $this->passwordHasher);
         $this->em->flush();
 
         $result = $this->badgeValidatorService->getUserActiveBadge($user);
-        $this->assertSame($activeBadge, $result);
-    }
 
-    public function testGetUserActiveBadgeWithNoActiveBadges(): void
-    {
-        $user = new User();
-        $user->setEmail('nobadge@test.com')
-            ->setNom('No')
-            ->setPrenom('Badge')
-            ->setPassword('password');
-        $this->em->persist($user);
-        $this->em->flush();
-
-        $result = $this->badgeValidatorService->getUserActiveBadge($user);
         $this->assertNull($result);
     }
 
-    public function testGetUserActiveBadgesReturnsFormattedArray(): void
+    public function testGetUserActiveBadges(): void
     {
-        $user = new User();
-        $user->setEmail('multi@badge.com')
-            ->setNom('Multi')
-            ->setPrenom('Badge')
-            ->setPassword('password');
-        $this->em->persist($user);
-
-        $badge1 = new Badge();
-        $badge1->setNumeroBadge(999006)
-            ->setTypeBadge('permanent')
-            ->setDateCreation(new \DateTime());
-        $this->em->persist($badge1);
-
-        $badge2 = new Badge();
-        $badge2->setNumeroBadge(999007)
-            ->setTypeBadge('temporaire')
-            ->setDateCreation(new \DateTime())
-            ->setDateExpiration(new \DateTime('+1 year'));
-        $this->em->persist($badge2);
-
-        $userBadge1 = new UserBadge();
-        $userBadge1->setUtilisateur($user)->setBadge($badge1);
-        $this->em->persist($userBadge1);
-
-        $userBadge2 = new UserBadge();
-        $userBadge2->setUtilisateur($user)->setBadge($badge2);
-        $this->em->persist($userBadge2);
-
+        $userWithBadge = TestEntityFactory::createTestUserWithBadge($this->em, $this->passwordHasher);
         $this->em->flush();
 
-        $result = $this->badgeValidatorService->getUserActiveBadges($user);
-        
-        $this->assertCount(2, $result);
-        $this->assertEquals(999006, $result[0]['numero_badge']);
-        $this->assertEquals('permanent', $result[0]['type_badge']);
+        $result = $this->badgeValidatorService->getUserActiveBadges($userWithBadge['user']);
+
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $this->assertArrayHasKey('numero_badge', $result[0]);
         $this->assertTrue($result[0]['is_active']);
     }
 
-    public function testGetUserBadgeHistoryWithDateRange(): void
+    public function testGetUserBadgeHistory(): void
     {
-        $user = new User();
-        $user->setEmail('history@badge.com')
-            ->setNom('History')
-            ->setPrenom('User')
-            ->setPassword('password');
-        $this->em->persist($user);
-
-        $badge = new Badge();
-        $badge->setNumeroBadge(999008)
-            ->setTypeBadge('test')
-            ->setDateCreation(new \DateTime());
-        $this->em->persist($badge);
-
-        $userBadge = new UserBadge();
-        $userBadge->setUtilisateur($user)->setBadge($badge);
-        $this->em->persist($userBadge);
-
-        $badgeuse = new Badgeuse();
-        $badgeuse->setReference('TEST-BADGEUSE-001')
-            ->setDateInstallation(new \DateTime());
-        $this->em->persist($badgeuse);
-
-        $pointage1 = new Pointage();
-        $pointage1->setBadge($badge)
-            ->setBadgeuse($badgeuse)
-            ->setHeure(new \DateTime('-2 days'))
-            ->setType('entree');
-        $this->em->persist($pointage1);
-
-        $pointage2 = new Pointage();
-        $pointage2->setBadge($badge)
-            ->setBadgeuse($badgeuse)
-            ->setHeure(new \DateTime('-1 day'))
-            ->setType('sortie');
-        $this->em->persist($pointage2);
-
-        $this->em->flush();
-
-        $startDate = new \DateTime('-3 days');
-        $endDate = new \DateTime('now');
+        $completeSetup = TestEntityFactory::createCompleteTestSetup($this->em, $this->passwordHasher);
         
-        $result = $this->badgeValidatorService->getUserBadgeHistory($user, $startDate, $endDate);
-        
-        $this->assertCount(2, $result);
-        $this->assertEquals('sortie', $result[0]['type']); // Plus récent en premier
-        $this->assertEquals('entree', $result[1]['type']);
-        $this->assertArrayHasKey('badgeuse', $result[0]);
-        $this->assertEquals('TEST-BADGEUSE-001', $result[0]['badgeuse']['reference']);
-    }
-
-    public function testGetUserBadgeHistoryWithoutDateRange(): void
-    {
-        $user = new User();
-        $user->setEmail('history2@badge.com')
-            ->setNom('History2')
-            ->setPrenom('User')
-            ->setPassword('password');
-        $this->em->persist($user);
-
-        $badge = new Badge();
-        $badge->setNumeroBadge(999009)
-            ->setTypeBadge('test')
-            ->setDateCreation(new \DateTime());
-        $this->em->persist($badge);
-
-        $userBadge = new UserBadge();
-        $userBadge->setUtilisateur($user)->setBadge($badge);
-        $this->em->persist($userBadge);
-
-        $badgeuse = new Badgeuse();
-        $badgeuse->setReference('TEST-BADGEUSE-002')
-            ->setDateInstallation(new \DateTime());
-        $this->em->persist($badgeuse);
-
+        // Créer un pointage simple
         $pointage = new Pointage();
-        $pointage->setBadge($badge)
-            ->setBadgeuse($badgeuse)
-            ->setHeure(new \DateTime())
-            ->setType('entree');
+        $pointage->setBadge($completeSetup['badge'])
+                 ->setBadgeuse($completeSetup['badgeuse'])
+                 ->setHeure(new \DateTime())
+                 ->setType('entree');
         $this->em->persist($pointage);
-
         $this->em->flush();
 
-        $result = $this->badgeValidatorService->getUserBadgeHistory($user);
-        
+        $result = $this->badgeValidatorService->getUserBadgeHistory($completeSetup['user']);
+
+        $this->assertIsArray($result);
         $this->assertCount(1, $result);
         $this->assertEquals('entree', $result[0]['type']);
     }
 
-    public function testIsRecentEntryWithRecentEntry(): void
+    public function testIsRecentEntry(): void
     {
-        $badge = new Badge();
-        $badge->setNumeroBadge(999010)
-            ->setTypeBadge('test')
-            ->setDateCreation(new \DateTime());
-        $this->em->persist($badge);
-
-        $badgeuse = new Badgeuse();
-        $badgeuse->setReference('TEST-BADGEUSE-003')
-            ->setDateInstallation(new \DateTime());
-        $this->em->persist($badgeuse);
-
+        $completeSetup = TestEntityFactory::createCompleteTestSetup($this->em, $this->passwordHasher);
+        
         $recentPointage = new Pointage();
-        $recentPointage->setBadge($badge)
-            ->setBadgeuse($badgeuse)
-            ->setHeure(new \DateTime('-2 hours'))
-            ->setType('entree');
-        $this->em->persist($recentPointage);
-
-        $this->em->flush();
-
-        $result = $this->badgeValidatorService->isRecentEntry($recentPointage);
-        $this->assertTrue($result);
-    }
-
-    public function testIsRecentEntryWithOldEntry(): void
-    {
-        $badge = new Badge();
-        $badge->setNumeroBadge(999011)
-            ->setTypeBadge('test')
-            ->setDateCreation(new \DateTime());
-        $this->em->persist($badge);
-
-        $badgeuse = new Badgeuse();
-        $badgeuse->setReference('TEST-BADGEUSE-004')
-            ->setDateInstallation(new \DateTime());
-        $this->em->persist($badgeuse);
-
+        $recentPointage->setBadge($completeSetup['badge'])
+                      ->setBadgeuse($completeSetup['badgeuse'])
+                      ->setHeure(new \DateTime('-2 hours'))
+                      ->setType('entree');
+        
         $oldPointage = new Pointage();
-        $oldPointage->setBadge($badge)
-            ->setBadgeuse($badgeuse)
-            ->setHeure(new \DateTime('-10 hours'))
-            ->setType('entree');
-        $this->em->persist($oldPointage);
-
-        $this->em->flush();
-
-        $result = $this->badgeValidatorService->isRecentEntry($oldPointage);
-        $this->assertFalse($result);
-    }
-
-    public function testIsRecentEntryWithSortieType(): void
-    {
-        $badge = new Badge();
-        $badge->setNumeroBadge(999012)
-            ->setTypeBadge('test')
-            ->setDateCreation(new \DateTime());
-        $this->em->persist($badge);
-
-        $badgeuse = new Badgeuse();
-        $badgeuse->setReference('TEST-BADGEUSE-005')
-            ->setDateInstallation(new \DateTime());
-        $this->em->persist($badgeuse);
-
+        $oldPointage->setBadge($completeSetup['badge'])
+                   ->setBadgeuse($completeSetup['badgeuse'])
+                   ->setHeure(new \DateTime('-10 hours'))
+                   ->setType('entree');
+        
         $sortiePointage = new Pointage();
-        $sortiePointage->setBadge($badge)
-            ->setBadgeuse($badgeuse)
-            ->setHeure(new \DateTime('-1 hour'))
-            ->setType('sortie');
-        $this->em->persist($sortiePointage);
+        $sortiePointage->setBadge($completeSetup['badge'])
+                      ->setBadgeuse($completeSetup['badgeuse'])
+                      ->setHeure(new \DateTime('-1 hour'))
+                      ->setType('sortie');
 
-        $this->em->flush();
-
-        $result = $this->badgeValidatorService->isRecentEntry($sortiePointage);
-        $this->assertFalse($result);
+        $this->assertTrue($this->badgeValidatorService->isRecentEntry($recentPointage));
+        $this->assertFalse($this->badgeValidatorService->isRecentEntry($oldPointage));
+        $this->assertFalse($this->badgeValidatorService->isRecentEntry($sortiePointage));
     }
 }

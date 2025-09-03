@@ -5,15 +5,14 @@ namespace App\Tests\Unit\Entity;
 use App\Entity\Badgeuse;
 use App\Entity\Acces;
 use App\Entity\Pointage;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class BadgeuseTest extends DatabaseKernelTestCase
+class BadgeuseTest extends TestCase
 {
     private Badgeuse $badgeuse;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->badgeuse = new Badgeuse();
     }
 

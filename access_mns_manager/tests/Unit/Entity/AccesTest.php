@@ -5,15 +5,14 @@ namespace App\Tests\Unit\Entity;
 use App\Entity\Acces;
 use App\Entity\Zone;
 use App\Entity\Badgeuse;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class AccesTest extends DatabaseKernelTestCase
+class AccesTest extends TestCase
 {
     private Acces $acces;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->acces = new Acces();
     }
 

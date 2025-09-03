@@ -5,15 +5,14 @@ namespace App\Tests\Unit\Entity;
 use App\Entity\Pointage;
 use App\Entity\Badge;
 use App\Entity\Badgeuse;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class PointageTest extends DatabaseKernelTestCase
+class PointageTest extends TestCase
 {
     private Pointage $pointage;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->pointage = new Pointage();
     }
 
@@ -29,6 +28,8 @@ class PointageTest extends DatabaseKernelTestCase
     public function testCoreSetters(): void
     {
         $badge = new Badge();
+        $badge->setTypeBadge('permanent');
+        $badge->setDateCreation(new \DateTime());
         $badgeuse = new Badgeuse();
         $heure = new \DateTimeImmutable('2024-01-15 09:30:00');
         $this->pointage

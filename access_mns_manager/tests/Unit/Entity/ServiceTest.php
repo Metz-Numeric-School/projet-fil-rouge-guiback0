@@ -6,15 +6,14 @@ use App\Entity\Service;
 use App\Entity\Organisation;
 use App\Entity\ServiceZone;
 use App\Entity\Travailler;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class ServiceTest extends DatabaseKernelTestCase
+class ServiceTest extends TestCase
 {
     private Service $service;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->service = new Service();
     }
 

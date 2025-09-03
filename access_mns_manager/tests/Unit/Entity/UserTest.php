@@ -6,15 +6,14 @@ use App\Entity\User;
 use App\Entity\UserBadge;
 use App\Entity\Travailler;
 use App\Entity\Service;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class UserTest extends DatabaseKernelTestCase
+class UserTest extends TestCase
 {
     private User $user;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->user = new User();
     }
 
@@ -70,10 +69,12 @@ class UserTest extends DatabaseKernelTestCase
         $travailPrincipal = new Travailler();
         if (method_exists($travailPrincipal, 'setService')) { $travailPrincipal->setService($servicePrincipal); }
         if (method_exists($travailPrincipal, 'setUtilisateur')) { $travailPrincipal->setUtilisateur($this->user); }
+        if (method_exists($travailPrincipal, 'setDateDebut')) { $travailPrincipal->setDateDebut(new \DateTime()); }
 
         $travailSecondaire = new Travailler();
         if (method_exists($travailSecondaire, 'setService')) { $travailSecondaire->setService($serviceSecondaire); }
         if (method_exists($travailSecondaire, 'setUtilisateur')) { $travailSecondaire->setUtilisateur($this->user); }
+        if (method_exists($travailSecondaire, 'setDateDebut')) { $travailSecondaire->setDateDebut(new \DateTime()); }
 
         $this->user->addTravail($travailPrincipal)->addTravail($travailSecondaire);
         $this->assertCount(2, $this->user->getTravail());

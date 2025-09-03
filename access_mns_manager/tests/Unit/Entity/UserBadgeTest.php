@@ -5,15 +5,14 @@ namespace App\Tests\Unit\Entity;
 use App\Entity\UserBadge;
 use App\Entity\User;
 use App\Entity\Badge;
-use App\Tests\Shared\DatabaseKernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class UserBadgeTest extends DatabaseKernelTestCase
+class UserBadgeTest extends TestCase
 {
     private UserBadge $userBadge;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->userBadge = new UserBadge();
     }
 
@@ -28,6 +27,8 @@ class UserBadgeTest extends DatabaseKernelTestCase
     {
         $user = new User();
         $badge = new Badge();
+        $badge->setTypeBadge('permanent');
+        $badge->setDateCreation(new \DateTime());
         $this->userBadge->setUtilisateur($user)->setBadge($badge);
         $this->assertSame($user, $this->userBadge->getUtilisateur());
         $this->assertSame($badge, $this->userBadge->getBadge());
@@ -45,6 +46,8 @@ class UserBadgeTest extends DatabaseKernelTestCase
         $u1 = new User();
         $u2 = new User();
         $b = new Badge();
+        $b->setTypeBadge('permanent');
+        $b->setDateCreation(new \DateTime());
         $this->userBadge->setUtilisateur($u1)->setBadge($b);
         $this->assertSame($u1, $this->userBadge->getUtilisateur());
         $this->userBadge->setUtilisateur($u2);

@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 ### 🚀 Features
 
 - 🎉 Begin: access_mns_manager
-- 🎉 Begin: access_mns_manager Merged 
+- 🎉 Begin: access_mns_manager Merged
 - 🏷️ Entity: user
 - ✨ Feat: login
 - ✨ Feat: register
@@ -29,8 +29,8 @@ All notable changes to this project will be documented in this file.
 - 🏷️ Entity: user work service
 - 🏷️ Entity: management
 - 🏷️ First Entities
--  🗃️  Database : creation
-🎉 Start : frontend project
+- 🗃️ Database : creation
+  🎉 Start : frontend project
 - 🎉 Start : api
 - ✨ Feat: user controller
 - ✨ Feat: organisation controller
