@@ -23,12 +23,39 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     
-    # Test environment - make services public for testing
-    App\Service\User\PresenceService:
+    # Test environment - make specialized services public for testing
+    App\Service\User\Presence\DailyPresenceService:
         public: '%kernel.debug%'
         
-    App\Service\User\UserService:
+    App\Service\User\Presence\WeeklyPresenceService:
         public: '%kernel.debug%'
         
-    App\Service\User\GDPRService:
+    App\Service\User\Presence\MonthlyPresenceService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\Presence\PresenceAnalyzerService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\Presence\OrganisationPresenceService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\Presence\PresenceReportService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\UserOrganisationService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\UserAccessService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\UserServiceDataService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\OrganisationFormatterService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\GDPR\AccountDeactivationService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\GDPR\UserDataExporterService:
         public: '%kernel.debug%'

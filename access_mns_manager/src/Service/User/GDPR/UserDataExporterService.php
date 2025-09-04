@@ -1,36 +1,16 @@
 <?php
 
-namespace App\Service\User;
+namespace App\Service\User\GDPR;
 
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\User\UserOrganisationService;
 
-/**
- * Service pour la gestion des fonctionnalités GDPR
- */
-class GDPRService
+class UserDataExporterService
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private UserService $userService
+        private UserOrganisationService $userOrganisationService
     ) {}
 
-    /**
-     * Désactive un compte utilisateur (conformité GDPR)
-     */
-    public function deactivateAccount(User $user): array
-    {
-        $user->deactivate();
-        $this->entityManager->flush();
-
-        return [
-            'date_suppression_prevue' => $user->getDateSuppressionPrevue()?->format('Y-m-d')
-        ];
-    }
-
-    /**
-     * Exporte les données personnelles d'un utilisateur (portabilité GDPR)
-     */
     public function exportUserData(User $user): array
     {
         return [
@@ -42,9 +22,6 @@ class GDPRService
         ];
     }
 
-    /**
-     * Formate les informations personnelles
-     */
     private function formatPersonalInfo(User $user): array
     {
         return [
@@ -61,9 +38,6 @@ class GDPRService
         ];
     }
 
-    /**
-     * Formate les informations de compte
-     */
     private function formatAccountInfo(User $user): array
     {
         return [
@@ -75,12 +49,9 @@ class GDPRService
         ];
     }
 
-    /**
-     * Formate les informations d'organisation
-     */
     private function formatOrganisationInfo(User $user): ?array
     {
-        $organisation = $this->userService->getUserOrganisation($user);
+        $organisation = $this->userOrganisationService->getUserOrganisation($user);
         
         if (!$organisation) {
             return null;
@@ -96,9 +67,6 @@ class GDPRService
         ];
     }
 
-    /**
-     * Formate les informations de services
-     */
     private function formatServicesInfo(User $user): array
     {
         $servicesData = [];
@@ -119,9 +87,6 @@ class GDPRService
         return $servicesData;
     }
 
-    /**
-     * Formate les informations de badges
-     */
     private function formatBadgesInfo(User $user): array
     {
         $badgesData = [];

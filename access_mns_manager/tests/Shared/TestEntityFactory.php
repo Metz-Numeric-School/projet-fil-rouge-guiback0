@@ -50,11 +50,10 @@ class TestEntityFactory
         $user->setPassword($passwordHasher->hashPassword($user, 'password123'));
 
         $travailler = new Travailler();
-        $travailler->setUtilisateur($user);
         $travailler->setService($service);
         $travailler->setDateDebut(new \DateTime());
 
-        // Ajouter la relation côté User pour synchroniser les collections
+        // Utiliser addTravail qui gère automatiquement les deux côtés de la relation
         $user->addTravail($travailler);
 
         $em->persist($organisation);

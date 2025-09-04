@@ -3,8 +3,10 @@
 namespace App\Controller\API\User;
 
 use App\Entity\User;
-use App\Service\User\UserService;
-use App\Service\User\GDPRService;
+use App\Service\User\UserOrganisationService;
+use App\Service\User\OrganisationFormatterService;
+use App\Service\User\GDPR\AccountDeactivationService;
+use App\Service\User\GDPR\UserDataExporterService;
 use App\Service\Database\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,8 +20,10 @@ class UserController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private UserService $userService,
-        private GDPRService $gdprService,
+        private UserOrganisationService $userOrganisationService,
+        private OrganisationFormatterService $organisationFormatterService,
+        private AccountDeactivationService $accountDeactivationService,
+        private UserDataExporterService $userDataExporterService,
         private TransactionService $transactionService
     ) {}
 
@@ -62,25 +66,10 @@ class UserController extends AbstractController
             ];
 
             // Récupération de l'organisation
-            $organisation = $this->userService->getUserOrganisation($user);
+            $organisation = $this->userOrganisationService->getUserOrganisation($user);
             $organisationData = null;
             if ($organisation) {
-                $organisationData = [
-                    'id' => $organisation->getId(),
-                    'nom_organisation' => $organisation->getNomOrganisation(),
-                    'email' => $organisation->getEmail(),
-                    'telephone' => $organisation->getTelephone(),
-                    'site_web' => $organisation->getSiteWeb(),
-                    'siret' => $organisation->getSiret(),
-                    'adresse' => [
-                        'numero_rue' => $organisation->getNumeroRue(),
-                        'suffix_rue' => $organisation->getSuffixRue(),
-                        'nom_rue' => $organisation->getNomRue(),
-                        'code_postal' => $organisation->getCodePostal(),
-                        'ville' => $organisation->getVille(),
-                        'pays' => $organisation->getPays()
-                    ]
-                ];
+                $organisationData = $this->organisationFormatterService->formatOrganisationData($organisation);
             }
 
             // Récupération du service actuel et historique
@@ -268,7 +257,7 @@ class UserController extends AbstractController
         if ($user instanceof JsonResponse) return $user;
 
         return $this->transactionService->executeAndRespond(
-            fn() => $this->gdprService->deactivateAccount($user),
+            fn() => $this->accountDeactivationService->deactivateAccount($user),
             'Compte désactivé avec succès. Vos données seront automatiquement supprimées après 5 ans de conservation.'
         );
     }
@@ -285,7 +274,7 @@ class UserController extends AbstractController
         if ($user instanceof JsonResponse) return $user;
 
         try {
-            $exportData = $this->gdprService->exportUserData($user);
+            $exportData = $this->userDataExporterService->exportUserData($user);
 
             return new JsonResponse([
                 'success' => true,

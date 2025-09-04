@@ -3,7 +3,8 @@
 namespace App\Controller\API\Auth;
 
 use App\Entity\User;
-use App\Service\User\UserService;
+use App\Service\User\UserOrganisationService;
+use App\Service\User\UserServiceDataService;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +23,8 @@ class AuthController extends AbstractController
         private UserPasswordHasherInterface $passwordHasher,
         private JWTTokenManagerInterface $JWTManager,
         private ValidatorInterface $validator,
-        private UserService $userService
+        private UserOrganisationService $userOrganisationService,
+        private UserServiceDataService $userServiceDataService
     ) {}
 
     /**
@@ -72,7 +74,7 @@ class AuthController extends AbstractController
         $token = $this->JWTManager->create($user);
 
         // Récupération des informations de l'organisation
-        $organisation = $this->userService->getUserOrganisation($user);
+        $organisation = $this->userOrganisationService->getUserOrganisation($user);
 
         return new JsonResponse([
             'success' => true,
@@ -140,10 +142,10 @@ class AuthController extends AbstractController
         }
 
         // Récupération des informations de base et services
-        $organisation = $this->userService->getUserOrganisation($user);
-        $currentService = $this->userService->getCurrentServiceData($user);
-        $principalService = $this->userService->getPrincipalService($user);
-        $secondaryServices = $this->userService->getSecondaryServices($user);
+        $organisation = $this->userOrganisationService->getUserOrganisation($user);
+        $currentService = $this->userServiceDataService->getCurrentServiceData($user);
+        $principalService = $this->userServiceDataService->getPrincipalService($user);
+        $secondaryServices = $this->userServiceDataService->getSecondaryServices($user);
 
         return new JsonResponse([
             'success' => true,
