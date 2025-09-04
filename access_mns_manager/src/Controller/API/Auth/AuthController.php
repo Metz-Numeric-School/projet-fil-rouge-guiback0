@@ -3,6 +3,7 @@
 namespace App\Controller\API\Auth;
 
 use App\Entity\User;
+use App\Service\Security\LoginAttemptService;
 use App\Service\User\UserOrganisationService;
 use App\Service\User\UserServiceDataService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -24,7 +26,8 @@ class AuthController extends AbstractController
         private JWTTokenManagerInterface $JWTManager,
         private ValidatorInterface $validator,
         private UserOrganisationService $userOrganisationService,
-        private UserServiceDataService $userServiceDataService
+        private UserServiceDataService $userServiceDataService,
+        private LoginAttemptService $loginAttemptService
     ) {}
 
     /**
@@ -33,6 +36,17 @@ class AuthController extends AbstractController
     #[Route('/login', name: 'login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
+        try {
+            // Vérification du rate limiting
+            $this->loginAttemptService->checkAttempt($request);
+        } catch (TooManyLoginAttemptsAuthenticationException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'TOO_MANY_ATTEMPTS',
+                'message' => $e->getMessage()
+            ], 429);
+        }
+
         $data = json_decode($request->getContent(), true);
 
         // Validation des données
@@ -64,6 +78,9 @@ class AuthController extends AbstractController
                 'message' => 'Identifiants invalides'
             ], 401);
         }
+
+        // Authentification réussie - reset des tentatives
+        $this->loginAttemptService->resetAttempts($request);
 
         // Mise à jour de la dernière connexion
         $user->updateLastLogin();

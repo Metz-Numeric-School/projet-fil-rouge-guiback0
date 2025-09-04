@@ -2,8 +2,10 @@
 
 namespace App\Tests\Functional\Controller\API\Auth;
 
+use App\Service\Security\LoginAttemptService;
 use App\Tests\Shared\DatabaseWebTestCase;
 use App\Tests\Shared\TestEntityFactory;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class LoginTest extends DatabaseWebTestCase
@@ -14,6 +16,11 @@ class LoginTest extends DatabaseWebTestCase
     {
         parent::setUp();
         $this->passwordHasher = static::getContainer()->get(UserPasswordHasherInterface::class);
+        
+        // Clear rate limiting state for clean tests
+        $loginAttemptService = static::getContainer()->get(LoginAttemptService::class);
+        $request = Request::create('/', 'POST', [], [], [], ['REMOTE_ADDR' => '127.0.0.1']);
+        $loginAttemptService->resetAttempts($request);
     }
 
     public function testLoginWithValidCredentials(): void
