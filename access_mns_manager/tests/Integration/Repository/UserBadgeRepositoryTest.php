@@ -22,12 +22,12 @@ class UserBadgeRepositoryTest extends DatabaseKernelTestCase
     {
         // Get existing user from fixtures
         $userRepository = $this->em->getRepository(User::class);
-        $user = $userRepository->findOneBy(['email' => 'superadmin@test.com']);
+        $user = $userRepository->findOneBy(['email' => 'superadmin@access-mns.fr']);
         $this->assertNotNull($user);
 
         $userBadges = $this->userBadgeRepository->findBy(['Utilisateur' => $user]);
 
-        // TestFixtures assigns one badge per user
+        // CommonFixtures assigns one badge per user
         $this->assertCount(1, $userBadges);
         $badgeNumbers = array_map(fn($ub) => $ub->getBadge()->getNumeroBadge(), $userBadges);
         $this->assertContains(200001, $badgeNumbers); // Super admin badge number
@@ -42,23 +42,23 @@ class UserBadgeRepositoryTest extends DatabaseKernelTestCase
 
         $badgeUsers = $this->userBadgeRepository->findBy(['badge' => $badge]);
 
-        // TestFixtures assigns each badge to exactly one user
+        // CommonFixtures assigns each badge to exactly one user
         $this->assertCount(1, $badgeUsers);
         $userEmails = array_map(fn($ub) => $ub->getUtilisateur()->getEmail(), $badgeUsers);
-        $this->assertContains('jean.dupont@defense.test.com', $userEmails); // user_defense_1 has badge 200004
+        $this->assertContains('j.dupont@defense.gouv.fr', $userEmails); // user_defense_1 has badge 200004
     }
 
     public function testUserBadgeRepositoryBasicOperations(): void
     {
         // Test findAll
         $all = $this->userBadgeRepository->findAll();
-        $this->assertEquals(10, count($all)); // TestFixtures creates 10 user-badge relationships
+        $this->assertEquals(10, count($all)); // CommonFixtures creates 10 user-badge relationships
 
         // Test find specific user-badge relationship
         $badgeRepository = $this->em->getRepository(Badge::class);
         $userRepository = $this->em->getRepository(User::class);
         
-        $testUser = $userRepository->findOneBy(['email' => 'test@test.com']);
+        $testUser = $userRepository->findOneBy(['email' => 'test@example.com']);
         $testBadge = $badgeRepository->findOneBy(['numero_badge' => 200010]);
         
         $this->assertNotNull($testUser);

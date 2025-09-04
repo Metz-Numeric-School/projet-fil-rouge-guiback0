@@ -74,7 +74,7 @@ class BadgeuseAccessService
                                     break;
                                 }
                             }
-                            
+
                             if (!$zoneExists) {
                                 // Ajouter la zone à la badgeuse existante
                                 $badgeuses[$badgeuseId]['zones'][] = [
@@ -85,7 +85,7 @@ class BadgeuseAccessService
                                     'service_name' => $service->getNomService()
                                 ];
                             }
-                            
+
                             // Marquer comme principale si au moins un service est principal
                             if ($isServicePrincipal) {
                                 $badgeuses[$badgeuseId]['is_principal'] = true;
@@ -127,7 +127,6 @@ class BadgeuseAccessService
                 'data' => array_values($badgeuses),
                 'user_status' => $userStatus
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -170,7 +169,7 @@ class BadgeuseAccessService
     {
         $badgeuse['user_status'] = $isUserPresent ? 'present' : 'absent';
         $badgeuse['last_pointage'] = $lastPointage ? $lastPointage->getHeure()->format('Y-m-d H:i:s') : null;
-        
+
         return $badgeuse;
     }
 }

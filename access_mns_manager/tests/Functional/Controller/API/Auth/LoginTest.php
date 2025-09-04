@@ -18,14 +18,12 @@ class LoginTest extends DatabaseWebTestCase
 
     public function testLoginWithValidCredentials(): void
     {
-        $user = TestEntityFactory::createTestUser($this->em, $this->passwordHasher);
-        $this->em->flush();
-
+        // Utiliser l'utilisateur de test qui existe déjà dans les fixtures CommonFixtures
         $this->client->request('POST', '/manager/api/auth/login', [], [], [
             'CONTENT_TYPE' => 'application/json'
         ], json_encode([
             'email' => 'test@example.com',
-            'password' => 'password123'
+            'password' => 'test123'
         ]));
 
         $this->assertResponseIsSuccessful();
@@ -101,8 +99,9 @@ class LoginTest extends DatabaseWebTestCase
 
     public function testLoginUpdatesLastLoginTime(): void
     {
-        $user = TestEntityFactory::createTestUser($this->em, $this->passwordHasher);
-        $this->em->flush();
+        // Récupérer l'utilisateur de test qui existe déjà dans les fixtures
+        $userRepository = $this->em->getRepository(\App\Entity\User::class);
+        $user = $userRepository->findOneBy(['email' => 'test@example.com']);
 
         $originalLastLogin = $user->getDateDerniereConnexion();
 
@@ -110,7 +109,7 @@ class LoginTest extends DatabaseWebTestCase
             'CONTENT_TYPE' => 'application/json'
         ], json_encode([
             'email' => 'test@example.com',
-            'password' => 'password123'
+            'password' => 'test123'
         ]));
 
         $this->assertResponseIsSuccessful();

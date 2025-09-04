@@ -22,9 +22,11 @@ class MeTest extends DatabaseWebTestCase
 
     public function testMeEndpointWithValidToken(): void
     {
-        $setup = TestEntityFactory::createTestUserWithBadge($this->em, $this->passwordHasher);
-        $this->em->flush();
-        $token = $this->jwtManager->create($setup['user']);
+        // Utiliser l'utilisateur de test qui existe déjà dans les fixtures
+        $userRepository = $this->em->getRepository(\App\Entity\User::class);
+        $user = $userRepository->findOneBy(['email' => 'test@example.com']);
+        
+        $token = $this->jwtManager->create($user);
 
         $this->client->request('GET', '/manager/api/auth/me', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $token
@@ -40,8 +42,8 @@ class MeTest extends DatabaseWebTestCase
         $this->assertArrayHasKey('prenom', $response['data']);
         
         $this->assertEquals('test@example.com', $response['data']['email']);
-        $this->assertEquals('Doe', $response['data']['nom']);
-        $this->assertEquals('John', $response['data']['prenom']);
+        $this->assertEquals('TEST', $response['data']['nom']);
+        $this->assertEquals('User', $response['data']['prenom']);
     }
 
     public function testMeEndpointWithoutToken(): void

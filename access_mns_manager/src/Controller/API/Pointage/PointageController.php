@@ -98,7 +98,7 @@ class PointageController extends AbstractController
             $this->entityManager->beginTransaction();
 
             $userStatus = $this->userStatusService->getUserWorkingStatus($user);
-            
+
             // Ajouter la clé is_working pour compatibilité
             $userStatus['is_working'] = ($userStatus['status'] ?? 'absent') === 'present';
             $userStatus['last_pointage'] = $userStatus['last_action'];
@@ -110,10 +110,9 @@ class PointageController extends AbstractController
                 'data' => $userStatus,
                 'message' => 'Statut utilisateur récupéré avec succès'
             ]);
-
         } catch (\Exception $e) {
             $this->entityManager->rollback();
-            
+
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INTERNAL_ERROR',
@@ -180,10 +179,9 @@ class PointageController extends AbstractController
                 'data' => $workingTime,
                 'message' => 'Temps de travail calculé avec succès'
             ]);
-
         } catch (\Exception $e) {
             $this->entityManager->rollback();
-            
+
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INTERNAL_ERROR',
@@ -242,10 +240,9 @@ class PointageController extends AbstractController
                 'data' => $validation,
                 'message' => 'Validation effectuée'
             ]);
-
         } catch (\Exception $e) {
             $this->entityManager->rollback();
-            
+
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INTERNAL_ERROR',
@@ -307,7 +304,7 @@ class PointageController extends AbstractController
                 if ($this->entityManager->getConnection()->isTransactionActive()) {
                     $this->entityManager->rollback();
                 }
-                
+
                 return new JsonResponse([
                     'success' => false,
                     'error' => $result['error'] ?? 'POINTAGE_FAILED',
@@ -337,12 +334,11 @@ class PointageController extends AbstractController
                 ],
                 'message' => 'Pointage automatique effectué avec succès'
             ]);
-
         } catch (\Exception $e) {
             if ($this->entityManager->getConnection()->isTransactionActive()) {
                 $this->entityManager->rollback();
             }
-            
+
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INTERNAL_ERROR',
@@ -409,11 +405,11 @@ class PointageController extends AbstractController
     private function getBadgeusesData(User $user): array
     {
         $badgeusesResult = $this->badgeuseAccessService->getUserBadgeusesWithStatus($user);
-        
+
         if (isset($badgeusesResult['success']) && !$badgeusesResult['success']) {
             throw new \Exception($badgeusesResult['message'] ?? 'Erreur lors de la récupération des badgeuses');
         }
-        
+
         $userStatus = $this->userStatusService->getUserWorkingStatus($user);
         $userBadges = $this->badgeValidator->getUserActiveBadges($user);
 

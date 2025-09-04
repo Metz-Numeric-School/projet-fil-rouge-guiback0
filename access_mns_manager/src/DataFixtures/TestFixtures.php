@@ -14,16 +14,22 @@ use App\Entity\Travailler;
 use App\Entity\Pointage;
 use App\Entity\ServiceZone;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class TestFixtures extends Fixture
+class TestFixtures extends Fixture implements FixtureGroupInterface
 {
     private UserPasswordHasherInterface $hasher;
 
     public function __construct(UserPasswordHasherInterface $hasher)
     {
         $this->hasher = $hasher;
+    }
+
+    public static function getGroups(): array
+    {
+        return ['test'];
     }
 
     public function load(ObjectManager $manager): void
@@ -355,7 +361,7 @@ class TestFixtures extends Fixture
             $badge->setNumeroBadge($data['number']);
             $badge->setTypeBadge($data['type']);
             $badge->setDateCreation(new \DateTime('2021-01-01'));
-            
+
             if ($data['type'] === 'temporaire') {
                 $badge->setDateExpiration(new \DateTime('2025-12-31'));
             } elseif ($data['type'] === 'visiteur') {
@@ -429,7 +435,7 @@ class TestFixtures extends Fixture
             ['user' => 'user_interieur_2', 'service' => 'principal_interieur', 'date' => '2021-08-01'],
             ['user' => 'user_economie_1', 'service' => 'principal_economie', 'date' => '2021-09-15'],
             ['user' => 'user_test', 'service' => 'principal_defense', 'date' => '2024-01-01'],
-            
+
             // Secondary services (optional)
             ['user' => 'admin_defense', 'service' => 'security', 'date' => '2020-01-15'],
             ['user' => 'user_defense_1', 'service' => 'it', 'date' => '2021-03-15'],
@@ -453,7 +459,7 @@ class TestFixtures extends Fixture
             ['service' => 'principal_defense', 'zone' => 'principale'],
             ['service' => 'principal_interieur', 'zone' => 'principale'],
             ['service' => 'principal_economie', 'zone' => 'principale'],
-            
+
             // Specific zone access
             ['service' => 'principal_defense', 'zone' => 'alpha'],
             ['service' => 'principal_defense', 'zone' => 'beta'],
@@ -464,7 +470,7 @@ class TestFixtures extends Fixture
             ['service' => 'principal_interieur', 'zone' => 'public'],
             ['service' => 'principal_economie', 'zone' => 'bureau'],
             ['service' => 'principal_economie', 'zone' => 'public'],
-            
+
             // Secondary services
             ['service' => 'security', 'zone' => 'alpha'],
             ['service' => 'security', 'zone' => 'beta'],
@@ -486,12 +492,12 @@ class TestFixtures extends Fixture
 
         // ========== POINTAGES ==========
         $pointageData = [];
-        
+
         // Create historical pointages for the last 30 days
         for ($i = 1; $i <= 30; $i++) {
             $date = new \DateTime("-{$i} days");
             $dayOfWeek = $date->format('N'); // 1=Monday, 7=Sunday
-            
+
             // Working days: Monday to Friday
             if ($dayOfWeek <= 5) {
                 // Morning entry
@@ -501,7 +507,7 @@ class TestFixtures extends Fixture
                     'heure' => $date->format('Y-m-d') . ' 08:30:00',
                     'type' => 'entree'
                 ];
-                
+
                 // Access to work zone
                 $pointageData[] = [
                     'user' => 'user_test',
@@ -509,7 +515,7 @@ class TestFixtures extends Fixture
                     'heure' => $date->format('Y-m-d') . ' 09:00:00',
                     'type' => 'entree'
                 ];
-                
+
                 // Lunch break
                 $pointageData[] = [
                     'user' => 'user_test',
@@ -517,14 +523,14 @@ class TestFixtures extends Fixture
                     'heure' => $date->format('Y-m-d') . ' 12:00:00',
                     'type' => 'sortie'
                 ];
-                
+
                 $pointageData[] = [
                     'user' => 'user_test',
                     'badgeuse' => 'bureau_1',
                     'heure' => $date->format('Y-m-d') . ' 13:30:00',
                     'type' => 'entree'
                 ];
-                
+
                 // End of day
                 $pointageData[] = [
                     'user' => 'user_test',
@@ -540,7 +546,7 @@ class TestFixtures extends Fixture
             ['user' => 'user_defense_1', 'badgeuse' => 'principale_1', 'heure' => '-1 day 08:30:00', 'type' => 'entree'],
             ['user' => 'user_defense_1', 'badgeuse' => 'beta_1', 'heure' => '-1 day 09:00:00', 'type' => 'entree'],
             ['user' => 'user_defense_1', 'badgeuse' => 'principale_1', 'heure' => '-1 day 17:30:00', 'type' => 'sortie'],
-            
+
             ['user' => 'user_interieur_1', 'badgeuse' => 'principale_1', 'heure' => '-2 days 09:00:00', 'type' => 'entree'],
             ['user' => 'user_interieur_1', 'badgeuse' => 'bureau_1', 'heure' => '-2 days 09:30:00', 'type' => 'entree'],
             ['user' => 'user_interieur_1', 'badgeuse' => 'principale_1', 'heure' => '-2 days 17:30:00', 'type' => 'sortie'],

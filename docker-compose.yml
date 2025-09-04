@@ -41,7 +41,6 @@ services:
       # Stripe Configuration
       STRIPE_API_KEY: ${STRIPE_API_KEY}
       STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY}
-      # JWT Configuration
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
       JWT_PASSPHRASE: ${JWT_PASSPHRASE}

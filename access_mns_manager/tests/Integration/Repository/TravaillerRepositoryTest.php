@@ -25,8 +25,8 @@ class TravaillerRepositoryTest extends DatabaseKernelTestCase
 
     public function testFindByUserAndService(): void
     {
-        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'jean.dupont@defense.test.com']);
-        $service = $this->em->getRepository(Service::class)->findOneBy(['nom_service' => 'Service IT']);
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'j.dupont@defense.gouv.fr']);
+        $service = $this->em->getRepository(Service::class)->findOneBy(['nom_service' => 'Service Informatique']);
         $found = $this->travaillerRepository->findOneBy(['Utilisateur' => $user, 'service' => $service]);
         $this->assertNotNull($found);
     }

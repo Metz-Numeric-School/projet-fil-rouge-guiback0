@@ -22,3 +22,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    
+    # Test environment - make services public for testing
+    App\Service\User\PresenceService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\UserService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\GDPRService:
+        public: '%kernel.debug%'

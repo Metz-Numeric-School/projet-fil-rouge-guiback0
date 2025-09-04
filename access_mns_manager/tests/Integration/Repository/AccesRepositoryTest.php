@@ -19,7 +19,7 @@ class AccesRepositoryTest extends DatabaseKernelTestCase
 
     public function testFindByZone(): void
     {
-        $zoneAlpha = $this->em->getRepository(Zone::class)->findOneBy(['nom_zone' => 'Zone Alpha']);
+        $zoneAlpha = $this->em->getRepository(Zone::class)->findOneBy(['nom_zone' => 'Zone Sécurisée Alpha']);
         $accesInZone = $this->accesRepository->findBy(['zone' => $zoneAlpha]);
         $this->assertCount(2, $accesInZone);
     }

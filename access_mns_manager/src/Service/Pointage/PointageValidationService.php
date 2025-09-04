@@ -95,7 +95,6 @@ class PointageValidationService
                 'message' => $isPrincipalService ? 'Pointage principal autorisé' : 'Accès secondaire autorisé',
                 'service_type' => $isPrincipalService ? 'principal' : 'secondaire'
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,

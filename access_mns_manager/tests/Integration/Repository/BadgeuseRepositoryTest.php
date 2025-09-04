@@ -39,7 +39,7 @@ class BadgeuseRepositoryTest extends DatabaseKernelTestCase
         $this->assertEquals('BADGE-ALPHA-001', $result->getReference());
         // TestFixtures creates one access per badgeuse
         $this->assertCount(1, $result->getAcces());
-        $this->assertEquals('Accès Zone Alpha 1', $result->getAcces()->first()->getNomAcces());
+        $this->assertEquals('Accès Principal - Entrée A', $result->getAcces()->first()->getNomAcces());
     }
 
     public function testFindByInstallationDateRange(): void
@@ -50,18 +50,18 @@ class BadgeuseRepositoryTest extends DatabaseKernelTestCase
 
         $recentBadgeuses = $qb->getQuery()->getResult();
 
-        // All TestFixtures badgeuses should be found
-        $this->assertEquals(8, count($recentBadgeuses));
+        // All CommonFixtures badgeuses should be found
+        $this->assertEquals(12, count($recentBadgeuses));
         $recentRefs = array_map(fn($b) => $b->getReference(), $recentBadgeuses);
         $this->assertContains('BADGE-ALPHA-001', $recentRefs);
-        $this->assertContains('BADGE-PRINCIPALE-001', $recentRefs);
+        $this->assertContains('BADGE-BETA-001', $recentRefs);
     }
 
     public function testBadgeuseRepositoryBasicOperations(): void
     {
         // Test findAll
         $all = $this->badgeuseRepository->findAll();
-        $this->assertEquals(8, count($all)); // TestFixtures loads 8 badgeuses
+        $this->assertEquals(12, count($all)); // CommonFixtures loads 12 badgeuses
 
         // Test find by reference
         $found = $this->badgeuseRepository->findOneBy(['reference' => 'BADGE-BETA-001']);
@@ -70,7 +70,7 @@ class BadgeuseRepositoryTest extends DatabaseKernelTestCase
 
         // Test count
         $count = $this->badgeuseRepository->count([]);
-        $this->assertEquals(8, $count);
+        $this->assertEquals(12, $count);
     }
 
     public function testUniqueReferenceConstraint(): void

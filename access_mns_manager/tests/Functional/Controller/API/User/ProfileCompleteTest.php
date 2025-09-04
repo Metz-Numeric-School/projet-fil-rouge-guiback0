@@ -49,8 +49,8 @@ class ProfileCompleteTest extends DatabaseWebTestCase
         $this->assertArrayHasKey('badges', $data);
         $this->assertArrayHasKey('zones_accessibles', $data);
         
-        $this->assertEquals('John', $data['user']['prenom']);
-        $this->assertEquals('Doe', $data['user']['nom']);
+        $this->assertEquals('User', $data['user']['prenom']);
+        $this->assertEquals('TEST', $data['user']['nom']);
         $this->assertEquals('test@example.com', $data['user']['email']);
         
         // Debug temporaire pour comprendre la structure
@@ -59,7 +59,7 @@ class ProfileCompleteTest extends DatabaseWebTestCase
             // Dans un environnement de test, c'est acceptable
             $this->assertNull($data['organisation']);
         } else {
-            $this->assertEquals('Test Organisation', $data['organisation']['nom_organisation']);
+            $this->assertEquals('Ministère de la Défense', $data['organisation']['nom_organisation']);
         }
         
         $this->assertIsArray($data['services']);
@@ -89,8 +89,8 @@ class ProfileCompleteTest extends DatabaseWebTestCase
         $this->assertArrayHasKey('services', $data);
         $this->assertArrayHasKey('badges', $data);
         
-        $this->assertEquals('John', $data['user']['prenom']);
-        $this->assertEquals('Doe', $data['user']['nom']);
+        $this->assertEquals('User', $data['user']['prenom']);
+        $this->assertEquals('TEST', $data['user']['nom']);
     }
 
     public function testGetCompleteProfileWithoutToken(): void
@@ -102,51 +102,13 @@ class ProfileCompleteTest extends DatabaseWebTestCase
 
     private function createTestUserWithCompleteProfile(): User
     {
-        $organisation = new Organisation();
-        $organisation->setNomOrganisation('Test Organisation');
-        $organisation->setEmail('contact@test.com');
-        $organisation->setNomRue('Test Street');
-        $organisation->setNumeroRue('123');
-        $organisation->setVille('Test City');
-        $organisation->setCodePostal('12345');
-        $organisation->setPays('France');
-        $this->em->persist($organisation);
-
-        $service = new Service();
-        $service->setNomService('Test Service');
-        $service->setNiveauService(1);
-        $service->setIsPrincipal(true);
-        $service->setOrganisation($organisation);
-        $this->em->persist($service);
-
-        $user = new User();
-        $user->setEmail('test@example.com');
-        $user->setNom('Doe');
-        $user->setPrenom('John');
+        // Utiliser l'utilisateur de test qui existe déjà dans les fixtures CommonFixtures
+        $userRepository = $this->em->getRepository(User::class);
+        $user = $userRepository->findOneBy(['email' => 'test@example.com']);
+        
+        // Modifier le profil pour le rendre complet
         $user->setTelephone('0123456789');
         $user->setDateNaissance(new \DateTime('1990-01-01'));
-        $user->setPassword($this->passwordHasher->hashPassword($user, 'password123'));
-        $this->em->persist($user);
-
-        $travailler = new Travailler();
-        $travailler->setUtilisateur($user);
-        $travailler->setService($service);
-        $travailler->setDateDebut(new \DateTime());
-        // Date already set by setDateDebut() above
-        $this->em->persist($travailler);
-
-        $badge = new Badge();
-        $badge->setNumeroBadge(123456);
-        $badge->setTypeBadge('permanent');
-        $badge->setDateCreation(new \DateTime());
-        $this->em->persist($badge);
-
-        $userBadge = new UserBadge();
-        $userBadge->setUtilisateur($user);
-        $userBadge->setBadge($badge);
-        $userBadge->setDateAttribution(new \DateTime());
-        $this->em->persist($userBadge);
-
         $this->em->flush();
 
         return $user;
@@ -154,32 +116,13 @@ class ProfileCompleteTest extends DatabaseWebTestCase
 
     private function createTestUserWithMinimalProfile(): User
     {
-        $organisation = new Organisation();
-        $organisation->setNomOrganisation('Test Organisation');
-        $organisation->setEmail('contact@test.com');
-        $organisation->setNomRue('Test Street');
-        $this->em->persist($organisation);
-
-        $service = new Service();
-        $service->setNomService('Test Service');
-        $service->setNiveauService(1);
-        $service->setIsPrincipal(true);
-        $service->setOrganisation($organisation);
-        $this->em->persist($service);
-
-        $user = new User();
-        $user->setEmail('test@example.com');
-        $user->setNom('Doe');
-        $user->setPrenom('John');
-        $user->setPassword($this->passwordHasher->hashPassword($user, 'password123'));
-        $this->em->persist($user);
-
-        $travailler = new Travailler();
-        $travailler->setUtilisateur($user);
-        $travailler->setService($service);
-        $travailler->setDateDebut(new \DateTime());
-        $this->em->persist($travailler);
-
+        // Utiliser l'utilisateur de test qui existe déjà dans les fixtures CommonFixtures
+        $userRepository = $this->em->getRepository(User::class);
+        $user = $userRepository->findOneBy(['email' => 'test@example.com']);
+        
+        // S'assurer que le profil est minimal (enlever téléphone et date de naissance)
+        $user->setTelephone(null);
+        $user->setDateNaissance(null);
         $this->em->flush();
 
         return $user;

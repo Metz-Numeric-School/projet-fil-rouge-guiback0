@@ -57,33 +57,12 @@ class DeactivateTest extends DatabaseWebTestCase
 
     private function createTestUser(): User
     {
-        $organisation = new Organisation();
-        $organisation->setNomOrganisation('Test Organisation');
-        $organisation->setEmail('contact@test.com');
-        $organisation->setNomRue('Test Street');
-        $this->em->persist($organisation);
-
-        $service = new Service();
-        $service->setNomService('Test Service');
-        $service->setNiveauService(1);
-        $service->setIsPrincipal(true);
-        $service->setOrganisation($organisation);
-        $this->em->persist($service);
-
-        $user = new User();
-        $user->setEmail('test@example.com');
-        $user->setNom('Doe');
-        $user->setPrenom('John');
-        $user->setPassword($this->passwordHasher->hashPassword($user, 'password123'));
+        // Utiliser l'utilisateur de test qui existe déjà dans les fixtures CommonFixtures
+        $userRepository = $this->em->getRepository(User::class);
+        $user = $userRepository->findOneBy(['email' => 'test@example.com']);
+        
+        // S'assurer que le compte est actif pour les tests
         $user->setCompteActif(true);
-        $this->em->persist($user);
-
-        $travailler = new Travailler();
-        $travailler->setUtilisateur($user);
-        $travailler->setService($service);
-        $travailler->setDateDebut(new \DateTime());
-        $this->em->persist($travailler);
-
         $this->em->flush();
 
         return $user;

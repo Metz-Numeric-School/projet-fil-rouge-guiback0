@@ -57,8 +57,8 @@ class ExportDataTest extends DatabaseWebTestCase
         $this->assertArrayHasKey('services', $exportData);
         $this->assertArrayHasKey('badges', $exportData);
         
-        $this->assertEquals('John', $exportData['personal_information']['prenom']);
-        $this->assertEquals('Doe', $exportData['personal_information']['nom']);
+        $this->assertEquals('User', $exportData['personal_information']['prenom']);
+        $this->assertEquals('TEST', $exportData['personal_information']['nom']);
         $this->assertEquals('test@example.com', $exportData['personal_information']['email']);
         $this->assertIsArray($exportData['services']);
         $this->assertIsArray($exportData['badges']);
@@ -73,51 +73,13 @@ class ExportDataTest extends DatabaseWebTestCase
 
     private function createTestUserWithData(): User
     {
-        $organisation = new Organisation();
-        $organisation->setNomOrganisation('Test Organisation');
-        $organisation->setEmail('contact@test.com');
-        $organisation->setNomRue('Test Street');
-        $organisation->setNumeroRue('123');
-        $organisation->setVille('Test City');
-        $organisation->setCodePostal('12345');
-        $organisation->setPays('France');
-        $this->em->persist($organisation);
-
-        $service = new Service();
-        $service->setNomService('Test Service');
-        $service->setNiveauService(1);
-        $service->setIsPrincipal(true);
-        $service->setOrganisation($organisation);
-        $this->em->persist($service);
-
-        $user = new User();
-        $user->setEmail('test@example.com');
-        $user->setNom('Doe');
-        $user->setPrenom('John');
+        // Utiliser l'utilisateur de test qui existe déjà dans les fixtures CommonFixtures
+        $userRepository = $this->em->getRepository(User::class);
+        $user = $userRepository->findOneBy(['email' => 'test@example.com']);
+        
+        // S'assurer que l'utilisateur a des données complètes pour l'export
         $user->setTelephone('0123456789');
         $user->setDateNaissance(new \DateTime('1990-01-01'));
-        $user->setPassword($this->passwordHasher->hashPassword($user, 'password123'));
-        $this->em->persist($user);
-
-        $travailler = new Travailler();
-        $travailler->setUtilisateur($user);
-        $travailler->setService($service);
-        $travailler->setDateDebut(new \DateTime());
-        // Date already set by setDateDebut() above
-        $this->em->persist($travailler);
-
-        $badge = new Badge();
-        $badge->setNumeroBadge(123456);
-        $badge->setTypeBadge('permanent');
-        $badge->setDateCreation(new \DateTime());
-        $this->em->persist($badge);
-
-        $userBadge = new UserBadge();
-        $userBadge->setUtilisateur($user);
-        $userBadge->setBadge($badge);
-        $userBadge->setDateAttribution(new \DateTime());
-        $this->em->persist($userBadge);
-
         $this->em->flush();
 
         return $user;

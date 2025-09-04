@@ -30,9 +30,9 @@ class BadgeRepositoryTest extends DatabaseKernelTestCase
         $permanentBadges = $this->badgeRepository->findBy(['type_badge' => 'permanent']);
         $desactiveBadges = $this->badgeRepository->findBy(['type_badge' => 'desactive']);
 
-        // TestFixtures has 3 admin badges, 6 permanent badges, and 1 desactive badge
-        $this->assertEquals(3, count($adminBadges));
-        $this->assertEquals(6, count($permanentBadges));
+        // CommonFixtures has 1 admin badge, 8 permanent badges, and 1 desactive badge
+        $this->assertEquals(1, count($adminBadges));
+        $this->assertEquals(8, count($permanentBadges));
         $this->assertEquals(1, count($desactiveBadges));
     }
 
@@ -66,7 +66,7 @@ class BadgeRepositoryTest extends DatabaseKernelTestCase
         $this->assertNotNull($result);
         $this->assertEquals(200001, $result->getNumeroBadge());
         $this->assertNotEmpty($result->getUserBadges());
-        $this->assertEquals('superadmin@test.com', $result->getUserBadges()->first()->getUtilisateur()->getEmail());
+        $this->assertEquals('superadmin@access-mns.fr', $result->getUserBadges()->first()->getUtilisateur()->getEmail());
     }
 
     public function testFindBadgesByDateRange(): void
@@ -98,6 +98,6 @@ class BadgeRepositoryTest extends DatabaseKernelTestCase
 
         // Test count by type
         $permanentCount = $this->badgeRepository->count(['type_badge' => 'permanent']);
-        $this->assertEquals(6, $permanentCount); // 6 permanent badges in fixtures
+        $this->assertEquals(8, $permanentCount); // 8 permanent badges in fixtures
     }
 }

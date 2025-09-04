@@ -4,7 +4,7 @@ namespace App\Tests\Shared;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
-use App\DataFixtures\TestFixtures;
+use App\DataFixtures\CommonFixtures;
 
 abstract class DatabaseWebTestCase extends WebTestCase
 {
@@ -18,6 +18,6 @@ abstract class DatabaseWebTestCase extends WebTestCase
         parent::setUp();
         $this->client = static::createClient();
         $this->em = static::getContainer()->get(EntityManagerInterface::class);
-        $this->loadBaseFixtures([TestFixtures::class]);
+        $this->loadBaseFixtures([CommonFixtures::class]);
     }
 }

@@ -53,8 +53,8 @@ class BadgeValidatorServiceTest extends DatabaseKernelTestCase
     {
         $badge = new Badge();
         $badge->setNumeroBadge(999)
-              ->setTypeBadge('permanent')
-              ->setDateCreation(new \DateTime());
+            ->setTypeBadge('permanent')
+            ->setDateCreation(new \DateTime());
         $this->em->persist($badge);
         $this->em->flush();
 
@@ -104,13 +104,13 @@ class BadgeValidatorServiceTest extends DatabaseKernelTestCase
     public function testGetUserBadgeHistory(): void
     {
         $completeSetup = TestEntityFactory::createCompleteTestSetup($this->em, $this->passwordHasher);
-        
+
         // Créer un pointage simple
         $pointage = new Pointage();
         $pointage->setBadge($completeSetup['badge'])
-                 ->setBadgeuse($completeSetup['badgeuse'])
-                 ->setHeure(new \DateTime())
-                 ->setType('entree');
+            ->setBadgeuse($completeSetup['badgeuse'])
+            ->setHeure(new \DateTime())
+            ->setType('entree');
         $this->em->persist($pointage);
         $this->em->flush();
 
@@ -124,24 +124,24 @@ class BadgeValidatorServiceTest extends DatabaseKernelTestCase
     public function testIsRecentEntry(): void
     {
         $completeSetup = TestEntityFactory::createCompleteTestSetup($this->em, $this->passwordHasher);
-        
+
         $recentPointage = new Pointage();
         $recentPointage->setBadge($completeSetup['badge'])
-                      ->setBadgeuse($completeSetup['badgeuse'])
-                      ->setHeure(new \DateTime('-2 hours'))
-                      ->setType('entree');
-        
+            ->setBadgeuse($completeSetup['badgeuse'])
+            ->setHeure(new \DateTime('-2 hours'))
+            ->setType('entree');
+
         $oldPointage = new Pointage();
         $oldPointage->setBadge($completeSetup['badge'])
-                   ->setBadgeuse($completeSetup['badgeuse'])
-                   ->setHeure(new \DateTime('-10 hours'))
-                   ->setType('entree');
-        
+            ->setBadgeuse($completeSetup['badgeuse'])
+            ->setHeure(new \DateTime('-10 hours'))
+            ->setType('entree');
+
         $sortiePointage = new Pointage();
         $sortiePointage->setBadge($completeSetup['badge'])
-                      ->setBadgeuse($completeSetup['badgeuse'])
-                      ->setHeure(new \DateTime('-1 hour'))
-                      ->setType('sortie');
+            ->setBadgeuse($completeSetup['badgeuse'])
+            ->setHeure(new \DateTime('-1 hour'))
+            ->setType('sortie');
 
         $this->assertTrue($this->badgeValidatorService->isRecentEntry($recentPointage));
         $this->assertFalse($this->badgeValidatorService->isRecentEntry($oldPointage));

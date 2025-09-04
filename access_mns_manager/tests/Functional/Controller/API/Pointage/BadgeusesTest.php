@@ -83,88 +83,52 @@ class BadgeusesTest extends DatabaseWebTestCase
 
     private function createTestUserWithBadgeuses(): User
     {
-        $organisation = new Organisation();
-        $organisation->setNomOrganisation('Test Organisation');
-        $organisation->setEmail('contact@test.com');
-        $organisation->setNomRue('Test Street');
-        $this->em->persist($organisation);
+        // Utiliser l'utilisateur de test qui existe déjà dans les fixtures
+        $userRepository = $this->em->getRepository(User::class);
+        $user = $userRepository->findOneBy(['email' => 'test@example.com']);
 
-        $service = new Service();
-        $service->setNomService('Test Service');
-        $service->setNiveauService(1);
-        $service->setIsPrincipal(true);
-        $service->setOrganisation($organisation);
-        $this->em->persist($service);
+        // Créer des badgeuses de test si elles n'existent pas déjà
+        $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
+        
+        $badgeuse1 = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ENTREE-001']);
+        if (!$badgeuse1) {
+            // Utiliser une zone existante des fixtures
+            $zoneRepository = $this->em->getRepository(Zone::class);
+            $zone = $zoneRepository->findOneBy(['nom_zone' => 'Zone principale']);
 
-        $zone1 = new Zone();
-        $zone1->setNomZone('Zone Entrée');
-        $this->em->persist($zone1);
+            $badgeuse1 = new Badgeuse();
+            $badgeuse1->setReference('BADGE-ENTREE-001');
+            $badgeuse1->setDateInstallation(new \DateTime('2020-01-01'));
+            $this->em->persist($badgeuse1);
 
-        $zone2 = new Zone();
-        $zone2->setNomZone('Zone Sortie');
-        $this->em->persist($zone2);
+            $acces1 = new Acces();
+            $acces1->setNomAcces('Access Entrée');
+            $acces1->setDateInstallation(new \DateTime());
+            $acces1->setZone($zone);
+            $acces1->setBadgeuse($badgeuse1);
+            $this->em->persist($acces1);
+        }
 
-        $serviceZone1 = new ServiceZone();
-        $serviceZone1->setService($service);
-        $serviceZone1->setZone($zone1);
-        $this->em->persist($serviceZone1);
+        $badgeuse2 = $badgeuseRepository->findOneBy(['reference' => 'BADGE-SORTIE-001']);
+        if (!$badgeuse2) {
+            // Utiliser une zone existante des fixtures
+            $zoneRepository = $this->em->getRepository(Zone::class);
+            $zone = $zoneRepository->findOneBy(['nom_zone' => 'Zone Bureau']);
 
-        $serviceZone2 = new ServiceZone();
-        $serviceZone2->setService($service);
-        $serviceZone2->setZone($zone2);
-        $this->em->persist($serviceZone2);
+            $badgeuse2 = new Badgeuse();
+            $badgeuse2->setReference('BADGE-SORTIE-001');
+            $badgeuse2->setDateInstallation(new \DateTime('2020-01-01'));
+            $this->em->persist($badgeuse2);
 
-        $badgeuse1 = new Badgeuse();
-        $badgeuse1->setReference('BADGE-ENTREE-001');
-        $badgeuse1->setDateInstallation(new \DateTime('2020-01-01'));
-        $this->em->persist($badgeuse1);
+            $acces2 = new Acces();
+            $acces2->setNomAcces('Access Sortie');
+            $acces2->setDateInstallation(new \DateTime());
+            $acces2->setZone($zone);
+            $acces2->setBadgeuse($badgeuse2);
+            $this->em->persist($acces2);
 
-        $acces1 = new Acces();
-        $acces1->setNomAcces('Access Entrée');
-        $acces1->setDateInstallation(new \DateTime());
-        $acces1->setZone($zone1);
-        $acces1->setBadgeuse($badgeuse1);
-        $this->em->persist($acces1);
-
-        $badgeuse2 = new Badgeuse();
-        $badgeuse2->setReference('BADGE-SORTIE-001');
-        $badgeuse2->setDateInstallation(new \DateTime('2020-01-01'));
-        $this->em->persist($badgeuse2);
-
-        $acces2 = new Acces();
-        $acces2->setNomAcces('Access Sortie');
-        $acces2->setDateInstallation(new \DateTime());
-        $acces2->setZone($zone2);
-        $acces2->setBadgeuse($badgeuse2);
-        $this->em->persist($acces2);
-
-        $user = new User();
-        $user->setEmail('test@example.com');
-        $user->setNom('Doe');
-        $user->setPrenom('John');
-        $user->setPassword($this->passwordHasher->hashPassword($user, 'password123'));
-        $user->setCompteActif(true);
-        $this->em->persist($user);
-
-        $travailler = new Travailler();
-        $travailler->setUtilisateur($user);
-        $travailler->setService($service);
-        $travailler->setDateDebut(new \DateTime());
-        $this->em->persist($travailler);
-
-        $badge = new Badge();
-        $badge->setNumeroBadge(200003);
-        $badge->setTypeBadge('permanent');
-        $badge->setDateCreation(new \DateTime('2021-01-01'));
-        $this->em->persist($badge);
-
-        $userBadge = new UserBadge();
-        $userBadge->setUtilisateur($user);
-        $userBadge->setBadge($badge);
-        $userBadge->setDateAttribution(new \DateTime());
-        $this->em->persist($userBadge);
-
-        $this->em->flush();
+            $this->em->flush();
+        }
 
         return $user;
     }

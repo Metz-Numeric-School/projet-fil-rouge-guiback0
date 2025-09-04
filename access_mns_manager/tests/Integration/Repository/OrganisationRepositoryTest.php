@@ -22,16 +22,16 @@ class OrganisationRepositoryTest extends DatabaseKernelTestCase
 
         $this->assertNotNull($found);
         $this->assertEquals('Ministère de la Défense', $found->getNomOrganisation());
-        $this->assertEquals('test@defense.gouv.fr', $found->getEmail());
+        $this->assertEquals('contact@defense.gouv.fr', $found->getEmail());
     }
 
     public function testFindOrganisationByEmail(): void
     {
-        $found = $this->organisationRepository->findOneBy(['email' => 'test@interieur.gouv.fr']);
+        $found = $this->organisationRepository->findOneBy(['email' => 'contact@interieur.gouv.fr']);
 
         $this->assertNotNull($found);
         $this->assertEquals('Ministère de l\'Intérieur', $found->getNomOrganisation());
-        $this->assertEquals('test@interieur.gouv.fr', $found->getEmail());
+        $this->assertEquals('contact@interieur.gouv.fr', $found->getEmail());
     }
 
     public function testCountOrganisations(): void

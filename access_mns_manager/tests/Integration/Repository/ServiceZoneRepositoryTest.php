@@ -21,7 +21,7 @@ class ServiceZoneRepositoryTest extends DatabaseKernelTestCase
     public function testFindZonesByService(): void
     {
         $principalDefense = $this->em->getRepository(Service::class)->findOneBy([
-            'nom_service' => 'Direction Générale',
+            'nom_service' => 'Service principal',
             'niveau_service' => 1
         ]);
         $this->assertNotNull($principalDefense);
@@ -44,7 +44,7 @@ class ServiceZoneRepositoryTest extends DatabaseKernelTestCase
         $this->assertEquals(20, count($all));
 
         $securityService = $this->em->getRepository(Service::class)->findOneBy(['nom_service' => 'Service Sécurité']);
-        $zoneAlpha = $this->em->getRepository(Zone::class)->findOneBy(['nom_zone' => 'Zone Alpha']);
+        $zoneAlpha = $this->em->getRepository(Zone::class)->findOneBy(['nom_zone' => 'Zone Sécurisée Alpha']);
         $this->assertNotNull($securityService);
         $this->assertNotNull($zoneAlpha);
 

@@ -32,11 +32,11 @@ class ServiceRepositoryTest extends DatabaseKernelTestCase
         $this->assertEquals(3, count($principalServices));
         
         $serviceNames = array_map(fn($s) => $s->getNomService(), $principalServices);
-        $this->assertContains('Direction Générale', $serviceNames);
-        // All principal services are named 'Direction Générale' in fixtures
+        $this->assertContains('Service principal', $serviceNames);
+        // All principal services are named 'Service principal' in fixtures
         $uniqueNames = array_unique($serviceNames);
         $this->assertCount(1, $uniqueNames);
-        $this->assertEquals('Direction Générale', $uniqueNames[0]);
+        $this->assertEquals('Service principal', $uniqueNames[0]);
     }
 
     public function testFindServicesByNiveau(): void
@@ -45,23 +45,23 @@ class ServiceRepositoryTest extends DatabaseKernelTestCase
         $niveau2Services = $this->serviceRepository->findBy(['niveau_service' => 2]);
         $niveau3Services = $this->serviceRepository->findBy(['niveau_service' => 3]);
 
-        // TestFixtures: 3 level 1 services (principal), 4 level 2 services, 2 level 3 services
-        $this->assertEquals(3, count($niveau1Services));
-        $this->assertEquals(4, count($niveau2Services));
-        $this->assertEquals(2, count($niveau3Services));
+        // CommonFixtures: 4 level 1 services (3 principal + RH), 3 level 2 services, 1 level 3 service, 1 level 4 service
+        $this->assertEquals(4, count($niveau1Services));
+        $this->assertEquals(3, count($niveau2Services));
+        $this->assertEquals(1, count($niveau3Services));
         
-        // Verify level 2 services contain expected ones
+        // Verify level 2 services contain expected ones from CommonFixtures
         $niveau2Names = array_map(fn($s) => $s->getNomService(), $niveau2Services);
-        $this->assertContains('Service IT', $niveau2Names);
-        $this->assertContains('Service Sécurité', $niveau2Names);
-        $this->assertContains('Service RH', $niveau2Names);
-        $this->assertContains('Service Finance', $niveau2Names);
+        $this->assertContains('Service Informatique', $niveau2Names);
+        $this->assertContains('Service Logistique', $niveau2Names);
+        // Service RH is level 1 in CommonFixtures, not level 2
+        $this->assertContains('Service Finances Publiques', $niveau2Names);
     }
 
     public function testFindServicesWithZones(): void
     {
         // Get principal defense service which has multiple zone access
-        $principalDefense = $this->serviceRepository->findOneBy(['nom_service' => 'Direction Générale', 'niveau_service' => 1]);
+        $principalDefense = $this->serviceRepository->findOneBy(['nom_service' => 'Service principal', 'niveau_service' => 1]);
         $this->assertNotNull($principalDefense);
 
         $qb = $this->serviceRepository->createQueryBuilder('s');
@@ -74,8 +74,8 @@ class ServiceRepositoryTest extends DatabaseKernelTestCase
         $result = $qb->getQuery()->getOneOrNullResult();
 
         $this->assertNotNull($result);
-        $this->assertEquals('Direction Générale', $result->getNomService());
-        // TestFixtures gives principal defense service access to: principale, alpha, beta, bureau, public
+        $this->assertEquals('Service principal', $result->getNomService());
+        // CommonFixtures gives principal defense service access to: principale, alpha, beta, bureau, public
         $this->assertCount(5, $result->getServiceZones());
     }
 
@@ -119,12 +119,12 @@ class ServiceRepositoryTest extends DatabaseKernelTestCase
     {
         // Test findAll
         $all = $this->serviceRepository->findAll();
-        $this->assertEquals(9, count($all)); // TestFixtures creates 9 total services
+        $this->assertEquals(9, count($all)); // CommonFixtures creates 9 total services
 
         // Test find by name
-        $found = $this->serviceRepository->findOneBy(['nom_service' => 'Service IT']);
+        $found = $this->serviceRepository->findOneBy(['nom_service' => 'Service Informatique']);
         $this->assertNotNull($found);
-        $this->assertEquals('Service IT', $found->getNomService());
+        $this->assertEquals('Service Informatique', $found->getNomService());
         $this->assertEquals(2, $found->getNiveauService());
 
         // Test custom query
