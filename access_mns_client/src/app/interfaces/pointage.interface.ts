@@ -52,7 +52,7 @@ export interface BadgeuseAccess {
     service_id: number;
     service_name: string;
   }>;
-  status: 'available' | 'blocked' | 'error';
+  status: 'available' | 'blocked' | 'error'; // Computed status for frontend display
   block_reason?: string; // Reason why it's blocked
   last_pointage_time?: string; // ISO datetime of last pointage on this badgeuse
 }

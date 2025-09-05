@@ -28,6 +28,7 @@ import { UserService } from '../../../services/user.service';
 export class PersonalInfoComponent {
   @Input() currentUser: User | null = null;
   isDeactivating = false;
+  isEditing = false;
 
   constructor(
     public userService: UserService,
@@ -195,6 +196,30 @@ export class PersonalInfoComponent {
       }
     });
   }
+
+  /**
+   * Open edit profile dialog
+   */
+  editProfile(): void {
+    const dialogRef = this.dialog.open(EditProfileDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: { currentUser: this.currentUser },
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.updated) {
+        // Update the current user data
+        this.currentUser = result.user;
+        this.snackBar.open('Profil mis à jour avec succès', 'Fermer', {
+          duration: 3000,
+          panelClass: ['success-snackbar'],
+        });
+      }
+    });
+  }
 }
 
 // Account Deactivation Confirmation Dialog Component
@@ -256,4 +281,43 @@ export class AccountDeactivationDialogComponent {
     public dialogRef: MatDialogRef<AccountDeactivationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { userName: string }
   ) {}
+}
+
+// Edit Profile Dialog Component
+@Component({
+  selector: 'app-edit-profile-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
+  template: `
+    <div class="edit-profile-dialog">
+      <p>Edit profile functionality coming soon...</p>
+      <button mat-button (click)="onCancel()">Close</button>
+    </div>
+  `,
+  styles: [`
+    .edit-profile-dialog {
+      max-width: 100%;
+      max-height: 100%;
+      overflow: auto;
+    }
+  `]
+})
+export class EditProfileDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<EditProfileDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { currentUser: User }
+  ) {}
+
+  onProfileUpdated(updatedUser: User): void {
+    this.dialogRef.close({ updated: true, user: updatedUser });
+  }
+
+  onCancel(): void {
+    this.dialogRef.close({ updated: false });
+  }
 }

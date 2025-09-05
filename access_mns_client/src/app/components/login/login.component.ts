@@ -68,19 +68,24 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   /**
    * Initialize reactive form with validation
+   * Synchronized with backend validation rules
    */
   private initializeForm(): void {
     this.loginForm = this.formBuilder.group({
       email: [
         '',
-        [Validators.required, Validators.email, Validators.maxLength(255)],
+        [
+          Validators.required,
+          Validators.email,
+          Validators.minLength(5), // Match backend min length
+          Validators.maxLength(180), // Match backend max length
+        ],
       ],
       password: [
         '',
         [
           Validators.required,
-          Validators.minLength(6),
-          Validators.maxLength(255),
+          Validators.minLength(1), // For login, we just check it's not empty
         ],
       ],
       rememberMe: [false],
@@ -126,14 +131,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.router.navigate(['/dashboard']);
           },
           error: (error) => {
-            this.snackBar.open(
-              error.message || 'Erreur de connexion',
-              'Fermer',
-              {
-                duration: 5000,
-                panelClass: ['error-snackbar'],
-              }
-            );
+            this.handleLoginError(error);
           },
         });
     } else {
@@ -169,37 +167,81 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Handle login errors with detailed messages
+   */
+  private handleLoginError(error: any): void {
+    let message = error.message || 'Erreur de connexion';
+    let duration = 5000;
+    let panelClass = ['error-snackbar'];
+
+    // Handle different error types
+    switch (error.type) {
+      case 'VALIDATION_FAILED':
+        if (error.details && error.details.length > 0) {
+          // Show first validation error as primary message
+          message = error.details[0];
+          // If multiple errors, show them in console for debugging
+          if (error.details.length > 1) {
+            console.warn('Multiple validation errors:', error.details);
+          }
+        }
+        break;
+        
+      case 'TOO_MANY_ATTEMPTS':
+        message = 'Trop de tentatives de connexion. Veuillez réessayer dans 15 minutes.';
+        duration = 8000; // Show longer for rate limit
+        panelClass = ['warning-snackbar'];
+        break;
+        
+      case 'INVALID_CREDENTIALS':
+        message = 'Email ou mot de passe incorrect';
+        break;
+        
+      default:
+        message = error.message || 'Erreur de connexion au serveur';
+        break;
+    }
+
+    this.snackBar.open(message, 'Fermer', {
+      duration,
+      panelClass,
+    });
+  }
+
+  /**
    * Get error message for email field
+   * Synchronized with backend validation messages
    */
   getEmailErrorMessage(): string {
     const emailControl = this.loginForm.get('email');
 
     if (emailControl?.hasError('required')) {
-      return "L'email est requis";
+      return "L'email est obligatoire";
     }
     if (emailControl?.hasError('email')) {
-      return 'Veuillez entrer un email valide';
+      return "L'email n'est pas valide";
+    }
+    if (emailControl?.hasError('minlength')) {
+      return "L'email doit contenir au moins 5 caractères";
     }
     if (emailControl?.hasError('maxlength')) {
-      return "L'email ne peut pas dépasser 255 caractères";
+      return "L'email ne peut pas contenir plus de 180 caractères";
     }
     return '';
   }
 
   /**
    * Get error message for password field
+   * Synchronized with backend validation messages
    */
   getPasswordErrorMessage(): string {
     const passwordControl = this.loginForm.get('password');
 
     if (passwordControl?.hasError('required')) {
-      return 'Le mot de passe est requis';
+      return 'Le mot de passe est obligatoire';
     }
     if (passwordControl?.hasError('minlength')) {
-      return 'Le mot de passe doit contenir au moins 6 caractères';
-    }
-    if (passwordControl?.hasError('maxlength')) {
-      return 'Le mot de passe ne peut pas dépasser 255 caractères';
+      return 'Le mot de passe ne peut pas être vide';
     }
     return '';
   }

@@ -30,7 +30,7 @@ class LoginTest extends DatabaseWebTestCase
             'CONTENT_TYPE' => 'application/json'
         ], json_encode([
             'email' => 'test@example.com',
-            'password' => 'test123'
+            'password' => 'TestUser123!'
         ]));
 
         $this->assertResponseIsSuccessful();
@@ -116,7 +116,7 @@ class LoginTest extends DatabaseWebTestCase
             'CONTENT_TYPE' => 'application/json'
         ], json_encode([
             'email' => 'test@example.com',
-            'password' => 'test123'
+            'password' => 'TestUser123!'
         ]));
 
         $this->assertResponseIsSuccessful();

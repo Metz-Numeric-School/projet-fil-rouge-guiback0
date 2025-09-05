@@ -2,6 +2,7 @@
 
 namespace App\Controller\API\Auth;
 
+use App\DTO\LoginRequestDTO;
 use App\Entity\User;
 use App\Service\Security\LoginAttemptService;
 use App\Service\User\UserOrganisationService;
@@ -49,18 +50,35 @@ class AuthController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
-        // Validation des données
-        if (!isset($data['email']) || !isset($data['password'])) {
+        // Validation des données avec DTO
+        if (!is_array($data)) {
             return new JsonResponse([
                 'success' => false,
-                'error' => 'MISSING_CREDENTIALS',
-                'message' => 'Email et mot de passe requis'
+                'error' => 'INVALID_JSON',
+                'message' => 'Format JSON invalide'
+            ], 400);
+        }
+
+        $loginDTO = LoginRequestDTO::fromArray($data);
+        $errors = $this->validator->validate($loginDTO);
+
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage();
+            }
+            
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'VALIDATION_FAILED',
+                'message' => 'Données de connexion invalides',
+                'details' => $errorMessages
             ], 400);
         }
 
         // Recherche de l'utilisateur
         $user = $this->entityManager->getRepository(User::class)
-            ->findOneBy(['email' => $data['email']]);
+            ->findOneBy(['email' => $loginDTO->email]);
 
         if (!$user) {
             return new JsonResponse([
@@ -71,7 +89,7 @@ class AuthController extends AbstractController
         }
 
         // Vérification du mot de passe
-        if (!$this->passwordHasher->isPasswordValid($user, $data['password'])) {
+        if (!$this->passwordHasher->isPasswordValid($user, $loginDTO->password)) {
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INVALID_CREDENTIALS',

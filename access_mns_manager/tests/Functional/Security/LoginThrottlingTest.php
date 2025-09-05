@@ -63,7 +63,7 @@ class LoginThrottlingTest extends DatabaseWebTestCase
             'CONTENT_TYPE' => 'application/json'
         ], json_encode([
             'email' => 'test@example.com',
-            'password' => 'test123'
+            'password' => 'TestUser123!'
         ]));
 
         // Should succeed despite previous failed attempts from same IP
@@ -97,7 +97,7 @@ class LoginThrottlingTest extends DatabaseWebTestCase
             'CONTENT_TYPE' => 'application/json'
         ], json_encode([
             'email' => 'test@example.com',
-            'password' => 'test123'
+            'password' => 'TestUser123!'
         ]));
 
         $this->assertResponseIsSuccessful();

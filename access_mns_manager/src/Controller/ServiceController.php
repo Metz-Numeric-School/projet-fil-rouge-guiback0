@@ -17,8 +17,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/service')]
+#[IsGranted('ROLE_SUPER_ADMIN')]
 final class ServiceController extends AbstractController
 {
     #[Route(name: 'app_service_index', methods: ['GET'])]

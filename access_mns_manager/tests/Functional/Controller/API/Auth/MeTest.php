@@ -42,7 +42,7 @@ class MeTest extends DatabaseWebTestCase
         $this->assertArrayHasKey('prenom', $response['data']);
         
         $this->assertEquals('test@example.com', $response['data']['email']);
-        $this->assertEquals('TEST', $response['data']['nom']);
+        $this->assertEquals('Test', $response['data']['nom']);
         $this->assertEquals('User', $response['data']['prenom']);
     }
 

@@ -87,9 +87,7 @@ export class AuthService {
         catchError((error) => {
           this.isLoadingSubject.next(false);
           if (error.error && !error.error.success) {
-            return throwError(
-              () => new Error(error.error.message || 'Erreur de connexion')
-            );
+            return throwError(() => this.createLoginError(error.error));
           }
           return throwError(() => new Error('Erreur de connexion au serveur'));
         })
@@ -295,5 +293,47 @@ export class AuthService {
    */
   handleAuthError(): void {
     this.clearSession();
+  }
+
+  /**
+   * Create detailed login error with validation messages
+   */
+  private createLoginError(errorResponse: any): Error {
+    const error = new Error() as any;
+    
+    switch (errorResponse.error) {
+      case 'VALIDATION_FAILED':
+        error.name = 'ValidationError';
+        error.message = 'Données de connexion invalides';
+        error.type = 'VALIDATION_FAILED';
+        error.details = errorResponse.details || [];
+        break;
+        
+      case 'TOO_MANY_ATTEMPTS':
+        error.name = 'RateLimitError';
+        error.message = errorResponse.message || 'Trop de tentatives de connexion. Veuillez réessayer plus tard.';
+        error.type = 'TOO_MANY_ATTEMPTS';
+        break;
+        
+      case 'INVALID_CREDENTIALS':
+        error.name = 'AuthenticationError';
+        error.message = 'Identifiants invalides';
+        error.type = 'INVALID_CREDENTIALS';
+        break;
+        
+      case 'INVALID_JSON':
+        error.name = 'FormatError';
+        error.message = 'Format de données invalide';
+        error.type = 'INVALID_JSON';
+        break;
+        
+      default:
+        error.name = 'LoginError';
+        error.message = errorResponse.message || 'Erreur de connexion';
+        error.type = errorResponse.error;
+        break;
+    }
+    
+    return error;
   }
 }

@@ -36,6 +36,15 @@ export class PointageService {
   constructor(private http: HttpClient) {}
 
   /**
+   * Determine badgeuse status based on backend properties
+   */
+  private determineBadgeuseStatus(badgeuse: any): 'available' | 'blocked' | 'error' {
+    if (badgeuse.is_blocked) return 'blocked';
+    if (!badgeuse.is_accessible) return 'blocked';
+    return 'available';
+  }
+
+  /**
    * Get authorization headers with JWT token
    */
   private getAuthHeaders(): HttpHeaders {
@@ -68,13 +77,19 @@ export class PointageService {
       .pipe(
         map((response) => {
           if (response.success && response.data) {
-            // Update subjects with fresh data
-            this.badgeusesSubject.next(response.data.badgeuses);
+            // Transform badgeuses data to include status property expected by frontend
+            const transformedBadgeuses = response.data.badgeuses.map(badgeuse => ({
+              ...badgeuse,
+              status: this.determineBadgeuseStatus(badgeuse)
+            }));
+            
+            // Update subjects with transformed data
+            this.badgeusesSubject.next(transformedBadgeuses);
             this.userStatusSubject.next(response.data.user_status);
             this.updateWorkingTime(response.data.user_status);
             
             return {
-              badgeuses: response.data.badgeuses,
+              badgeuses: transformedBadgeuses,
               userStatus: response.data.user_status
             };
           }

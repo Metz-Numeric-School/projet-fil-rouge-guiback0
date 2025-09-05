@@ -42,7 +42,7 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $organisation1->setEmail('contact@defense.gouv.fr');
         $organisation1->setDateCreation(new \DateTime('2020-01-01'));
         $organisation1->setSiret('12345678901234');
-        $organisation1->setTelephone('01.23.45.67.89');
+        $organisation1->setTelephone('0123456789');
         $organisation1->setSiteWeb('https://defense.gouv.fr');
         $organisation1->setPays('France');
         $organisation1->setNomRue('Rue Saint-Dominique');
@@ -57,7 +57,7 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $organisation2->setEmail('contact@interieur.gouv.fr');
         $organisation2->setDateCreation(new \DateTime('2019-06-15'));
         $organisation2->setSiret('98765432109876');
-        $organisation2->setTelephone('01.98.76.54.32');
+        $organisation2->setTelephone('0198765432');
         $organisation2->setSiteWeb('https://interieur.gouv.fr');
         $organisation2->setPays('France');
         $organisation2->setNomRue('Place Beauvau');
@@ -72,7 +72,7 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $organisation3->setEmail('contact@economie.gouv.fr');
         $organisation3->setDateCreation(new \DateTime('2018-03-10'));
         $organisation3->setSiret('11223344556677');
-        $organisation3->setTelephone('01.44.87.17.17');
+        $organisation3->setTelephone('0144871717');
         $organisation3->setSiteWeb('https://economie.gouv.fr');
         $organisation3->setPays('France');
         $organisation3->setNomRue('Rue de Bercy');
@@ -164,48 +164,108 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         // ========== ZONES ==========
         $zones = [];
 
-        // Zone principale (partagée entre toutes les organisations)
+        // Zone principale commune (entrée/sortie bâtiment)
         $zonePrincipale = new Zone();
-        $zonePrincipale->setNomZone('Zone principale');
-        $zonePrincipale->setDescription('Zone principale créée automatiquement');
+        $zonePrincipale->setNomZone('Zone Principale - Entrée/Sortie');
+        $zonePrincipale->setDescription('Zone d\'entrée et sortie commune à tous les services');
         $zonePrincipale->setCapacite(100);
         $manager->persist($zonePrincipale);
         $zones['principale'] = $zonePrincipale;
 
-        $zoneSA = new Zone();
-        $zoneSA->setNomZone('Zone Sécurisée Alpha');
-        $zoneSA->setDescription('Zone d\'accès ultra-restreint - Niveau Secret Défense');
-        $zoneSA->setCapacite(25);
-        $manager->persist($zoneSA);
-        $zones['alpha'] = $zoneSA;
+        // Zones spécifiques par organisation/service - DÉFENSE
+        $zoneDefenseAlpha = new Zone();
+        $zoneDefenseAlpha->setNomZone('Zone Défense Alpha');
+        $zoneDefenseAlpha->setDescription('Zone sécurisée niveau Alpha - Ministère Défense');
+        $zoneDefenseAlpha->setCapacite(20);
+        $manager->persist($zoneDefenseAlpha);
+        $zones['defense_alpha'] = $zoneDefenseAlpha;
 
-        $zoneSB = new Zone();
-        $zoneSB->setNomZone('Zone Sécurisée Beta');
-        $zoneSB->setDescription('Zone d\'accès restreint - Personnel autorisé uniquement');
-        $zoneSB->setCapacite(50);
-        $manager->persist($zoneSB);
-        $zones['beta'] = $zoneSB;
+        $zoneDefenseBeta = new Zone();
+        $zoneDefenseBeta->setNomZone('Zone Défense Beta');
+        $zoneDefenseBeta->setDescription('Zone sécurisée niveau Beta - Ministère Défense');
+        $zoneDefenseBeta->setCapacite(30);
+        $manager->persist($zoneDefenseBeta);
+        $zones['defense_beta'] = $zoneDefenseBeta;
 
+        $zoneDefenseBureau = new Zone();
+        $zoneDefenseBureau->setNomZone('Zone Bureaux Défense');
+        $zoneDefenseBureau->setDescription('Bureaux du Ministère de la Défense');
+        $zoneDefenseBureau->setCapacite(50);
+        $manager->persist($zoneDefenseBureau);
+        $zones['defense_bureau'] = $zoneDefenseBureau;
+
+        $zoneDefenseIT = new Zone();
+        $zoneDefenseIT->setNomZone('Zone IT Défense');
+        $zoneDefenseIT->setDescription('Zone informatique - Service IT Défense');
+        $zoneDefenseIT->setCapacite(15);
+        $manager->persist($zoneDefenseIT);
+        $zones['defense_it'] = $zoneDefenseIT;
+
+        $zoneDefenseSecurity = new Zone();
+        $zoneDefenseSecurity->setNomZone('Zone Sécurité Défense');
+        $zoneDefenseSecurity->setDescription('Zone service sécurité - Défense');
+        $zoneDefenseSecurity->setCapacite(20);
+        $manager->persist($zoneDefenseSecurity);
+        $zones['defense_security'] = $zoneDefenseSecurity;
+
+        $zoneDefenseLogistics = new Zone();
+        $zoneDefenseLogistics->setNomZone('Zone Logistique Défense');
+        $zoneDefenseLogistics->setDescription('Zone service logistique - Défense');
+        $zoneDefenseLogistics->setCapacite(25);
+        $manager->persist($zoneDefenseLogistics);
+        $zones['defense_logistics'] = $zoneDefenseLogistics;
+
+        // Zones spécifiques par organisation/service - INTÉRIEUR
+        $zoneInterieurBeta = new Zone();
+        $zoneInterieurBeta->setNomZone('Zone Intérieur Beta');
+        $zoneInterieurBeta->setDescription('Zone sécurisée Beta - Ministère Intérieur');
+        $zoneInterieurBeta->setCapacite(40);
+        $manager->persist($zoneInterieurBeta);
+        $zones['interieur_beta'] = $zoneInterieurBeta;
+
+        $zoneInterieurBureau = new Zone();
+        $zoneInterieurBureau->setNomZone('Zone Bureaux Intérieur');
+        $zoneInterieurBureau->setDescription('Bureaux du Ministère de l\'Intérieur');
+        $zoneInterieurBureau->setCapacite(60);
+        $manager->persist($zoneInterieurBureau);
+        $zones['interieur_bureau'] = $zoneInterieurBureau;
+
+        $zoneInterieurRH = new Zone();
+        $zoneInterieurRH->setNomZone('Zone RH Intérieur');
+        $zoneInterieurRH->setDescription('Zone service RH - Intérieur');
+        $zoneInterieurRH->setCapacite(20);
+        $manager->persist($zoneInterieurRH);
+        $zones['interieur_rh'] = $zoneInterieurRH;
+
+        $zoneInterieurPolice = new Zone();
+        $zoneInterieurPolice->setNomZone('Zone Police Nationale');
+        $zoneInterieurPolice->setDescription('Zone service Police Nationale');
+        $zoneInterieurPolice->setCapacite(35);
+        $manager->persist($zoneInterieurPolice);
+        $zones['interieur_police'] = $zoneInterieurPolice;
+
+        // Zones spécifiques par organisation/service - ÉCONOMIE
+        $zoneEconomieBureau = new Zone();
+        $zoneEconomieBureau->setNomZone('Zone Bureaux Économie');
+        $zoneEconomieBureau->setDescription('Bureaux du Ministère de l\'Économie');
+        $zoneEconomieBureau->setCapacite(40);
+        $manager->persist($zoneEconomieBureau);
+        $zones['economie_bureau'] = $zoneEconomieBureau;
+
+        $zoneEconomieFinance = new Zone();
+        $zoneEconomieFinance->setNomZone('Zone Finances Publiques');
+        $zoneEconomieFinance->setDescription('Zone service Finances Publiques');
+        $zoneEconomieFinance->setCapacite(30);
+        $manager->persist($zoneEconomieFinance);
+        $zones['economie_finance'] = $zoneEconomieFinance;
+
+        // Zone publique commune
         $zonePublic = new Zone();
-        $zonePublic->setNomZone('Zone d\'Accueil Public');
-        $zonePublic->setDescription('Zone d\'accès public - Hall d\'accueil');
+        $zonePublic->setNomZone('Zone Accueil Public');
+        $zonePublic->setDescription('Hall d\'accueil public inter-ministériel');
         $zonePublic->setCapacite(200);
         $manager->persist($zonePublic);
         $zones['public'] = $zonePublic;
-
-        $zoneBureau = new Zone();
-        $zoneBureau->setNomZone('Zone Bureau');
-        $zoneBureau->setDescription('Espaces de bureaux - Personnel permanent');
-        $zoneBureau->setCapacite(150);
-        $manager->persist($zoneBureau);
-        $zones['bureau'] = $zoneBureau;
-
-        $zoneTechnique = new Zone();
-        $zoneTechnique->setNomZone('Zone Technique');
-        $zoneTechnique->setDescription('Salles serveurs et installations techniques');
-        $zoneTechnique->setCapacite(30);
-        $manager->persist($zoneTechnique);
-        $zones['technique'] = $zoneTechnique;
 
         // ========== UTILISATEURS ==========
         $users = [];
@@ -216,10 +276,11 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $superAdmin->setRoles(['ROLE_SUPER_ADMIN']);
         $superAdmin->setPassword($this->hasher->hashPassword($superAdmin, 'SuperAdmin2024!'));
         $superAdmin->setNom('SYSTÈME');
-        $superAdmin->setPrenom('Super Admin');
-        $superAdmin->setTelephone('01.00.00.00.01');
+        $superAdmin->setPrenom('SuperAdmin');
+        $superAdmin->setTelephone('0100000001');
         $superAdmin->setDateInscription(new \DateTime('2020-01-01'));
         $superAdmin->setDateDerniereConnexion(new \DateTime('-1 day'));
+        $superAdmin->setDateNaissance(new \DateTime('1980-01-01'));
         $superAdmin->setCompteActif(true);
         $manager->persist($superAdmin);
         $users['superadmin'] = $superAdmin;
@@ -229,10 +290,11 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $adminDefense->setEmail('admin@defense.gouv.fr');
         $adminDefense->setRoles(['ROLE_ADMIN']);
         $adminDefense->setPassword($this->hasher->hashPassword($adminDefense, 'AdminDefense2024!'));
-        $adminDefense->setNom('MARTIN');
-        $adminDefense->setPrenom('Général Alexandre');
-        $adminDefense->setTelephone('01.23.45.67.01');
+        $adminDefense->setNom('Martin');
+        $adminDefense->setPrenom('Alexandre');
+        $adminDefense->setTelephone('0123456701');
         $adminDefense->setDateInscription(new \DateTime('2020-01-15'));
+        $adminDefense->setDateNaissance(new \DateTime('1975-03-15'));
         $adminDefense->setCompteActif(true);
         $manager->persist($adminDefense);
         $users['admin_defense'] = $adminDefense;
@@ -242,10 +304,11 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $adminInterieur->setEmail('admin@interieur.gouv.fr');
         $adminInterieur->setRoles(['ROLE_ADMIN']);
         $adminInterieur->setPassword($this->hasher->hashPassword($adminInterieur, 'AdminInterieur2024!'));
-        $adminInterieur->setNom('BERNARD');
-        $adminInterieur->setPrenom('Préfet Catherine');
-        $adminInterieur->setTelephone('01.98.76.54.01');
+        $adminInterieur->setNom('Bernard');
+        $adminInterieur->setPrenom('Catherine');
+        $adminInterieur->setTelephone('0198765401');
         $adminInterieur->setDateInscription(new \DateTime('2020-02-01'));
+        $adminInterieur->setDateNaissance(new \DateTime('1970-08-22'));
         $adminInterieur->setCompteActif(true);
         $manager->persist($adminInterieur);
         $users['admin_interieur'] = $adminInterieur;
@@ -254,11 +317,12 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $userDefense1 = new User();
         $userDefense1->setEmail('j.dupont@defense.gouv.fr');
         $userDefense1->setRoles(['ROLE_USER']);
-        $userDefense1->setPassword($this->hasher->hashPassword($userDefense1, 'UserDefense123'));
-        $userDefense1->setNom('DUPONT');
+        $userDefense1->setPassword($this->hasher->hashPassword($userDefense1, 'UserDefense123!'));
+        $userDefense1->setNom('Dupont');
         $userDefense1->setPrenom('Jean-Michel');
-        $userDefense1->setTelephone('01.23.45.67.11');
+        $userDefense1->setTelephone('0123456711');
         $userDefense1->setDateInscription(new \DateTime('2021-03-15'));
+        $userDefense1->setDateNaissance(new \DateTime('1985-06-10'));
         $userDefense1->setCompteActif(true);
         $manager->persist($userDefense1);
         $users['user_defense_1'] = $userDefense1;
@@ -267,10 +331,11 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $userDefense2->setEmail('s.rousseau@defense.gouv.fr');
         $userDefense2->setRoles(['ROLE_USER']);
         $userDefense2->setPassword($this->hasher->hashPassword($userDefense2, 'UserDefense123!'));
-        $userDefense2->setNom('ROUSSEAU');
+        $userDefense2->setNom('Rousseau');
         $userDefense2->setPrenom('Sophie');
-        $userDefense2->setTelephone('01.23.45.67.12');
+        $userDefense2->setTelephone('0123456712');
         $userDefense2->setDateInscription(new \DateTime('2021-04-10'));
+        $userDefense2->setDateNaissance(new \DateTime('1990-12-03'));
         $userDefense2->setCompteActif(true);
         $manager->persist($userDefense2);
         $users['user_defense_2'] = $userDefense2;
@@ -280,10 +345,11 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $userInterieur1->setEmail('m.martin@interieur.gouv.fr');
         $userInterieur1->setRoles(['ROLE_USER']);
         $userInterieur1->setPassword($this->hasher->hashPassword($userInterieur1, 'UserInterieur123!'));
-        $userInterieur1->setNom('MARTIN');
+        $userInterieur1->setNom('Martin');
         $userInterieur1->setPrenom('Marie');
-        $userInterieur1->setTelephone('01.98.76.54.11');
+        $userInterieur1->setTelephone('0198765411');
         $userInterieur1->setDateInscription(new \DateTime('2021-06-01'));
+        $userInterieur1->setDateNaissance(new \DateTime('1982-04-18'));
         $userInterieur1->setCompteActif(true);
         $manager->persist($userInterieur1);
         $users['user_interieur_1'] = $userInterieur1;
@@ -292,10 +358,11 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $userInterieur2->setEmail('p.durand@interieur.gouv.fr');
         $userInterieur2->setRoles(['ROLE_USER']);
         $userInterieur2->setPassword($this->hasher->hashPassword($userInterieur2, 'UserInterieur123!'));
-        $userInterieur2->setNom('DURAND');
+        $userInterieur2->setNom('Durand');
         $userInterieur2->setPrenom('Pierre');
-        $userInterieur2->setTelephone('01.98.76.54.12');
+        $userInterieur2->setTelephone('0198765412');
         $userInterieur2->setDateInscription(new \DateTime('2021-08-01'));
+        $userInterieur2->setDateNaissance(new \DateTime('1987-11-25'));
         $userInterieur2->setCompteActif(true);
         $manager->persist($userInterieur2);
         $users['user_interieur_2'] = $userInterieur2;
@@ -305,10 +372,11 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $userEconomie1->setEmail('a.leroy@economie.gouv.fr');
         $userEconomie1->setRoles(['ROLE_USER']);
         $userEconomie1->setPassword($this->hasher->hashPassword($userEconomie1, 'UserEconomie123!'));
-        $userEconomie1->setNom('LEROY');
+        $userEconomie1->setNom('Leroy');
         $userEconomie1->setPrenom('Antoine');
-        $userEconomie1->setTelephone('01.44.87.17.11');
+        $userEconomie1->setTelephone('0144871711');
         $userEconomie1->setDateInscription(new \DateTime('2021-09-15'));
+        $userEconomie1->setDateNaissance(new \DateTime('1988-07-09'));
         $userEconomie1->setCompteActif(true);
         $manager->persist($userEconomie1);
         $users['user_economie_1'] = $userEconomie1;
@@ -318,11 +386,12 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $userDeactivated->setEmail('user.deactivated@test.gov.fr');
         $userDeactivated->setRoles(['ROLE_USER']);
         $userDeactivated->setPassword($this->hasher->hashPassword($userDeactivated, 'UserTest123!'));
-        $userDeactivated->setNom('ANCIEN');
+        $userDeactivated->setNom('Ancien');
         $userDeactivated->setPrenom('Utilisateur');
-        $userDeactivated->setTelephone('01.00.00.00.99');
+        $userDeactivated->setTelephone('0100000099');
         $userDeactivated->setDateInscription(new \DateTime('2019-01-01'));
         $userDeactivated->setDateDerniereConnexion(new \DateTime('2019-12-31'));
+        $userDeactivated->setDateNaissance(new \DateTime('1980-01-01'));
         $userDeactivated->deactivate();
         $manager->persist($userDeactivated);
         $users['user_deactivated'] = $userDeactivated;
@@ -331,11 +400,12 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $userTest = new User();
         $userTest->setEmail('test@example.com');
         $userTest->setRoles(['ROLE_USER']);
-        $userTest->setPassword($this->hasher->hashPassword($userTest, 'test123'));
-        $userTest->setNom('TEST');
+        $userTest->setPassword($this->hasher->hashPassword($userTest, 'TestUser123!'));
+        $userTest->setNom('Test');
         $userTest->setPrenom('User');
-        $userTest->setTelephone('01.00.00.00.00');
+        $userTest->setTelephone('0100000000');
         $userTest->setDateInscription(new \DateTime('2024-01-01'));
+        $userTest->setDateNaissance(new \DateTime('1995-01-01'));
         $userTest->setHeureDebut(\DateTime::createFromFormat('H:i', '08:30'));
         $userTest->setHorraire(\DateTime::createFromFormat('H:i', '08:00'));
         $userTest->setJoursSemaineTravaille(5);
@@ -371,25 +441,40 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         // ========== BADGEUSES ==========
         $badgeuses = [];
 
-        $badgeuseData = [
-            // Badgeuses principales (entrée/sortie du bâtiment)
-            ['ref' => 'BADGE-ALPHA-001', 'date' => '2020-01-01'],
-            ['ref' => 'BADGE-BETA-001', 'date' => '2020-01-01'],
+        // Badgeuses communes (zone principale partagée)
+        $badgeuseCommune = [
+            ['ref' => 'BADGE-PRINCIPAL-001', 'date' => '2020-01-01'],
+            ['ref' => 'BADGE-PRINCIPAL-002', 'date' => '2020-01-01'],
             ['ref' => 'BADGE-PUBLIC-001', 'date' => '2020-01-01'],
-            ['ref' => 'BADGE-BUREAU-001', 'date' => '2020-01-15'],
-            ['ref' => 'BADGE-TECH-001', 'date' => '2020-01-15'],
-            ['ref' => 'BADGE-BETA-002', 'date' => '2020-02-01'],
-            
-            // Nouvelles badgeuses pour services secondaires
-            ['ref' => 'BADGE-IT-001', 'date' => '2020-03-01'],
-            ['ref' => 'BADGE-SECURITY-001', 'date' => '2020-03-01'],
-            ['ref' => 'BADGE-LOGISTICS-001', 'date' => '2020-03-15'],
-            ['ref' => 'BADGE-RH-001', 'date' => '2020-04-01'],
-            ['ref' => 'BADGE-POLICE-001', 'date' => '2020-04-01'],
-            ['ref' => 'BADGE-FINANCE-001', 'date' => '2020-04-15'],
         ];
 
-        foreach ($badgeuseData as $index => $data) {
+        // Badgeuses spécifiques par organisation - Défense
+        $badgeuseDefense = [
+            ['ref' => 'BADGE-DEFENSE-ALPHA-001', 'date' => '2020-01-15'],
+            ['ref' => 'BADGE-DEFENSE-BETA-001', 'date' => '2020-01-15'],
+            ['ref' => 'BADGE-DEFENSE-BUREAU-001', 'date' => '2020-01-15'],
+            ['ref' => 'BADGE-DEFENSE-IT-001', 'date' => '2020-03-01'],
+            ['ref' => 'BADGE-DEFENSE-SECURITY-001', 'date' => '2020-03-01'],
+            ['ref' => 'BADGE-DEFENSE-LOGISTICS-001', 'date' => '2020-03-15'],
+        ];
+
+        // Badgeuses spécifiques par organisation - Intérieur
+        $badgeuseInterieur = [
+            ['ref' => 'BADGE-INTERIEUR-BETA-001', 'date' => '2020-02-01'],
+            ['ref' => 'BADGE-INTERIEUR-BUREAU-001', 'date' => '2020-02-01'],
+            ['ref' => 'BADGE-INTERIEUR-RH-001', 'date' => '2020-04-01'],
+            ['ref' => 'BADGE-INTERIEUR-POLICE-001', 'date' => '2020-04-01'],
+        ];
+
+        // Badgeuses spécifiques par organisation - Économie
+        $badgeuseEconomie = [
+            ['ref' => 'BADGE-ECONOMIE-BUREAU-001', 'date' => '2020-03-10'],
+            ['ref' => 'BADGE-ECONOMIE-FINANCE-001', 'date' => '2020-04-15'],
+        ];
+
+        $allBadgeuses = array_merge($badgeuseCommune, $badgeuseDefense, $badgeuseInterieur, $badgeuseEconomie);
+
+        foreach ($allBadgeuses as $index => $data) {
             $badgeuse = new Badgeuse();
             $badgeuse->setReference($data['ref']);
             $badgeuse->setDateInstallation(new \DateTime($data['date']));
@@ -399,23 +484,28 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
 
         // ========== ACCÈS ==========
         $accesData = [
-            // Badgeuses principales (entrée/sortie du bâtiment)
+            // Accès communs - Indices 1-3
             ['badgeuse' => 'badgeuse_1', 'zone' => 'principale', 'nom' => 'Accès Principal - Entrée A'],
-            ['badgeuse' => 'badgeuse_2', 'zone' => 'principale', 'nom' => 'Accès Principal - Entrée B'],
+            ['badgeuse' => 'badgeuse_2', 'zone' => 'principale', 'nom' => 'Accès Principal - Entrée B'],  
+            ['badgeuse' => 'badgeuse_3', 'zone' => 'public', 'nom' => 'Accès Hall Public'],
 
-            // Badgeuses secondaires (zones spécifiques)
-            ['badgeuse' => 'badgeuse_3', 'zone' => 'alpha', 'nom' => 'Accès Zone Alpha'],
-            ['badgeuse' => 'badgeuse_4', 'zone' => 'beta', 'nom' => 'Accès Zone Beta'],
-            ['badgeuse' => 'badgeuse_5', 'zone' => 'public', 'nom' => 'Accès Hall Public'],
-            ['badgeuse' => 'badgeuse_6', 'zone' => 'bureau', 'nom' => 'Accès Bureau Direction'],
-            
-            // Nouvelles badgeuses pour services secondaires
-            ['badgeuse' => 'badgeuse_7', 'zone' => 'technique', 'nom' => 'Accès Zone IT'],
-            ['badgeuse' => 'badgeuse_8', 'zone' => 'alpha', 'nom' => 'Accès Sécurité Alpha'],
-            ['badgeuse' => 'badgeuse_9', 'zone' => 'bureau', 'nom' => 'Accès Logistique'],
-            ['badgeuse' => 'badgeuse_10', 'zone' => 'bureau', 'nom' => 'Accès RH'],
-            ['badgeuse' => 'badgeuse_11', 'zone' => 'beta', 'nom' => 'Accès Police'],
-            ['badgeuse' => 'badgeuse_12', 'zone' => 'bureau', 'nom' => 'Accès Finance'],
+            // Accès Défense - Indices 4-9 (zones spécifiques Défense)
+            ['badgeuse' => 'badgeuse_4', 'zone' => 'defense_alpha', 'nom' => 'Accès Zone Alpha Défense'],
+            ['badgeuse' => 'badgeuse_5', 'zone' => 'defense_beta', 'nom' => 'Accès Zone Beta Défense'],
+            ['badgeuse' => 'badgeuse_6', 'zone' => 'defense_bureau', 'nom' => 'Accès Bureaux Défense'],
+            ['badgeuse' => 'badgeuse_7', 'zone' => 'defense_it', 'nom' => 'Accès Zone IT Défense'],
+            ['badgeuse' => 'badgeuse_8', 'zone' => 'defense_security', 'nom' => 'Accès Zone Sécurité Défense'],
+            ['badgeuse' => 'badgeuse_9', 'zone' => 'defense_logistics', 'nom' => 'Accès Zone Logistique Défense'],
+
+            // Accès Intérieur - Indices 10-13 (zones spécifiques Intérieur)
+            ['badgeuse' => 'badgeuse_10', 'zone' => 'interieur_beta', 'nom' => 'Accès Zone Beta Intérieur'],
+            ['badgeuse' => 'badgeuse_11', 'zone' => 'interieur_bureau', 'nom' => 'Accès Bureaux Intérieur'],
+            ['badgeuse' => 'badgeuse_12', 'zone' => 'interieur_rh', 'nom' => 'Accès Zone RH Intérieur'],
+            ['badgeuse' => 'badgeuse_13', 'zone' => 'interieur_police', 'nom' => 'Accès Zone Police Nationale'],
+
+            // Accès Économie - Indices 14-15 (zones spécifiques Économie)
+            ['badgeuse' => 'badgeuse_14', 'zone' => 'economie_bureau', 'nom' => 'Accès Bureaux Économie'],
+            ['badgeuse' => 'badgeuse_15', 'zone' => 'economie_finance', 'nom' => 'Accès Zone Finances Publiques'],
         ];
 
         foreach ($accesData as $data) {
@@ -457,14 +547,43 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
             $manager->persist($travailler);
         }
 
-        // Secondary service assignments (optional)
+        // Secondary service assignments (multiple per user)
         $secondaryTravaillerData = [
+            // Admin défense - accès à plusieurs services secondaires
             ['user' => 'admin_defense', 'service' => 'security_defense', 'date' => '2020-01-15'],
+            ['user' => 'admin_defense', 'service' => 'it_defense', 'date' => '2020-01-15'],
+            ['user' => 'admin_defense', 'service' => 'logistics_defense', 'date' => '2020-01-15'],
+            
+            // Utilisateurs défense - spécialisations
             ['user' => 'user_defense_1', 'service' => 'it_defense', 'date' => '2021-03-15'],
+            ['user' => 'user_defense_1', 'service' => 'security_defense', 'date' => '2022-01-01'],
+            
             ['user' => 'user_defense_2', 'service' => 'logistics_defense', 'date' => '2021-04-10'],
+            ['user' => 'user_defense_2', 'service' => 'it_defense', 'date' => '2022-06-01'],
+            
+            // Admin intérieur - accès à plusieurs services secondaires
+            ['user' => 'admin_interieur', 'service' => 'rh_interieur', 'date' => '2020-02-01'],
+            ['user' => 'admin_interieur', 'service' => 'police_interieur', 'date' => '2020-02-01'],
+            
+            // Utilisateurs intérieur - spécialisations
             ['user' => 'user_interieur_1', 'service' => 'rh_interieur', 'date' => '2021-06-01'],
             ['user' => 'user_interieur_2', 'service' => 'police_interieur', 'date' => '2021-08-01'],
+            ['user' => 'user_interieur_2', 'service' => 'rh_interieur', 'date' => '2022-03-01'],
+            
+            // Utilisateur économie - services secondaires
             ['user' => 'user_economie_1', 'service' => 'finance_economie', 'date' => '2021-09-15'],
+            
+            // SuperAdmin - accès à tous les services secondaires pour supervision
+            ['user' => 'superadmin', 'service' => 'it_defense', 'date' => '2020-01-01'],
+            ['user' => 'superadmin', 'service' => 'security_defense', 'date' => '2020-01-01'],
+            ['user' => 'superadmin', 'service' => 'logistics_defense', 'date' => '2020-01-01'],
+            ['user' => 'superadmin', 'service' => 'rh_interieur', 'date' => '2020-01-01'],
+            ['user' => 'superadmin', 'service' => 'police_interieur', 'date' => '2020-01-01'],
+            ['user' => 'superadmin', 'service' => 'finance_economie', 'date' => '2020-01-01'],
+            
+            // User test - quelques services pour les tests
+            ['user' => 'user_test', 'service' => 'it_defense', 'date' => '2024-01-01'],
+            ['user' => 'user_test', 'service' => 'security_defense', 'date' => '2024-02-01'],
         ];
 
         foreach ($secondaryTravaillerData as $data) {
@@ -475,33 +594,42 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
             $manager->persist($travailler);
         }
 
-        // ========== SERVICE ZONES ==========
+        // ========== SERVICE ZONES - RELATION 1:1 ==========
         $serviceZoneData = [
-            // Tous les services principaux ont accès à la zone principale (entrée/sortie du bâtiment)
+            // Services principaux - une zone principale + leur zone spécifique + zone publique
             ['service' => 'principal_defense', 'zone' => 'principale'],
-            ['service' => 'principal_interieur', 'zone' => 'principale'],
-            ['service' => 'principal_economie', 'zone' => 'principale'],
-
-            // Accès aux zones spécifiques selon les besoins métier
-            ['service' => 'principal_defense', 'zone' => 'alpha'],
-            ['service' => 'principal_defense', 'zone' => 'beta'],
-            ['service' => 'principal_defense', 'zone' => 'bureau'],
+            ['service' => 'principal_defense', 'zone' => 'defense_bureau'],
             ['service' => 'principal_defense', 'zone' => 'public'],
-            ['service' => 'principal_interieur', 'zone' => 'beta'],
-            ['service' => 'principal_interieur', 'zone' => 'bureau'],
+            
+            ['service' => 'principal_interieur', 'zone' => 'principale'],
+            ['service' => 'principal_interieur', 'zone' => 'interieur_bureau'],
             ['service' => 'principal_interieur', 'zone' => 'public'],
-            ['service' => 'principal_economie', 'zone' => 'bureau'],
+            
+            ['service' => 'principal_economie', 'zone' => 'principale'],
+            ['service' => 'principal_economie', 'zone' => 'economie_bureau'],
             ['service' => 'principal_economie', 'zone' => 'public'],
 
-            // Services secondaires avec accès spécialisés
-            ['service' => 'security_defense', 'zone' => 'alpha'],
-            ['service' => 'security_defense', 'zone' => 'beta'],
-            ['service' => 'it_defense', 'zone' => 'technique'],
-            ['service' => 'it_defense', 'zone' => 'bureau'],
-            ['service' => 'logistics_defense', 'zone' => 'bureau'],
-            ['service' => 'rh_interieur', 'zone' => 'bureau'],
-            ['service' => 'police_interieur', 'zone' => 'beta'],
-            ['service' => 'finance_economie', 'zone' => 'bureau'],
+            // Services secondaires - accès principal + leur zone dédiée UNIQUEMENT
+            ['service' => 'it_defense', 'zone' => 'principale'],
+            ['service' => 'it_defense', 'zone' => 'defense_it'],
+            
+            ['service' => 'security_defense', 'zone' => 'principale'],
+            ['service' => 'security_defense', 'zone' => 'defense_security'],
+            ['service' => 'security_defense', 'zone' => 'defense_alpha'],
+            ['service' => 'security_defense', 'zone' => 'defense_beta'],
+            
+            ['service' => 'logistics_defense', 'zone' => 'principale'],
+            ['service' => 'logistics_defense', 'zone' => 'defense_logistics'],
+            
+            ['service' => 'rh_interieur', 'zone' => 'principale'],
+            ['service' => 'rh_interieur', 'zone' => 'interieur_rh'],
+            
+            ['service' => 'police_interieur', 'zone' => 'principale'],
+            ['service' => 'police_interieur', 'zone' => 'interieur_police'],
+            ['service' => 'police_interieur', 'zone' => 'interieur_beta'],
+            
+            ['service' => 'finance_economie', 'zone' => 'principale'],
+            ['service' => 'finance_economie', 'zone' => 'economie_finance'],
         ];
 
         foreach ($serviceZoneData as $data) {
@@ -512,7 +640,6 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         }
 
         // ========== POINTAGES (Time tracking) ==========
-        $today = new \DateTime();
         $yesterday = new \DateTime('-1 day');
         $lastWeek = new \DateTime('-7 days');
 
@@ -527,8 +654,8 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
 
             // user_interieur_1 : entrée par badgeuse principale puis zones secondaires  
             ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_2', 'heure' => $lastWeek->format('Y-m-d') . ' 09:00:00', 'type' => 'entree'],
-            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_6', 'heure' => $lastWeek->format('Y-m-d') . ' 09:30:00', 'type' => 'entree'],
-            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_10', 'heure' => $lastWeek->format('Y-m-d') . ' 10:00:00', 'type' => 'entree'], // Zone RH
+            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_11', 'heure' => $lastWeek->format('Y-m-d') . ' 09:30:00', 'type' => 'entree'],
+            ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_12', 'heure' => $lastWeek->format('Y-m-d') . ' 10:00:00', 'type' => 'entree'], // Zone RH
             ['badge' => 'user_interieur_1', 'badgeuse' => 'badgeuse_2', 'heure' => $lastWeek->format('Y-m-d') . ' 17:30:00', 'type' => 'sortie'],
 
             // user_defense_2 : entrée par badgeuse principale puis zones secondaires

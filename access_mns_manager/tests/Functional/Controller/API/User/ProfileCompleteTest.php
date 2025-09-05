@@ -50,7 +50,7 @@ class ProfileCompleteTest extends DatabaseWebTestCase
         $this->assertArrayHasKey('zones_accessibles', $data);
         
         $this->assertEquals('User', $data['user']['prenom']);
-        $this->assertEquals('TEST', $data['user']['nom']);
+        $this->assertEquals('Test', $data['user']['nom']);
         $this->assertEquals('test@example.com', $data['user']['email']);
         
         // Debug temporaire pour comprendre la structure
@@ -90,7 +90,7 @@ class ProfileCompleteTest extends DatabaseWebTestCase
         $this->assertArrayHasKey('badges', $data);
         
         $this->assertEquals('User', $data['user']['prenom']);
-        $this->assertEquals('TEST', $data['user']['nom']);
+        $this->assertEquals('Test', $data['user']['nom']);
     }
 
     public function testGetCompleteProfileWithoutToken(): void

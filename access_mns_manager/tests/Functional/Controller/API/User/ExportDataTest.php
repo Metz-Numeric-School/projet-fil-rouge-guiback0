@@ -58,7 +58,7 @@ class ExportDataTest extends DatabaseWebTestCase
         $this->assertArrayHasKey('badges', $exportData);
         
         $this->assertEquals('User', $exportData['personal_information']['prenom']);
-        $this->assertEquals('TEST', $exportData['personal_information']['nom']);
+        $this->assertEquals('Test', $exportData['personal_information']['nom']);
         $this->assertEquals('test@example.com', $exportData['personal_information']['email']);
         $this->assertIsArray($exportData['services']);
         $this->assertIsArray($exportData['badges']);
