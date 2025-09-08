@@ -1,10 +1,21 @@
-.dashboard-container {
+// Variables couleurs matching navbar and dashboard
+$primary-blue: #25176e;
+$light-blue: #4a3a9b;
+$primary-orange: #ff5d2d;
+$light-orange: #ff7a51;
+$text-primary: #2c3e50;
+$text-secondary: #7f8c8d;
+$text-muted: #5a6c7d;
+$background-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+// Mixins pour réutilisation
+@mixin dashboard-container {
   padding: 2rem;
   min-height: calc(100vh - 200px);
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: $background-gradient;
 }
 
-.dashboard-header {
+@mixin dashboard-header {
   text-align: center;
   margin-bottom: 3rem;
 
@@ -15,7 +26,7 @@
     gap: 0.5rem;
     font-size: 2.5rem;
     font-weight: 300;
-    color: #2c3e50;
+    color: $text-primary;
     margin-bottom: 0.5rem;
 
     .dashboard-icon {
@@ -27,13 +38,13 @@
 
   .dashboard-subtitle {
     font-size: 1.1rem;
-    color: #7f8c8d;
+    color: $text-secondary;
     font-weight: 300;
     margin: 0;
   }
 }
 
-.dashboard-grid {
+@mixin dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
@@ -41,9 +52,8 @@
   margin: 0 auto;
 }
 
-.dashboard-card {
+@mixin dashboard-card {
   transition: all 0.3s ease;
-  cursor: pointer;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
   overflow: hidden;
@@ -54,27 +64,17 @@
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
 
-  &.placeholder-card {
-    cursor: default;
-    opacity: 0.7;
-
-    &:hover {
-      transform: none;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-    }
-  }
-
   mat-card-header {
     padding: 1.5rem 1.5rem 0.5rem;
 
     mat-card-title {
       font-size: 1.3rem;
       font-weight: 500;
-      color: #2c3e50;
+      color: $text-primary;
     }
 
     mat-card-subtitle {
-      color: #7f8c8d;
+      color: $text-secondary;
       font-size: 0.9rem;
       margin-top: 0.25rem;
     }
@@ -84,7 +84,7 @@
     padding: 0.5rem 1.5rem 1rem;
 
     p {
-      color: #5a6c7d;
+      color: $text-muted;
       line-height: 1.5;
       margin: 0;
     }
@@ -102,13 +102,14 @@
   }
 }
 
-.card-avatar {
+@mixin card-avatar($gradient) {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 50px;
   height: 50px;
   border-radius: 50%;
+  background: $gradient;
 
   mat-icon {
     font-size: 24px;
@@ -116,26 +117,61 @@
     height: 24px;
     color: white;
   }
+}
 
-  &.pointage-avatar {
-    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
-  }
-
-  &.user-avatar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-
-  &.login-avatar {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  }
-
-  &.placeholder-avatar {
-    background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+// Responsive mixins
+@mixin tablet-responsive {
+  @media (max-width: 768px) {
+    @content;
   }
 }
 
-// Responsive design
-@media (max-width: 768px) {
+@mixin mobile-responsive {
+  @media (max-width: 480px) {
+    @content;
+  }
+}
+
+// Classes utilitaires globales
+.dashboard-container {
+  @include dashboard-container;
+}
+
+.dashboard-header {
+  @include dashboard-header;
+}
+
+.dashboard-grid {
+  @include dashboard-grid;
+}
+
+.dashboard-card {
+  @include dashboard-card;
+}
+
+// Gradients pour avatars
+$avatar-gradients: (
+  'personal': linear-gradient(135deg, #667eea 0%, #764ba2 100%),
+  'pointage': linear-gradient(135deg, #4caf50 0%, #2e7d32 100%),
+  'user': linear-gradient(135deg, #667eea 0%, #764ba2 100%),
+  'organisation': linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%),
+  'services': linear-gradient(135deg, #a8edea 0%, #fed6e3 100%),
+  'access': linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%),
+  'badges': linear-gradient(135deg, #f093fb 0%, #f5576c 100%),
+  'contact': linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%),
+  'schedule': linear-gradient(135deg, #a8edea 0%, #fed6e3 100%),
+  'security': linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%),
+  'gdpr': linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)
+);
+
+@each $name, $gradient in $avatar-gradients {
+  .#{$name}-avatar {
+    @include card-avatar($gradient);
+  }
+}
+
+// Responsive classes
+@include tablet-responsive {
   .dashboard-container {
     padding: 1rem;
   }
@@ -156,7 +192,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@include mobile-responsive {
   .dashboard-container {
     padding: 0.5rem;
   }

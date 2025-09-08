@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
-import { AuthService } from './auth.service';
+import { TokenService } from './auth/token.service';
 
 export interface StripeProduct {
   id: string;
@@ -55,7 +55,7 @@ export class StripeService {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private tokenService: TokenService
   ) {}
 
   /**
@@ -179,7 +179,7 @@ export class StripeService {
    * Get authorization headers with JWT token
    */
   private getAuthHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
+    const token = this.tokenService.getToken();
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',

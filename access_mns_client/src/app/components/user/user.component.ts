@@ -9,8 +9,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Subscription } from 'rxjs';
 
-import { AuthService } from '../../services/auth.service';
-import { UserService } from '../../services/user.service';
+import { UserStateService } from '../../services/auth/user-state.service';
+import { UserApiService } from '../../services/user/user-api.service';
+import { UserHelperService } from '../../services/user/user-helper.service';
+import { AuthenticationService } from '../../services/auth/authentication.service';
 import { User, CompleteUserProfile } from '../../interfaces/user.interface';
 
 // Import new components
@@ -50,15 +52,17 @@ export class UserComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   constructor(
-    private authService: AuthService,
-    private userService: UserService,
+    private userStateService: UserStateService,
+    private userApiService: UserApiService,
+    private userHelperService: UserHelperService,
+    private authenticationService: AuthenticationService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     // Subscribe to current user changes
-    const userSub = this.authService.currentUser$.subscribe((user) => {
+    const userSub = this.userStateService.currentUser$.subscribe((user) => {
       this.currentUser = user;
 
       if (!user) {
@@ -81,7 +85,7 @@ export class UserComponent implements OnInit, OnDestroy {
   loadCompleteProfile(): void {
     this.isLoading = true;
 
-    const profileSub = this.userService.getCompleteProfile().subscribe({
+    const profileSub = this.userApiService.getCompleteProfile().subscribe({
       next: (profile) => {
         this.completeProfile = profile;
         this.isLoading = false;
@@ -103,7 +107,7 @@ export class UserComponent implements OnInit, OnDestroy {
    * Get user's full name
    */
   getFullName(user: User): string {
-    return this.userService.getFullName(user);
+    return this.userHelperService.getFullName(user);
   }
 
   /**
@@ -124,7 +128,7 @@ export class UserComponent implements OnInit, OnDestroy {
    * Logout user
    */
   logout(): void {
-    const logoutSub = this.authService.logout().subscribe({
+    const logoutSub = this.authenticationService.logout().subscribe({
       next: () => {
         this.router.navigate(['/login']);
       },

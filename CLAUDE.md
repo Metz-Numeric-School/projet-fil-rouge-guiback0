@@ -139,3 +139,60 @@ Core entities include User, Organisation, Service, Badge, Zone, Pointage (time t
 - **Data Portability**: Export user data via GDPRService (`src/Service/User/GDPRService.php`)
 - **Account Deactivation**: GDPR-compliant account deactivation with scheduled deletion
 - **Data Export**: Structured export of personal, account, organization, service, and badge data
+
+## Frontend Services Architecture
+
+Les services Angular ont été refactorisés selon le principe de responsabilité unique pour améliorer la maintenabilité et la testabilité. Tous les services facade ont été supprimés au profit d'une utilisation directe des services spécialisés.
+
+### Services d'authentification (`access_mns_client/src/app/services/auth/`)
+
+- **`authentication.service.ts`** - Gestion des opérations de connexion/déconnexion
+- **`token.service.ts`** - Gestion des tokens JWT (stockage, récupération, refresh)
+- **`user-state.service.ts`** - Gestion de l'état utilisateur (BehaviorSubjects, profils)
+
+### Services de pointage (`access_mns_client/src/app/services/pointage/`)
+
+- **`badgeuse-api.service.ts`** - Appels API pour les badgeuses et actions de pointage
+- **`badgeuse-manager.service.ts`** - Gestion et logique métier des badgeuses
+- **`working-time.service.ts`** - Calcul et gestion du temps de travail
+
+### Services utilisateur (`access_mns_client/src/app/services/user/`)
+
+- **`user-api.service.ts`** - Appels API utilisateur (profil, mise à jour)
+- **`gdpr.service.ts`** - Fonctionnalités RGPD (export, désactivation, suppression)
+- **`user-helper.service.ts`** - Fonctions utilitaires utilisateur (formatage, validation rôles)
+
+### Import recommandé
+
+```typescript
+// Import depuis l'index pour une organisation claire
+import { 
+  AuthenticationService, 
+  TokenService, 
+  UserStateService 
+} from '../services';
+
+// Ou import direct par domaine
+import { AuthenticationService } from '../services/auth/authentication.service';
+import { BadgeuseApiService } from '../services/pointage/badgeuse-api.service';
+import { GdprService } from '../services/user/gdpr.service';
+```
+
+### Responsabilités par service
+
+#### Authentication
+- **AuthenticationService**: Login/logout, validation authentification
+- **TokenService**: Gestion tokens JWT, headers auth, refresh
+- **UserStateService**: État global utilisateur, observables, profils
+
+#### Pointage  
+- **BadgeuseApiService**: API calls (getBadgeuses, performPointage, validate)
+- **BadgeuseManagerService**: Logique métier, auto-refresh, catégorisation
+- **WorkingTimeService**: Calcul temps, statuts présence, formatage
+
+#### User
+- **UserApiService**: API calls profil, mise à jour
+- **GdprService**: Export données, désactivation compte, notices RGPD
+- **UserHelperService**: Formatage noms/adresses, rôles, zones, badges
+
+**Avantages**: Responsabilité unique, testabilité, réutilisabilité, maintenance simplifiée

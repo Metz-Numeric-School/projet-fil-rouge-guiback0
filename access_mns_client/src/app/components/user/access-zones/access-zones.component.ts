@@ -6,7 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 
 import { CompleteUserProfile } from '../../../interfaces/user.interface';
-import { UserService } from '../../../services/user.service';
+import { UserHelperService } from '../../../services/user/user-helper.service';
 
 @Component({
   selector: 'app-access-zones',
@@ -24,14 +24,14 @@ import { UserService } from '../../../services/user.service';
 export class AccessZonesComponent {
   @Input() completeProfile: CompleteUserProfile | null = null;
 
-  constructor(private userService: UserService) {}
+  constructor(private userHelperService: UserHelperService) {}
 
   /**
    * Get accessible zones
    */
   getAccessibleZones(): any[] {
     if (!this.completeProfile) return [];
-    return this.userService.getAccessibleZones(this.completeProfile);
+    return this.userHelperService.getAccessibleZones(this.completeProfile);
   }
 
   /**
@@ -39,7 +39,7 @@ export class AccessZonesComponent {
    */
   getAuthorizedBadgeReaders(): any[] {
     if (!this.completeProfile) return [];
-    return this.userService.getAuthorizedBadgeReaders(this.completeProfile);
+    return this.userHelperService.getAuthorizedBadgeReaders(this.completeProfile);
   }
 
   /**

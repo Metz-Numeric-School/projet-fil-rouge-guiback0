@@ -6,7 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 
 import { CompleteUserProfile } from '../../../interfaces/user.interface';
-import { UserService } from '../../../services/user.service';
+import { UserHelperService } from '../../../services/user/user-helper.service';
 
 @Component({
   selector: 'app-badges',
@@ -24,14 +24,14 @@ import { UserService } from '../../../services/user.service';
 export class BadgesComponent {
   @Input() completeProfile: CompleteUserProfile | null = null;
 
-  constructor(private userService: UserService) {}
+  constructor(private userHelperService: UserHelperService) {}
 
   /**
    * Get active badges
    */
   getActiveBadges(): any[] {
     if (!this.completeProfile) return [];
-    return this.userService.getActiveBadges(this.completeProfile);
+    return this.userHelperService.getActiveBadges(this.completeProfile);
   }
 
   /**

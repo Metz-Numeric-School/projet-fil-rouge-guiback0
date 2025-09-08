@@ -1,6 +1,9 @@
 // Angular Material v19 Theming
 @use "@angular/material" as mat;
 
+// Import shared dashboard styles
+@import 'styles/shared-dashboard.scss';
+
 // Define your brand colors
 $primary-orange: #ff5d2d;
 $secondary-blue: #25176e;

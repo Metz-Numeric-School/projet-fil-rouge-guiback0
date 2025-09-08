@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { AuthService } from './services/auth.service';
+import { AuthenticationService } from './services/auth/authentication.service';
 
 @Component({
   selector: 'app-root',
@@ -36,7 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
   currentRoute = '';
   private routeSubscription: Subscription = new Subscription();
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authenticationService: AuthenticationService) {}
 
   ngOnInit() {
     // Subscribe to route changes to track current route
@@ -72,7 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * Logout function for the navbar
    */
   logout() {
-    const logoutSub = this.authService.logout().subscribe({
+    const logoutSub = this.authenticationService.logout().subscribe({
       next: () => {
         this.router.navigate(['/login']);
       },

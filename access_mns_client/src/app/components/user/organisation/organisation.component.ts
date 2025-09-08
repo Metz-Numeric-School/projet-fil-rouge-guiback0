@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 import { CompleteUserProfile } from '../../../interfaces/user.interface';
-import { UserService } from '../../../services/user.service';
+import { UserHelperService } from '../../../services/user/user-helper.service';
 
 @Component({
   selector: 'app-organisation',
@@ -17,14 +17,14 @@ import { UserService } from '../../../services/user.service';
 export class OrganisationComponent {
   @Input() completeProfile: CompleteUserProfile | null = null;
 
-  constructor(private userService: UserService) {}
+  constructor(private userHelperService: UserHelperService) {}
 
   /**
    * Get formatted organization address
    */
   getOrganizationAddress(): string {
     if (!this.completeProfile?.organisation) return '';
-    return this.userService.formatOrganizationAddress(
+    return this.userHelperService.formatOrganizationAddress(
       this.completeProfile.organisation
     );
   }

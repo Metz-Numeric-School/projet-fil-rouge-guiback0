@@ -157,7 +157,7 @@
           mat-raised-button 
           color="warn" 
           (click)="deactivateAccount()"
-          *ngIf="userService.isAccountActive(currentUser)"
+          *ngIf="gdprService.isAccountActive(currentUser)"
           [disabled]="isDeactivating">
           <mat-icon>block</mat-icon>
           Désactiver le compte

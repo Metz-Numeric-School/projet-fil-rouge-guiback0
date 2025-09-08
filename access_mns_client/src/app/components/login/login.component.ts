@@ -18,7 +18,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
-import { AuthService } from '../../services/auth.service';
+import { AuthenticationService } from '../../services/auth/authentication.service';
+import { UserStateService } from '../../services/auth/user-state.service';
 import { LoginCredentials } from '../../interfaces/auth.interface';
 
 @Component({
@@ -46,7 +47,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   constructor(
     private formBuilder: FormBuilder,
-    private authService: AuthService,
+    private authenticationService: AuthenticationService,
+    private userStateService: UserStateService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {}
@@ -56,7 +58,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.subscribeToLoadingState();
 
     // Redirect if already authenticated
-    if (this.authService.isAuthenticated()) {
+    if (this.authenticationService.isAuthenticated()) {
       this.router.navigate(['/dashboard']);
     }
   }
@@ -96,7 +98,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Subscribe to auth service loading state
    */
   private subscribeToLoadingState(): void {
-    this.authService.isLoading$
+    this.authenticationService.isLoading$
       .pipe(takeUntil(this.destroy$))
       .subscribe((loading) => {
         this.isLoading = loading;
@@ -115,11 +117,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       const rememberMe = this.loginForm.get('rememberMe')?.value || false;
 
-      this.authService
+      this.authenticationService
         .login(credentials, rememberMe)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (user) => {
+            this.userStateService.setCurrentUser(user);
             this.snackBar.open(
               `Bienvenue ${user.prenom} ${user.nom}!`,
               'Fermer',

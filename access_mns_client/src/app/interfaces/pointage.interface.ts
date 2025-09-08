@@ -25,6 +25,7 @@ export interface UserWorkingStatus {
   working_time_today?: number; // minutes
   last_action?: {
     heure: string;
+    timestamp: string; // ISO datetime string
     type: 'entree' | 'sortie' | 'acces';
     badgeuse: string;
     zone: string;
@@ -95,6 +96,7 @@ export interface PointageActionResponse {
 // Request payload for creating a pointage
 export interface PointageRequest {
   badgeuse_id: number;
+  action_type?: string; // Type of action: 'entree', 'sortie', 'acces'
   force?: boolean; // Force action even if there are warnings
 }
 
@@ -164,7 +166,6 @@ export interface PointagePageState {
   isProcessingPointage: boolean;
   lastError: string | null;
   workingTimeToday: number; // in minutes
-  workingStartTime: Date | null;
+  workingStartTime: string | null;
   autoRefreshInterval: number; // in seconds
-  countdownSeconds: number; // countdown until next allowed pointage
 }

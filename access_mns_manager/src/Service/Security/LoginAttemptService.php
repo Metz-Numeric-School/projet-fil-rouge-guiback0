@@ -21,9 +21,12 @@ class LoginAttemptService
         
         $reservation = $limiter->consume(1);
         if (!$reservation->isAccepted()) {
+            $retryAfter = $reservation->getRetryAfter()?->getTimestamp() - time();
+            $retryMinutes = max(1, ceil($retryAfter / 60));
+            
             throw new TooManyLoginAttemptsAuthenticationException(
                 3, // threshold
-                'Trop de tentatives de connexion. Veuillez réessayer dans 15 minutes.'
+                "Trop de tentatives de connexion. Veuillez réessayer dans {$retryMinutes} minute(s)."
             );
         }
     }

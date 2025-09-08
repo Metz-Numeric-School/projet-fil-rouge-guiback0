@@ -41,11 +41,21 @@ class AuthController extends AbstractController
             // Vérification du rate limiting
             $this->loginAttemptService->checkAttempt($request);
         } catch (TooManyLoginAttemptsAuthenticationException $e) {
-            return new JsonResponse([
+            $response = new JsonResponse([
                 'success' => false,
                 'error' => 'TOO_MANY_ATTEMPTS',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'remaining_attempts' => 0,
+                'retry_after_minutes' => 15
             ], 429);
+            
+            // Ajout des en-têtes standards pour rate limiting
+            $response->headers->set('Retry-After', '900'); // 15 minutes en secondes
+            $response->headers->set('X-Rate-Limit-Limit', '3');
+            $response->headers->set('X-Rate-Limit-Remaining', '0');
+            $response->headers->set('X-Rate-Limit-Reset', (time() + 900)); // timestamp de reset
+            
+            return $response;
         }
 
         $data = json_decode($request->getContent(), true);
@@ -81,19 +91,25 @@ class AuthController extends AbstractController
             ->findOneBy(['email' => $loginDTO->email]);
 
         if (!$user) {
+            $remainingAttempts = $this->loginAttemptService->getRemainingAttempts($request);
+            
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INVALID_CREDENTIALS',
-                'message' => 'Identifiants invalides'
+                'message' => 'Identifiants invalides',
+                'remaining_attempts' => $remainingAttempts
             ], 401);
         }
 
         // Vérification du mot de passe
         if (!$this->passwordHasher->isPasswordValid($user, $loginDTO->password)) {
+            $remainingAttempts = $this->loginAttemptService->getRemainingAttempts($request);
+            
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INVALID_CREDENTIALS',
-                'message' => 'Identifiants invalides'
+                'message' => 'Identifiants invalides',
+                'remaining_attempts' => $remainingAttempts
             ], 401);
         }
 

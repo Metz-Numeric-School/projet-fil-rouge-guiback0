@@ -1,346 +1,98 @@
 <div class="pointage-container">
-  <!-- Header with user status -->
-  <mat-card class="status-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon [color]="getStatusColor()">{{ getStatusIcon() }}</mat-icon>
-        Pointage
-      </mat-card-title>
-      <mat-card-subtitle>{{ getStatusText() }}</mat-card-subtitle>
-    </mat-card-header>
-    
-    <mat-card-content>
-      <!-- Working time display -->
-      <div class="working-time-section" *ngIf="state.userStatus">
-        <div class="time-display">
-          <mat-icon>schedule</mat-icon>
-          <span class="time-value">{{ getFormattedWorkingTime() }}</span>
-          <span class="time-label">aujourd'hui</span>
-        </div>
-        
-        <div class="session-info" *ngIf="state.workingStartTime">
-          <span class="session-start">
-            Session démarrée à {{ state.workingStartTime | date:'HH:mm' }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Last action info -->
-      <div class="last-action" *ngIf="state.userStatus?.last_action">
-        <div class="last-action-title">
-          <mat-icon>history</mat-icon>
-          <span>Dernier pointage</span>
-        </div>
-        <mat-chip-set>
-          <mat-chip [color]="state.userStatus!.last_action!.type === 'entree' ? 'primary' : (state.userStatus!.last_action!.type === 'sortie' ? 'accent' : 'warn')" selected>
-            <mat-icon matChipAvatar>
-              {{ state.userStatus!.last_action!.type === 'entree' ? 'login' : (state.userStatus!.last_action!.type === 'sortie' ? 'logout' : 'key') }}
-            </mat-icon>
-            {{ state.userStatus!.last_action!.type === 'entree' ? 'Entrée' : (state.userStatus!.last_action!.type === 'sortie' ? 'Sortie' : 'Accès') }}
-          </mat-chip>
-          <mat-chip outlined>
-            <mat-icon matChipAvatar>device_hub</mat-icon>
-            {{ state.userStatus!.last_action!.badgeuse }}
-          </mat-chip>
-          <mat-chip outlined>
-            <mat-icon matChipAvatar>location_on</mat-icon>
-            {{ state.userStatus!.last_action!.zone }}
-          </mat-chip>
-          <mat-chip [color]="state.userStatus!.last_action!.service_type === 'principal' ? 'primary' : 'accent'" outlined>
-            <mat-icon matChipAvatar>
-              {{ state.userStatus!.last_action!.service_type === 'principal' ? 'star' : 'workspaces' }}
-            </mat-icon>
-            {{ state.userStatus!.last_action!.service_type === 'principal' ? 'Service Principal' : 'Service Secondaire' }}
-          </mat-chip>
-          <mat-chip outlined>
-            <mat-icon matChipAvatar>schedule</mat-icon>
-            {{ state.userStatus!.last_action!.heure | date:'HH:mm' }}
-          </mat-chip>
-        </mat-chip-set>
-      </div>
-
-      <!-- Countdown timer -->
-      <div class="countdown-section" *ngIf="state.countdownSeconds > 0">
-        <mat-icon color="warn">timer</mat-icon>
-        <span class="countdown-text">
-          Prochain pointage dans {{ getFormattedCountdown() }}
-        </span>
-      </div>
-    </mat-card-content>
-
-    <!-- Refresh button -->
-    <mat-card-actions align="end">
-      <button mat-icon-button 
-              (click)="refresh()" 
-              [disabled]="state.isLoading"
-              matTooltip="Actualiser">
-        <mat-icon>refresh</mat-icon>
-      </button>
-    </mat-card-actions>
-  </mat-card>
-
-  <!-- Loading spinner -->
-  <div class="loading-container" *ngIf="state.isLoading">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Chargement des badgeuses...</p>
+  <div class="dashboard-header">
+    <h1>
+      <mat-icon class="dashboard-icon">access_time</mat-icon>
+      Pointage
+    </h1>
+    <p class="dashboard-subtitle">Gérez votre présence et suivez votre temps de travail</p>
   </div>
 
-  <!-- Error display -->
-  <mat-card class="error-card" *ngIf="state.lastError">
-    <mat-card-content>
-      <div class="error-content">
-        <mat-icon color="warn">error</mat-icon>
-        <span>{{ state.lastError }}</span>
-        <button mat-raised-button color="primary" (click)="refresh()">
-          Réessayer
+  <!-- Loading indicator -->
+  <div class="loading-section" *ngIf="state.isLoading">
+    <mat-card class="loading-card">
+      <mat-card-content>
+        <div class="loading-content">
+          <mat-spinner diameter="50"></mat-spinner>
+          <h3>Chargement des badgeuses...</h3>
+          <p>Récupération des informations de pointage</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Main content -->
+  <div class="main-content" *ngIf="!state.isLoading">
+    <!-- Status and working time display -->
+    <app-working-time-status
+      [userStatus]="state.userStatus"
+      [workingTimeToday]="state.workingTimeToday"
+      [workingStartTime]="state.workingStartTime">
+    </app-working-time-status>
+
+    <!-- Error display -->
+    <app-error-display
+      [errorMessage]="state.lastError"
+      (retry)="retryLoad()"
+      (dismiss)="dismissError()">
+    </app-error-display>
+
+
+    <!-- Badgeuses sections -->
+    <div class="badgeuses-sections" *ngIf="state.badgeuses.length > 0">
+      
+      <!-- Principal badgeuses -->
+      <div class="badgeuses-section" *ngIf="getPrincipalBadgeuses().length > 0">
+        <h2 class="section-title">
+          <mat-icon color="primary">star</mat-icon>
+          Badgeuses principales ({{ getPrincipalBadgeuses().length }})
+        </h2>
+        <div class="badgeuses-grid">
+          <app-badgeuse-card
+            *ngFor="let badgeuse of getPrincipalBadgeuses(); trackBy: trackByBadgeuseId"
+            [badgeuse]="badgeuse"
+            [userStatus]="state.userStatus"
+            [isSelected]="false"
+            [isProcessing]="state.isProcessingPointage && state.selectedBadgeuse?.id === badgeuse.id"
+            (toggleSelect)="performDirectPointage($event)">
+          </app-badgeuse-card>
+        </div>
+      </div>
+
+      <!-- Secondary badgeuses -->
+      <div class="badgeuses-section" *ngIf="getSecondaryBadgeuses().length > 0">
+        <h2 class="section-title">
+          <mat-icon color="accent">work</mat-icon>
+          Badgeuses secondaires ({{ getSecondaryBadgeuses().length }})
+        </h2>
+        <div class="badgeuses-grid">
+          <app-badgeuse-card
+            *ngFor="let badgeuse of getSecondaryBadgeuses(); trackBy: trackByBadgeuseId"
+            [badgeuse]="badgeuse"
+            [userStatus]="state.userStatus"
+            [isSelected]="false"
+            [isProcessing]="state.isProcessingPointage && state.selectedBadgeuse?.id === badgeuse.id"
+            (toggleSelect)="performDirectPointage($event)">
+          </app-badgeuse-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <mat-card class="empty-state" *ngIf="!state.isLoading && state.badgeuses.length === 0 && !state.lastError">
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon" color="accent">devices_off</mat-icon>
+          <h3>Aucune badgeuse disponible</h3>
+          <p>Aucune badgeuse n'est actuellement accessible pour votre compte.</p>
+          <p>Veuillez contacter l'administrateur si vous pensez qu'il s'agit d'une erreur.</p>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="retryLoad()">
+          <mat-icon>refresh</mat-icon>
+          Actualiser
         </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Principal service badgeuses -->
-  <div class="badgeuses-section" *ngIf="!state.isLoading && !state.lastError">
-    <div class="principal-service-section" *ngIf="getPrincipalServiceBadgeuses().length > 0">
-      <div class="section-header">
-        <mat-icon class="section-icon">business</mat-icon>
-        <h2>Service Principal</h2>
-        <mat-chip class="service-badge" color="primary" selected>
-          {{ getPrincipalServiceBadgeuses().length }} badgeuse(s)
-        </mat-chip>
-      </div>
-      
-      <div class="service-description">
-        <p>Zone(s) d'accès principal pour votre service de rattachement</p>
-      </div>
-      
-      <div class="badgeuses-grid principal-grid">
-        <mat-card class="badgeuse-card principal" *ngFor="let badgeuse of getPrincipalServiceBadgeuses()">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>security</mat-icon>
-              {{ badgeuse.reference }}
-              <mat-chip class="access-type-chip" color="primary" selected *ngIf="hasPrincipalAccess(badgeuse)">
-                Principal
-              </mat-chip>
-            </mat-card-title>
-            <mat-card-subtitle>
-              <div class="access-info">{{ getBadgeuseAccessInfo(badgeuse) }}</div>
-              <mat-chip-set class="zones-chips">
-                <mat-chip *ngFor="let zone of badgeuse.zones" 
-                          [color]="zone.is_principal ? 'primary' : 'accent'" 
-                          selected>
-                  <mat-icon matChipAvatar>
-                    {{ zone.is_principal ? 'star' : 'location_on' }}
-                  </mat-icon>
-                  {{ zone.nom_zone }}
-                </mat-chip>
-              </mat-chip-set>
-            </mat-card-subtitle>
-          </mat-card-header>
-
-          <mat-card-content>
-            <div class="badgeuse-status">
-              <mat-icon [color]="badgeuse.status === 'available' ? 'primary' : 'warn'">
-                {{ badgeuse.status === 'available' ? 'check_circle' : 'block' }}
-              </mat-icon>
-              <span class="status-text">
-                {{ badgeuse.status === 'available' ? 'Disponible' : 'Indisponible' }}
-              </span>
-            </div>
-            
-            <div class="installation-info">
-              <mat-icon>event</mat-icon>
-              <span>Installée le {{ badgeuse.date_installation | date:'dd/MM/yyyy' }}</span>
-            </div>
-
-            <div class="block-reason" *ngIf="badgeuse.block_reason">
-              <mat-icon color="warn">warning</mat-icon>
-              <span>{{ badgeuse.block_reason }}</span>
-            </div>
-          </mat-card-content>
-
-          <mat-card-actions align="end">
-            <button mat-raised-button 
-                    color="primary"
-                    [disabled]="!canUseBadgeuse(badgeuse) || state.isProcessingPointage || state.countdownSeconds > 0"
-                    (click)="performPointage(badgeuse)">
-              <mat-spinner diameter="20" *ngIf="state.isProcessingPointage && state.selectedBadgeuse?.id === badgeuse.id"></mat-spinner>
-              <mat-icon *ngIf="!(state.isProcessingPointage && state.selectedBadgeuse?.id === badgeuse.id)">
-                login
-              </mat-icon>
-              Accéder au Service Principal
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-    </div>
-
-    <!-- Secondary service badgeuses -->
-    <div class="secondary-service-section" *ngIf="getSecondaryServiceBadgeuses().length > 0">
-      <mat-divider class="section-divider"></mat-divider>
-      
-      <div class="section-header">
-        <mat-icon class="section-icon">workspaces</mat-icon>
-        <h2>Services Secondaires</h2>
-        <mat-chip class="service-badge" color="accent" selected>
-          {{ getSecondaryServiceBadgeuses().length }} badgeuse(s)
-        </mat-chip>
-      </div>
-      
-      <div class="service-description">
-        <p>Zone(s) d'accès aux services secondaires et espaces partagés</p>
-      </div>
-      
-      <div class="badgeuses-grid secondary-grid">
-        <mat-card class="badgeuse-card secondary" *ngFor="let badgeuse of getSecondaryServiceBadgeuses()">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>door_front</mat-icon>
-              {{ badgeuse.reference }}
-              <mat-chip class="access-type-chip" color="accent" selected>
-                Secondaire
-              </mat-chip>
-            </mat-card-title>
-            <mat-card-subtitle>
-              <div class="access-info">{{ getBadgeuseAccessInfo(badgeuse) }}</div>
-              <mat-chip-set class="zones-chips">
-                <mat-chip *ngFor="let zone of badgeuse.zones" 
-                          color="accent" 
-                          selected>
-                  <mat-icon matChipAvatar>location_on</mat-icon>
-                  {{ zone.nom_zone }}
-                </mat-chip>
-              </mat-chip-set>
-            </mat-card-subtitle>
-          </mat-card-header>
-
-          <mat-card-content>
-            <div class="badgeuse-status">
-              <mat-icon [color]="badgeuse.status === 'available' ? 'accent' : 'warn'">
-                {{ badgeuse.status === 'available' ? 'check_circle' : 'block' }}
-              </mat-icon>
-              <span class="status-text">
-                {{ badgeuse.status === 'available' ? 'Disponible' : 'Indisponible' }}
-              </span>
-            </div>
-            
-            <div class="installation-info">
-              <mat-icon>event</mat-icon>
-              <span>Installée le {{ badgeuse.date_installation | date:'dd/MM/yyyy' }}</span>
-            </div>
-
-            <div class="block-reason" *ngIf="badgeuse.block_reason">
-              <mat-icon color="warn">warning</mat-icon>
-              <span>{{ badgeuse.block_reason }}</span>
-            </div>
-          </mat-card-content>
-
-          <mat-card-actions align="end">
-            <button mat-raised-button 
-                    color="accent"
-                    [disabled]="!canUseBadgeuse(badgeuse) || state.isProcessingPointage || state.countdownSeconds > 0"
-                    (click)="performPointage(badgeuse)">
-              <mat-spinner diameter="20" *ngIf="state.isProcessingPointage && state.selectedBadgeuse?.id === badgeuse.id"></mat-spinner>
-              <mat-icon *ngIf="!(state.isProcessingPointage && state.selectedBadgeuse?.id === badgeuse.id)">
-                login
-              </mat-icon>
-              Accéder au Service
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-    </div>
-
-    <!-- Mixed service badgeuses (have both principal and secondary zones) -->
-    <div class="mixed-service-section" *ngIf="getMixedServiceBadgeuses().length > 0">
-      <mat-divider class="section-divider"></mat-divider>
-      
-      <div class="section-header">
-        <mat-icon class="section-icon">shuffle</mat-icon>
-        <h2>Accès Mixtes</h2>
-        <mat-chip class="service-badge" color="warn" selected>
-          {{ getMixedServiceBadgeuses().length }} badgeuse(s)
-        </mat-chip>
-      </div>
-      
-      <div class="service-description">
-        <p>Badgeuses donnant accès à la fois aux services principaux et secondaires</p>
-      </div>
-      
-      <div class="badgeuses-grid mixed-grid">
-        <mat-card class="badgeuse-card mixed" *ngFor="let badgeuse of getMixedServiceBadgeuses()">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>verified</mat-icon>
-              {{ badgeuse.reference }}
-              <mat-chip class="access-type-chip" color="warn" selected>
-                Mixte
-              </mat-chip>
-            </mat-card-title>
-            <mat-card-subtitle>
-              <div class="access-info">{{ getBadgeuseAccessInfo(badgeuse) }}</div>
-              <mat-chip-set class="zones-chips">
-                <mat-chip *ngFor="let zone of badgeuse.zones" 
-                          [color]="zone.is_principal ? 'primary' : 'accent'" 
-                          selected>
-                  <mat-icon matChipAvatar>
-                    {{ zone.is_principal ? 'star' : 'location_on' }}
-                  </mat-icon>
-                  {{ zone.nom_zone }}
-                </mat-chip>
-              </mat-chip-set>
-            </mat-card-subtitle>
-          </mat-card-header>
-
-          <mat-card-content>
-            <div class="badgeuse-status">
-              <mat-icon [color]="badgeuse.status === 'available' ? 'warn' : 'warn'">
-                {{ badgeuse.status === 'available' ? 'check_circle' : 'block' }}
-              </mat-icon>
-              <span class="status-text">
-                {{ badgeuse.status === 'available' ? 'Disponible' : 'Indisponible' }}
-              </span>
-            </div>
-            
-            <div class="installation-info">
-              <mat-icon>event</mat-icon>
-              <span>Installée le {{ badgeuse.date_installation | date:'dd/MM/yyyy' }}</span>
-            </div>
-
-            <div class="block-reason" *ngIf="badgeuse.block_reason">
-              <mat-icon color="warn">warning</mat-icon>
-              <span>{{ badgeuse.block_reason }}</span>
-            </div>
-          </mat-card-content>
-
-          <mat-card-actions align="end">
-            <button mat-raised-button 
-                    color="warn"
-                    [disabled]="!canUseBadgeuse(badgeuse) || state.isProcessingPointage || state.countdownSeconds > 0"
-                    (click)="performPointage(badgeuse)">
-              <mat-spinner diameter="20" *ngIf="state.isProcessingPointage && state.selectedBadgeuse?.id === badgeuse.id"></mat-spinner>
-              <mat-icon *ngIf="!(state.isProcessingPointage && state.selectedBadgeuse?.id === badgeuse.id)">
-                login
-              </mat-icon>
-              Accéder aux Services
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-    </div>
-
-    <!-- No badgeuses available -->
-    <div class="no-badgeuses" *ngIf="state.badgeuses.length === 0">
-      <mat-card>
-        <mat-card-content>
-          <div class="empty-state">
-            <mat-icon>badge</mat-icon>
-            <h3>Aucune badgeuse accessible</h3>
-            <p>Vous n'avez accès à aucune badgeuse pour le moment.</p>
-            <p>Contactez votre administrateur si vous pensez que c'est une erreur.</p>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+      </mat-card-actions>
+    </mat-card>
   </div>
 </div>

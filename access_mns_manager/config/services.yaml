@@ -59,3 +59,8 @@ services:
         
     App\Service\User\GDPR\UserDataExporterService:
         public: '%kernel.debug%'
+        
+    # Security services
+    App\Service\Security\LoginAttemptService:
+        arguments:
+            $loginAttemptLimiter: '@limiter.login_attempt'

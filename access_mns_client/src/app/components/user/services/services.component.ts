@@ -6,7 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 
 import { CompleteUserProfile } from '../../../interfaces/user.interface';
-import { UserService } from '../../../services/user.service';
+import { UserHelperService } from '../../../services/user/user-helper.service';
 
 @Component({
   selector: 'app-services',
@@ -24,14 +24,14 @@ import { UserService } from '../../../services/user.service';
 export class ServicesComponent {
   @Input() completeProfile: CompleteUserProfile | null = null;
 
-  constructor(private userService: UserService) {}
+  constructor(private userHelperService: UserHelperService) {}
 
   /**
    * Get current service
    */
   getCurrentService(): any {
     if (!this.completeProfile) return null;
-    return this.userService.getCurrentService(this.completeProfile);
+    return this.userHelperService.getCurrentService(this.completeProfile);
   }
 
   /**
