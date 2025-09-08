@@ -61,7 +61,7 @@ class ServiceRepositoryTest extends DatabaseKernelTestCase
     public function testFindServicesWithZones(): void
     {
         // Get principal defense service which has multiple zone access
-        $principalDefense = $this->serviceRepository->findOneBy(['nom_service' => 'Service principal', 'niveau_service' => 1]);
+        $principalDefense = $this->serviceRepository->findOneBy(['nom_service' => 'Service principal', 'is_principal' => true]);
         $this->assertNotNull($principalDefense);
 
         $qb = $this->serviceRepository->createQueryBuilder('s');
@@ -75,8 +75,8 @@ class ServiceRepositoryTest extends DatabaseKernelTestCase
 
         $this->assertNotNull($result);
         $this->assertEquals('Service principal', $result->getNomService());
-        // CommonFixtures gives principal defense service access to: principale, alpha, beta, bureau, public
-        $this->assertCount(5, $result->getServiceZones());
+        // CommonFixtures gives principal defense service access to 3 zones: principale, defense_bureau, public
+        $this->assertCount(3, $result->getServiceZones());
     }
 
     public function testServiceHierarchy(): void

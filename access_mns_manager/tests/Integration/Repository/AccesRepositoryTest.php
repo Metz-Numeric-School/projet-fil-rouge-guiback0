@@ -19,14 +19,16 @@ class AccesRepositoryTest extends DatabaseKernelTestCase
 
     public function testFindByZone(): void
     {
-        $zoneAlpha = $this->em->getRepository(Zone::class)->findOneBy(['nom_zone' => 'Zone Sécurisée Alpha']);
+        $zoneAlpha = $this->em->getRepository(Zone::class)->findOneBy(['nom_zone' => 'Zone Défense Alpha']);
+        $this->assertNotNull($zoneAlpha, 'Zone should exist in fixtures');
         $accesInZone = $this->accesRepository->findBy(['zone' => $zoneAlpha]);
-        $this->assertCount(2, $accesInZone);
+        $this->assertCount(1, $accesInZone); // Une seule badgeuse par zone dans les fixtures
     }
 
     public function testFindByBadgeuse(): void
     {
-        $badgeuse = $this->em->getRepository(Badgeuse::class)->findOneBy(['reference' => 'BADGE-ALPHA-001']);
+        $badgeuse = $this->em->getRepository(Badgeuse::class)->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
         $accesByBadgeuse = $this->accesRepository->findBy(['badgeuse' => $badgeuse]);
         $this->assertCount(1, $accesByBadgeuse);
     }

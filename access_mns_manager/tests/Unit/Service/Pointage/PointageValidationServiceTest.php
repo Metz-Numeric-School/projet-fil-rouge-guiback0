@@ -26,10 +26,12 @@ class PointageValidationServiceTest extends DatabaseKernelTestCase
         // Arrange - Utiliser l'utilisateur de test des fixtures
         $userRepository = $this->em->getRepository(User::class);
         $user = $userRepository->findOneBy(['email' => 'test@example.com']);
+        $this->assertNotNull($user, 'Test user should exist in fixtures');
         
         // Utiliser une badgeuse existante des fixtures
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Act
         $result = $this->pointageValidationService->validatePointageAction($user, $badgeuse->getId());

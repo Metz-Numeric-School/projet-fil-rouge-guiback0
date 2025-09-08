@@ -108,7 +108,7 @@ class BadgeTest extends DatabaseWebTestCase
         if (!$badgeuse) {
             // Utiliser une zone existante des fixtures
             $zoneRepository = $this->em->getRepository(Zone::class);
-            $zone = $zoneRepository->findOneBy(['nom_zone' => 'Zone principale']);
+            $zone = $zoneRepository->findOneBy(['nom_zone' => 'Zone Principale - Entrée/Sortie']);
 
             $badgeuse = new Badgeuse();
             $badgeuse->setReference('BADGE-TEST-002');

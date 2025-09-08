@@ -29,11 +29,11 @@ class PointageServiceTest extends DatabaseKernelTestCase
         // Arrange - Utiliser les entités des fixtures
         $badgeRepository = $this->em->getRepository(Badge::class);
         $badge = $badgeRepository->findOneBy(['numero_badge' => 200010]); // Badge du test user
-        $this->assertNotNull($badge);
+        $this->assertNotNull($badge, 'Badge should exist in fixtures');
 
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
-        $this->assertNotNull($badgeuse);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Act
         $result = $this->pointageService->recordBadgeAction(
@@ -58,7 +58,8 @@ class PointageServiceTest extends DatabaseKernelTestCase
     {
         // Arrange
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Act
         $result = $this->pointageService->recordBadgeAction(
@@ -97,9 +98,11 @@ class PointageServiceTest extends DatabaseKernelTestCase
         // Arrange
         $badgeRepository = $this->em->getRepository(Badge::class);
         $badge = $badgeRepository->findOneBy(['numero_badge' => 200010]);
+        $this->assertNotNull($badge, 'Badge should exist in fixtures');
         
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Act
         $result = $this->pointageService->recordBadgeAction(
@@ -118,9 +121,11 @@ class PointageServiceTest extends DatabaseKernelTestCase
         // Arrange
         $badgeRepository = $this->em->getRepository(Badge::class);
         $badge = $badgeRepository->findOneBy(['numero_badge' => 200010]);
+        $this->assertNotNull($badge, 'Badge should exist in fixtures');
         
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Act
         $result = $this->pointageService->recordBadgeAction(

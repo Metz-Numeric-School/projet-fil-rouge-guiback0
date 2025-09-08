@@ -18,10 +18,10 @@ class BadgeuseRepositoryTest extends DatabaseKernelTestCase
 
     public function testFindByReference(): void
     {
-        $found = $this->badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
+        $found = $this->badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
 
         $this->assertNotNull($found);
-        $this->assertEquals('BADGE-ALPHA-001', $found->getReference());
+        $this->assertEquals('BADGE-DEFENSE-ALPHA-001', $found->getReference());
         $this->assertInstanceOf(\DateTimeInterface::class, $found->getDateInstallation());
     }
 
@@ -31,15 +31,15 @@ class BadgeuseRepositoryTest extends DatabaseKernelTestCase
         $qb->leftJoin('b.acces', 'a')
            ->addSelect('a')
            ->where('b.reference = :ref')
-           ->setParameter('ref', 'BADGE-ALPHA-001');
+           ->setParameter('ref', 'BADGE-DEFENSE-ALPHA-001');
 
         $result = $qb->getQuery()->getOneOrNullResult();
 
         $this->assertNotNull($result);
-        $this->assertEquals('BADGE-ALPHA-001', $result->getReference());
+        $this->assertEquals('BADGE-DEFENSE-ALPHA-001', $result->getReference());
         // TestFixtures creates one access per badgeuse
         $this->assertCount(1, $result->getAcces());
-        $this->assertEquals('Accès Principal - Entrée A', $result->getAcces()->first()->getNomAcces());
+        $this->assertEquals('Accès Zone Alpha Défense', $result->getAcces()->first()->getNomAcces());
     }
 
     public function testFindByInstallationDateRange(): void
@@ -50,27 +50,27 @@ class BadgeuseRepositoryTest extends DatabaseKernelTestCase
 
         $recentBadgeuses = $qb->getQuery()->getResult();
 
-        // All CommonFixtures badgeuses should be found
-        $this->assertEquals(12, count($recentBadgeuses));
+        // All CommonFixtures badgeuses should be found (15 badgeuses in fixtures)
+        $this->assertEquals(15, count($recentBadgeuses));
         $recentRefs = array_map(fn($b) => $b->getReference(), $recentBadgeuses);
-        $this->assertContains('BADGE-ALPHA-001', $recentRefs);
-        $this->assertContains('BADGE-BETA-001', $recentRefs);
+        $this->assertContains('BADGE-DEFENSE-ALPHA-001', $recentRefs);
+        $this->assertContains('BADGE-DEFENSE-BETA-001', $recentRefs);
     }
 
     public function testBadgeuseRepositoryBasicOperations(): void
     {
         // Test findAll
         $all = $this->badgeuseRepository->findAll();
-        $this->assertEquals(12, count($all)); // CommonFixtures loads 12 badgeuses
+        $this->assertEquals(15, count($all)); // CommonFixtures loads 15 badgeuses
 
         // Test find by reference
-        $found = $this->badgeuseRepository->findOneBy(['reference' => 'BADGE-BETA-001']);
+        $found = $this->badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-BETA-001']);
         $this->assertNotNull($found);
-        $this->assertEquals('BADGE-BETA-001', $found->getReference());
+        $this->assertEquals('BADGE-DEFENSE-BETA-001', $found->getReference());
 
         // Test count
         $count = $this->badgeuseRepository->count([]);
-        $this->assertEquals(12, $count);
+        $this->assertEquals(15, $count);
     }
 
     public function testUniqueReferenceConstraint(): void

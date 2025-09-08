@@ -28,8 +28,8 @@ class ZoneAccessServiceTest extends DatabaseKernelTestCase
     {
         // Arrange - Utiliser une badgeuse existante des fixtures
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
-        $this->assertNotNull($badgeuse);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Act
         $result = $this->zoneAccessService->getBadgeuseZones($badgeuse);
@@ -46,8 +46,8 @@ class ZoneAccessServiceTest extends DatabaseKernelTestCase
     {
         // Arrange
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
-        $this->assertNotNull($badgeuse);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Act
         $result = $this->zoneAccessService->getBadgeuseZoneNames($badgeuse);
@@ -79,7 +79,7 @@ class ZoneAccessServiceTest extends DatabaseKernelTestCase
         $user = $userRepository->findOneBy(['email' => 'test@example.com']);
         
         $zoneRepository = $this->em->getRepository(Zone::class);
-        $zone = $zoneRepository->findOneBy(['nom_zone' => 'Zone principale']);
+        $zone = $zoneRepository->findOneBy(['nom_zone' => 'Zone Principale - Entrée/Sortie']);
 
         // Act
         $result = $this->zoneAccessService->canAccessZone($user, $zone);
@@ -118,7 +118,8 @@ class ZoneAccessServiceTest extends DatabaseKernelTestCase
         $this->em->flush();
 
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Act & Assert
         $this->expectException(BadgeException::class);
@@ -132,7 +133,8 @@ class ZoneAccessServiceTest extends DatabaseKernelTestCase
         $user = $userRepository->findOneBy(['email' => 'test@example.com']);
         
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Act
         $result = $this->zoneAccessService->isBadgeuseInPrincipalZone($badgeuse, $user);
@@ -148,7 +150,8 @@ class ZoneAccessServiceTest extends DatabaseKernelTestCase
         $user = $userRepository->findOneBy(['email' => 'test@example.com']);
         
         $badgeuseRepository = $this->em->getRepository(Badgeuse::class);
-        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-ALPHA-001']);
+        $badgeuse = $badgeuseRepository->findOneBy(['reference' => 'BADGE-DEFENSE-ALPHA-001']);
+        $this->assertNotNull($badgeuse, 'Badgeuse should exist in fixtures');
 
         // Les méthodes principales fonctionnent
         $zones = $this->zoneAccessService->getBadgeuseZones($badgeuse);
