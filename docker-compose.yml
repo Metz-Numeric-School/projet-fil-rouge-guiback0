@@ -44,6 +44,8 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
       JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+      # Symfony Lock DSN (use local file locks in dev)
+      LOCK_DSN: flock
     volumes:
       - ./access_mns_manager:/app
       - ./access_mns_manager/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro

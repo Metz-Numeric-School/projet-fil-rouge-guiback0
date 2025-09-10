@@ -107,20 +107,10 @@ export class WorkingTimeService {
   private updateWorkingTime(status: UserWorkingStatus): void {
     let workingMinutes = 0;
 
-    // Priorité 1: Utiliser working_time_today si disponible (temps total accumulé)
+    // Priorité 1: Utiliser working_time_today si disponible (temps total accumulé côté backend)
+    // Note: working_time_today inclut déjà la session en cours si l'utilisateur est présent
     if (status.working_time_today && status.working_time_today > 0) {
       workingMinutes = status.working_time_today;
-      
-      // Si l'utilisateur est présent actuellement, ajouter le temps de la session en cours
-      if (status.status === 'present' && status.current_work_start) {
-        const startTime = new Date(status.current_work_start);
-        const now = new Date();
-        const currentSessionMs = now.getTime() - startTime.getTime();
-        const currentSessionMinutes = Math.floor(currentSessionMs / (1000 * 60));
-        
-        // Ajouter le temps de la session en cours au temps total
-        workingMinutes += currentSessionMinutes;
-      }
     } 
     // Priorité 2: Si pas de working_time_today mais présent, calculer depuis current_work_start
     else if (status.status === 'present' && status.current_work_start) {
