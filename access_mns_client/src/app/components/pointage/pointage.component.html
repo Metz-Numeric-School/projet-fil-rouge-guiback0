@@ -7,17 +7,10 @@
     <p class="dashboard-subtitle">Gérez votre présence et suivez votre temps de travail</p>
   </div>
 
-  <!-- Loading indicator -->
-  <div class="loading-section" *ngIf="state.isLoading">
-    <mat-card class="loading-card">
-      <mat-card-content>
-        <div class="loading-content">
-          <mat-spinner diameter="50"></mat-spinner>
-          <h3>Chargement des badgeuses...</h3>
-          <p>Récupération des informations de pointage</p>
-        </div>
-      </mat-card-content>
-    </mat-card>
+  <!-- Loading Spinner -->
+  <div *ngIf="state.isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Chargement des badgeuses...</p>
   </div>
 
   <!-- Main content -->
@@ -29,12 +22,6 @@
       [workingStartTime]="state.workingStartTime">
     </app-working-time-status>
 
-    <!-- Error display -->
-    <app-error-display
-      [errorMessage]="state.lastError"
-      (retry)="retryLoad()"
-      (dismiss)="dismissError()">
-    </app-error-display>
 
 
     <!-- Badgeuses sections -->

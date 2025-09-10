@@ -183,18 +183,6 @@ export class PointageComponent implements OnInit, OnDestroy {
   performDirectPointage(badgeuse: BadgeuseAccess): void {
     if (!badgeuse || this.state.isProcessingPointage) return;
 
-    // Check cooldown
-    if (this.state.userStatus?.last_action?.timestamp) {
-      const lastAction = new Date(this.state.userStatus.last_action.timestamp);
-      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-      
-      if (lastAction > twoMinutesAgo) {
-        const remainingSeconds = Math.ceil((lastAction.getTime() + 2 * 60 * 1000 - Date.now()) / 1000);
-        this.showError(`Veuillez attendre ${remainingSeconds} secondes avant le prochain pointage`);
-        return;
-      }
-    }
-
     // Determine action type based on user status and badgeuse type
     let actionType = 'acces'; // Default action
     
@@ -257,6 +245,9 @@ export class PointageComponent implements OnInit, OnDestroy {
       duration: 4000,
       panelClass: ['success-snackbar']
     });
+
+    // Force immediate refresh of user status and working time
+    this.refreshDataAfterPointage();
   }
 
   /**
@@ -307,6 +298,31 @@ export class PointageComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Force refresh of data after successful pointage
+   */
+  private refreshDataAfterPointage(): void {
+    // Force refresh from BadgeuseManagerService
+    const refreshSub = this.badgeuseManagerService.loadBadgeuses().subscribe({
+      next: (data) => {
+        this.state.badgeuses = data.badgeuses;
+        this.state.userStatus = data.userStatus;
+        
+        // Update the working time service with the fresh user status
+        if (data.userStatus) {
+          this.workingTimeService.updateUserStatus(data.userStatus);
+        }
+        
+        this.updateWorkingTime();
+      },
+      error: (error) => {
+        console.warn('Failed to refresh data after pointage:', error);
+      }
+    });
+
+    this.subscriptions.add(refreshSub);
+  }
+
   // Template helper methods
   
   /**
@@ -326,7 +342,7 @@ export class PointageComponent implements OnInit, OnDestroy {
   /**
    * TrackBy function for badgeuses list
    */
-  trackByBadgeuseId(index: number, badgeuse: BadgeuseAccess): number {
+  trackByBadgeuseId(_index: number, badgeuse: BadgeuseAccess): number {
     return badgeuse.id;
   }
 }

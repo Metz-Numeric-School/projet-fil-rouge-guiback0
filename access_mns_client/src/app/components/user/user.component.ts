@@ -19,7 +19,6 @@ import { User, CompleteUserProfile } from '../../interfaces/user.interface';
 import { PersonalInfoComponent } from './personal-info/personal-info.component';
 import { OrganisationComponent } from './organisation/organisation.component';
 import { ServicesComponent } from './services/services.component';
-import { AccessZonesComponent } from './access-zones/access-zones.component';
 import { BadgesComponent } from './badges/badges.component';
 
 @Component({
@@ -37,7 +36,6 @@ import { BadgesComponent } from './badges/badges.component';
     PersonalInfoComponent,
     OrganisationComponent,
     ServicesComponent,
-    AccessZonesComponent,
     BadgesComponent,
   ],
   templateUrl: './user.component.html',
