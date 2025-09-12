@@ -491,7 +491,7 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
         $accesData = [
             // Accès communs - Indices 1-3
             ['badgeuse' => 'badgeuse_1', 'zone' => 'principale', 'nom' => 'Accès Principal - Entrée A'],
-            ['badgeuse' => 'badgeuse_2', 'zone' => 'principale', 'nom' => 'Accès Principal - Entrée B'],  
+            ['badgeuse' => 'badgeuse_2', 'zone' => 'principale', 'nom' => 'Accès Principal - Entrée B'],
             ['badgeuse' => 'badgeuse_3', 'zone' => 'public', 'nom' => 'Accès Hall Public'],
 
             // Accès Défense - Indices 4-9 (zones spécifiques Défense)
@@ -558,26 +558,26 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
             ['user' => 'admin_defense', 'service' => 'security_defense', 'date' => '2020-01-15'],
             ['user' => 'admin_defense', 'service' => 'it_defense', 'date' => '2020-01-15'],
             ['user' => 'admin_defense', 'service' => 'logistics_defense', 'date' => '2020-01-15'],
-            
+
             // Utilisateurs défense - spécialisations
             ['user' => 'user_defense_1', 'service' => 'it_defense', 'date' => '2021-03-15'],
             ['user' => 'user_defense_1', 'service' => 'security_defense', 'date' => '2022-01-01'],
-            
+
             ['user' => 'user_defense_2', 'service' => 'logistics_defense', 'date' => '2021-04-10'],
             ['user' => 'user_defense_2', 'service' => 'it_defense', 'date' => '2022-06-01'],
-            
+
             // Admin intérieur - accès à plusieurs services secondaires
             ['user' => 'admin_interieur', 'service' => 'rh_interieur', 'date' => '2020-02-01'],
             ['user' => 'admin_interieur', 'service' => 'police_interieur', 'date' => '2020-02-01'],
-            
+
             // Utilisateurs intérieur - spécialisations
             ['user' => 'user_interieur_1', 'service' => 'rh_interieur', 'date' => '2021-06-01'],
             ['user' => 'user_interieur_2', 'service' => 'police_interieur', 'date' => '2021-08-01'],
             ['user' => 'user_interieur_2', 'service' => 'rh_interieur', 'date' => '2022-03-01'],
-            
+
             // Utilisateur économie - services secondaires
             ['user' => 'user_economie_1', 'service' => 'finance_economie', 'date' => '2021-09-15'],
-            
+
             // SuperAdmin - accès à tous les services secondaires pour supervision
             ['user' => 'superadmin', 'service' => 'it_defense', 'date' => '2020-01-01'],
             ['user' => 'superadmin', 'service' => 'security_defense', 'date' => '2020-01-01'],
@@ -585,7 +585,7 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
             ['user' => 'superadmin', 'service' => 'rh_interieur', 'date' => '2020-01-01'],
             ['user' => 'superadmin', 'service' => 'police_interieur', 'date' => '2020-01-01'],
             ['user' => 'superadmin', 'service' => 'finance_economie', 'date' => '2020-01-01'],
-            
+
             // User test - quelques services pour les tests
             ['user' => 'user_test', 'service' => 'it_defense', 'date' => '2024-01-01'],
             ['user' => 'user_test', 'service' => 'security_defense', 'date' => '2024-02-01'],
@@ -605,11 +605,11 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
             ['service' => 'principal_defense', 'zone' => 'principale'],
             ['service' => 'principal_defense', 'zone' => 'defense_bureau'],
             ['service' => 'principal_defense', 'zone' => 'public'],
-            
+
             ['service' => 'principal_interieur', 'zone' => 'principale'],
             ['service' => 'principal_interieur', 'zone' => 'interieur_bureau'],
             ['service' => 'principal_interieur', 'zone' => 'public'],
-            
+
             ['service' => 'principal_economie', 'zone' => 'principale'],
             ['service' => 'principal_economie', 'zone' => 'economie_bureau'],
             ['service' => 'principal_economie', 'zone' => 'public'],
@@ -617,22 +617,22 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
             // Services secondaires - accès principal + leur zone dédiée UNIQUEMENT
             ['service' => 'it_defense', 'zone' => 'principale'],
             ['service' => 'it_defense', 'zone' => 'defense_it'],
-            
+
             ['service' => 'security_defense', 'zone' => 'principale'],
             ['service' => 'security_defense', 'zone' => 'defense_security'],
             ['service' => 'security_defense', 'zone' => 'defense_alpha'],
             ['service' => 'security_defense', 'zone' => 'defense_beta'],
-            
+
             ['service' => 'logistics_defense', 'zone' => 'principale'],
             ['service' => 'logistics_defense', 'zone' => 'defense_logistics'],
-            
+
             ['service' => 'rh_interieur', 'zone' => 'principale'],
             ['service' => 'rh_interieur', 'zone' => 'interieur_rh'],
-            
+
             ['service' => 'police_interieur', 'zone' => 'principale'],
             ['service' => 'police_interieur', 'zone' => 'interieur_police'],
             ['service' => 'police_interieur', 'zone' => 'interieur_beta'],
-            
+
             ['service' => 'finance_economie', 'zone' => 'principale'],
             ['service' => 'finance_economie', 'zone' => 'economie_finance'],
         ];
