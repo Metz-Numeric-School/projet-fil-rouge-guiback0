@@ -29,11 +29,16 @@ class CommonFixtures extends Fixture implements FixtureGroupInterface
 
     public static function getGroups(): array
     {
-        return ['common', 'app', 'test'];
+        return ['dev', 'test'];
     }
 
     public function load(ObjectManager $manager): void
     {
+        // Sécurité : Ne pas charger ces fixtures en production
+        if ($_ENV['APP_ENV'] === 'prod') {
+            return;
+        }
+
         // ========== ORGANISATIONS ==========
         $organisations = [];
 
