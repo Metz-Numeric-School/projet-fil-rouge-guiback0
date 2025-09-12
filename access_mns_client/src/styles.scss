@@ -1,16 +1,8 @@
 // Angular Material v19 Theming
 @use "@angular/material" as mat;
 
-// Import shared dashboard styles
-@import 'styles/shared-dashboard.scss';
-
-// Define your brand colors
-$primary-orange: #ff5d2d;
-$secondary-blue: #25176e;
-$light-blue: #4a3a9b;
-$light-orange: #ff7a51;
-$dark-orange: #e54a25;
-$dark-blue: #1a0f5c;
+// Import centralized variables
+@use 'styles/variables' as *;
 
 html {
   color-scheme: light dark;
@@ -101,4 +93,77 @@ html {
 * {
   scrollbar-width: thin;
   scrollbar-color: $primary-orange #f1f1f1;
+}
+
+// Global button styles inspired by navbar buttons
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-flat-button,
+.mat-mdc-stroked-button {
+  &:not(.mat-toolbar *):not(.mat-tab-nav-bar *):not(.mat-tab-header *) {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    text-transform: none !important;
+    font-weight: 500 !important;
+    min-height: 40px !important;
+
+    mat-icon {
+      font-size: 1.2rem !important;
+      width: 1.2rem !important;
+      height: 1.2rem !important;
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px) !important;
+    }
+  }
+
+  // Primary buttons (inspired by navbar active state)
+  &[color="primary"]:not(.mat-toolbar *):not(.mat-tab-nav-bar *):not(.mat-tab-header *) {
+    background-color: $primary-orange !important;
+    color: white !important;
+
+    &:hover:not(:disabled) {
+      background-color: $light-orange !important;
+      box-shadow: 0 4px 8px rgba(255, 111, 97, 0.3) !important;
+    }
+  }
+
+  // Warning buttons
+  &[color="warn"]:not(.mat-toolbar *):not(.mat-tab-nav-bar *):not(.mat-tab-header *) {
+    background-color: #f44336 !important;
+    color: white !important;
+
+    &:hover:not(:disabled) {
+      background-color: #e53935 !important;
+      box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3) !important;
+    }
+  }
+
+  // Disabled state
+  &:disabled {
+    opacity: 0.6 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    background-color: #e0e0e0 !important;
+    color: #9e9e9e !important;
+    cursor: not-allowed !important;
+  }
+}
+
+// Specific styles for mat-card-actions buttons
+mat-card-actions .mat-mdc-button {
+  &:not([color]):not(:disabled) {
+    color: $primary-orange !important;
+    background-color: transparent !important;
+    
+    &:hover {
+      background-color: rgba(255, 111, 97, 0.1) !important;
+      color: $primary-orange !important;
+    }
+  }
 }

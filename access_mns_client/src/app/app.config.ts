@@ -13,6 +13,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
-    provideNoopAnimations(), // Material Design without animations
-  ],
+    provideNoopAnimations()
+],
 };

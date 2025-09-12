@@ -21,7 +21,6 @@ import {
 // Import sub-components
 import { WorkingTimeStatusComponent } from './working-time-status/working-time-status.component';
 import { BadgeuseCardComponent } from './badgeuse-card/badgeuse-card.component';
-import { ErrorDisplayComponent } from './error-display/error-display.component';
 
 // Import pipes (si nécessaire dans le futur)
 // import { WorkingTimeFormatPipe } from '../../pipes/working-time-format.pipe';
@@ -39,8 +38,7 @@ import { ErrorDisplayComponent } from './error-display/error-display.component';
     MatSnackBarModule,
     // Sub-components
     WorkingTimeStatusComponent,
-    BadgeuseCardComponent,
-    ErrorDisplayComponent
+    BadgeuseCardComponent
   ],
   templateUrl: './pointage.component.html',
   styleUrls: ['./pointage.component.scss']

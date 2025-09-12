@@ -7,8 +7,8 @@
 
   <!-- Main Content -->
   <div *ngIf="!isLoading && currentUser" class="dashboard-content">
-    <!-- Enhanced Header -->
-    <div class="dashboard-header">
+    <!-- Enhanced Header - Only show when on main dashboard -->
+    <div *ngIf="selectedTabIndex === 0" class="dashboard-header">
       <h1>
         <mat-icon class="dashboard-icon">account_circle</mat-icon>
         Mon Profil
@@ -16,7 +16,7 @@
       <p class="dashboard-subtitle">Consultez et gérez vos informations personnelles et professionnelles</p>
     </div>
 
-    <!-- Navigation Cards or Tab Content -->
+    <!-- Navigation Cards - Only show when on main dashboard -->
     <div *ngIf="selectedTabIndex === 0" class="dashboard-grid">
       <!-- Personal Information Card -->
       <mat-card class="dashboard-card" (click)="setActiveTab(1)">
@@ -39,8 +39,7 @@
       </mat-card>
 
       <!-- Organization Card -->
-      <mat-card class="dashboard-card" [class.disabled-card]="!hasOrganization()"
-        (click)="hasOrganization() && setActiveTab(2)">
+      <mat-card class="dashboard-card" (click)="onOrganizationCardClick()">
         <mat-card-header>
           <div mat-card-avatar class="card-avatar" [class.organisation-avatar]="hasOrganization()"
             [class.disabled-avatar]="!hasOrganization()">
@@ -55,26 +54,6 @@
           <p *ngIf="!hasOrganization()">Aucune organisation n'est associée à votre profil.</p>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-button [color]="hasOrganization() ? 'primary' : ''" [disabled]="!hasOrganization()">
-            <mat-icon>{{ hasOrganization() ? 'arrow_forward' : 'block' }}</mat-icon>
-            {{ hasOrganization() ? 'Consulter' : 'Non disponible' }}
-          </button>
-        </mat-card-actions>
-      </mat-card>
-
-      <!-- Services Card -->
-      <mat-card class="dashboard-card" (click)="setActiveTab(3)">
-        <mat-card-header>
-          <div mat-card-avatar class="card-avatar services-avatar">
-            <mat-icon>work</mat-icon>
-          </div>
-          <mat-card-title>Services</mat-card-title>
-          <mat-card-subtitle>Service actuel et historique</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Consultez votre service actuel et l'historique de vos affectations.</p>
-        </mat-card-content>
-        <mat-card-actions>
           <button mat-button color="primary">
             <mat-icon>arrow_forward</mat-icon>
             Consulter
@@ -83,17 +62,18 @@
       </mat-card>
 
 
+
       <!-- Badges Card -->
-      <mat-card class="dashboard-card" (click)="setActiveTab(4)">
+      <mat-card class="dashboard-card" (click)="setActiveTab(3)">
         <mat-card-header>
           <div mat-card-avatar class="card-avatar badges-avatar">
             <mat-icon>badge</mat-icon>
           </div>
           <mat-card-title>Badges</mat-card-title>
-          <mat-card-subtitle>Gestion de vos badges d'accès</mat-card-subtitle>
+          <mat-card-subtitle>Vos badges d'accès</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <p>Consultez vos badges actifs et l'historique de tous vos badges.</p>
+          <p>Consultez vos badges d'accès actifs et leurs informations.</p>
         </mat-card-content>
         <mat-card-actions>
           <button mat-button color="primary">
@@ -106,29 +86,27 @@
 
     </div>
 
-    <!-- Component Content -->
-    <div *ngIf="selectedTabIndex !== 0" class="component-content">
-      <!-- Back Button -->
-      <div class="back-button-container">
-        <button mat-raised-button color="primary" (click)="setActiveTab(0)">
-          <mat-icon>arrow_back</mat-icon>
-          Retour au Menu
-        </button>
-      </div>
+  </div>
 
-      <!-- Personal Info Component -->
-      <app-personal-info *ngIf="selectedTabIndex === 1" [currentUser]="currentUser"></app-personal-info>
-
-      <!-- Organisation Component -->
-      <app-organisation *ngIf="selectedTabIndex === 2" [completeProfile]="completeProfile"></app-organisation>
-
-      <!-- Services Component -->
-      <app-services *ngIf="selectedTabIndex === 3" [completeProfile]="completeProfile"></app-services>
-
-
-      <!-- Badges Component -->
-      <app-badges *ngIf="selectedTabIndex === 4" [completeProfile]="completeProfile"></app-badges>
+  <!-- Component Content - Full page when active -->
+  <div *ngIf="!isLoading && currentUser && selectedTabIndex !== 0" class="component-content">
+    <!-- Back Button -->
+    <div class="back-button-container">
+      <button mat-raised-button color="primary" (click)="setActiveTab(0)">
+        <mat-icon>arrow_back</mat-icon>
+        Retour au Menu
+      </button>
     </div>
+
+    <!-- Personal Info Component -->
+    <app-personal-info *ngIf="selectedTabIndex === 1" [currentUser]="currentUser"></app-personal-info>
+
+    <!-- Organisation Component -->
+    <app-organisation *ngIf="selectedTabIndex === 2" [completeProfile]="completeProfile"></app-organisation>
+
+
+    <!-- Badges Component -->
+    <app-badges *ngIf="selectedTabIndex === 3" [completeProfile]="completeProfile"></app-badges>
   </div>
 
   <!-- Error State -->

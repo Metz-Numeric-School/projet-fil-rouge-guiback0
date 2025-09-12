@@ -10,15 +10,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Subscription } from 'rxjs';
 
 import { UserStateService } from '../../services/auth/user-state.service';
-import { UserApiService } from '../../services/user/user-api.service';
 import { UserHelperService } from '../../services/user/user-helper.service';
+import { UserProfileStateService } from '../../services/user/user-profile-state.service';
 import { AuthenticationService } from '../../services/auth/authentication.service';
 import { User, CompleteUserProfile } from '../../interfaces/user.interface';
 
 // Import new components
 import { PersonalInfoComponent } from './personal-info/personal-info.component';
 import { OrganisationComponent } from './organisation/organisation.component';
-import { ServicesComponent } from './services/services.component';
 import { BadgesComponent } from './badges/badges.component';
 
 @Component({
@@ -35,7 +34,6 @@ import { BadgesComponent } from './badges/badges.component';
     // New components
     PersonalInfoComponent,
     OrganisationComponent,
-    ServicesComponent,
     BadgesComponent,
   ],
   templateUrl: './user.component.html',
@@ -46,12 +44,13 @@ export class UserComponent implements OnInit, OnDestroy {
   completeProfile: CompleteUserProfile | null = null;
   isLoading = true;
   selectedTabIndex = 0;
+  error: string | null = null;
 
   private subscriptions: Subscription[] = [];
 
   constructor(
     private userStateService: UserStateService,
-    private userApiService: UserApiService,
+    private userProfileStateService: UserProfileStateService,
     private userHelperService: UserHelperService,
     private authenticationService: AuthenticationService,
     private router: Router,
@@ -59,18 +58,42 @@ export class UserComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to current user changes
-    const userSub = this.userStateService.currentUser$.subscribe((user) => {
-      this.currentUser = user;
+    this.setupSubscriptions();
+    this.loadUserData();
+  }
 
+  private setupSubscriptions(): void {
+    // S'abonner aux changements d'état du service user profile
+    const profileStateSub = this.userProfileStateService.state$.subscribe(state => {
+      this.currentUser = state.currentUser;
+      this.completeProfile = state.completeProfile;
+      this.isLoading = state.isLoading;
+      this.selectedTabIndex = state.selectedTabIndex;
+      this.error = state.error;
+    });
+
+    // S'abonner aux changements d'utilisateur depuis le service d'auth
+    const userSub = this.userStateService.currentUser$.subscribe((user) => {
       if (!user) {
         this.router.navigate(['/login']);
-      } else {
+      } else if (user !== this.currentUser) {
+        this.userProfileStateService.setCurrentUser(user);
         this.loadCompleteProfile();
       }
     });
 
-    this.subscriptions.push(userSub);
+    this.subscriptions.push(profileStateSub, userSub);
+  }
+
+  private loadUserData(): void {
+    // Charger l'utilisateur actuel depuis le service d'auth
+    const currentUser = this.userStateService.getCurrentUser();
+    if (currentUser) {
+      this.userProfileStateService.setCurrentUser(currentUser);
+      this.loadCompleteProfile();
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
   ngOnDestroy(): void {
@@ -81,12 +104,9 @@ export class UserComponent implements OnInit, OnDestroy {
    * Load complete user profile with all related data
    */
   loadCompleteProfile(): void {
-    this.isLoading = true;
-
-    const profileSub = this.userApiService.getCompleteProfile().subscribe({
-      next: (profile) => {
-        this.completeProfile = profile;
-        this.isLoading = false;
+    const profileSub = this.userProfileStateService.loadCompleteProfile().subscribe({
+      next: () => {
+        // Les données sont automatiquement mises à jour via la subscription d'état
       },
       error: (error) => {
         this.snackBar.open(
@@ -94,7 +114,6 @@ export class UserComponent implements OnInit, OnDestroy {
           'Fermer',
           { duration: 5000 }
         );
-        this.isLoading = false;
       },
     });
 
@@ -112,14 +131,29 @@ export class UserComponent implements OnInit, OnDestroy {
    * Set active tab
    */
   setActiveTab(index: number): void {
-    this.selectedTabIndex = index;
+    this.userProfileStateService.setSelectedTabIndex(index);
   }
 
   /**
    * Check if organization exists
    */
   hasOrganization(): boolean {
-    return !!this.completeProfile?.organisation;
+    return this.userProfileStateService.hasOrganization();
+  }
+
+  /**
+   * Handle organization card click
+   */
+  onOrganizationCardClick(): void {
+    if (this.hasOrganization()) {
+      this.setActiveTab(2);
+    } else {
+      this.snackBar.open(
+        'Aucune organisation n\'est associée à votre profil',
+        'Fermer',
+        { duration: 3000 }
+      );
+    }
   }
 
   /**
@@ -128,9 +162,11 @@ export class UserComponent implements OnInit, OnDestroy {
   logout(): void {
     const logoutSub = this.authenticationService.logout().subscribe({
       next: () => {
+        this.userProfileStateService.clearUserData();
         this.router.navigate(['/login']);
       },
       error: () => {
+        this.userProfileStateService.clearUserData();
         this.router.navigate(['/login']);
       },
     });

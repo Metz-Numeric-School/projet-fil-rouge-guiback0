@@ -25,19 +25,17 @@ import { BadgeuseManagerService } from '../../../services/pointage/badgeuse-mana
   ],
   template: `
     <mat-card 
-      class="badgeuse-card" 
+      class="dashboard-card badgeuse-card" 
       [class.selected]="isSelected"
       [class.disabled]="!isAvailable"
       [class.principal]="isPrincipal"
     >
       <mat-card-header>
         <mat-card-title class="badgeuse-title">
-          <mat-icon [color]="getStatusColor()">{{ getStatusIcon() }}</mat-icon>
           {{ badgeuse.reference }}
           <mat-icon 
             *ngIf="isPrincipal" 
             class="principal-badge"
-            color="primary"
             matTooltip="Badgeuse principale"
           >
             star
@@ -47,55 +45,43 @@ import { BadgeuseManagerService } from '../../../services/pointage/badgeuse-mana
       </mat-card-header>
 
       <mat-card-content>
-        <!-- Installation date -->
-        <div class="location-info" *ngIf="badgeuse.date_installation">
-          <mat-icon>date_range</mat-icon>
-          <span>Installée le {{ badgeuse.date_installation | date:'dd/MM/yyyy' }}</span>
-        </div>
-
-        <!-- Zones access -->
-        <div class="zones-section" *ngIf="badgeuse.zones && badgeuse.zones.length > 0">
-          <div class="zones-title">
-            <mat-icon>security</mat-icon>
-            <span>Zones accessibles ({{ badgeuse.zones.length }})</span>
+        <div class="info-grid">
+          <!-- Installation date -->
+          <div class="info-item" *ngIf="badgeuse.date_installation">
+            <strong>Date d'installation:</strong>
+            <span>{{ badgeuse.date_installation | date:'dd/MM/yyyy' }}</span>
           </div>
-          <mat-chip-set>
-            <mat-chip 
-              *ngFor="let zone of badgeuse.zones" 
-              [color]="zone.is_principal ? 'primary' : 'accent'"
-              outlined
-            >
-              <mat-icon matChipAvatar>{{ zone.is_principal ? 'star' : 'work' }}</mat-icon>
-              {{ zone.nom_zone }}
-            </mat-chip>
-          </mat-chip-set>
-        </div>
 
-        <!-- Service type info -->
-        <div class="service-info">
-          <mat-icon>{{ getServiceIcon() }}</mat-icon>
-          <span>{{ getServiceDescription() }}</span>
-        </div>
+          <!-- Service type info -->
+          <div class="info-item">
+            <strong>Type d'accès:</strong>
+            <span>{{ getServiceDescription() }}</span>
+          </div>
 
-        <!-- Status chip -->
-        <div class="status-section">
-          <mat-chip [color]="getStatusColor()" selected>
-            <mat-icon matChipAvatar>{{ getStatusIcon() }}</mat-icon>
-            {{ getStatusText() }}
-          </mat-chip>
+          <!-- Status -->
+          <div class="info-item">
+            <strong>Statut:</strong>
+            <span class="status" [class]="'status-' + badgeuse.status">{{ getStatusText() }}</span>
+          </div>
+
+          <!-- Zones access -->
+          <div class="info-item" *ngIf="badgeuse.zones && badgeuse.zones.length > 0">
+            <strong>Zones accessibles:</strong>
+            <span>{{ badgeuse.zones.length }} zone(s)</span>
+          </div>
         </div>
       </mat-card-content>
 
-      <mat-card-actions align="end">
+      <mat-card-actions>
         <button 
-          mat-raised-button 
+          mat-button
           color="primary"
           [disabled]="!isAvailable || isProcessing"
           (click)="onToggleSelect()"
         >
           <mat-spinner *ngIf="isProcessing; else pointageIcon" diameter="20"></mat-spinner>
           <ng-template #pointageIcon>
-            <mat-icon>touch_app</mat-icon>
+            <mat-icon>arrow_forward</mat-icon>
           </ng-template>
           {{ isProcessing ? 'En cours...' : 'Pointer' }}
         </button>
@@ -103,66 +89,22 @@ import { BadgeuseManagerService } from '../../../services/pointage/badgeuse-mana
     </mat-card>
   `,
   styles: [`
-    .badgeuse-card {
-      margin-bottom: 16px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-      background: white;
-    }
-
-    .badgeuse-card:hover:not(.disabled) {
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      transform: translateY(-4px);
-    }
-
+    // Styles spécifiques aux badgeuses (s'ajoutent aux styles globaux dashboard-card)
     .badgeuse-card.selected {
-      border: 2px solid #25176e;
-      box-shadow: 0 0 10px rgba(37, 23, 110, 0.3);
+      border: 2px solid #ff6f61;
+      box-shadow: 0 0 10px rgba(255, 111, 97, 0.3);
     }
 
     .badgeuse-card.disabled {
       opacity: 0.6;
       cursor: not-allowed;
-    }
-
-    .badgeuse-card.principal {
-      border-left: 4px solid #ff5d2d;
-    }
-
-    mat-card-header {
-      padding: 1.5rem 1.5rem 0.5rem;
-    }
-
-    mat-card-title {
-      font-size: 1.3rem;
-      font-weight: 500;
-      color: #2c3e50;
-    }
-
-    mat-card-subtitle {
-      color: #7f8c8d;
-      font-size: 0.9rem;
-      margin-top: 0.25rem;
-    }
-
-    mat-card-content {
-      padding: 0.5rem 1.5rem 1rem;
-      color: #5a6c7d;
-      line-height: 1.5;
-    }
-
-    mat-card-actions {
-      padding: 0 1.5rem 1.5rem;
-
-      button {
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+      
+      &:hover {
+        transform: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
       }
     }
+
 
     .badgeuse-title {
       display: flex;
@@ -172,49 +114,60 @@ import { BadgeuseManagerService } from '../../../services/pointage/badgeuse-mana
 
     .principal-badge {
       margin-left: auto;
+      color: #6c757d;
     }
 
-    .location-info {
+    // Style sobre comme personal-info
+    .info-grid {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 12px 0;
-      color: #666;
-      font-size: 0.9rem;
+      flex-direction: column;
+      gap: 1rem;
     }
 
-    .zones-section {
-      margin: 16px 0;
-    }
-
-    .zones-title {
+    .info-item {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      strong {
+        color: #2c3e50;
+        font-weight: 500;
+        flex: 0 0 40%;
+      }
+
+      span {
+        color: #5a6c7d;
+        flex: 1;
+        text-align: right;
+      }
+    }
+
+    .status {
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.85rem;
       font-weight: 500;
-      color: #333;
-    }
 
-    .service-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 12px 0;
-      color: #666;
-      font-size: 0.9rem;
-    }
+      &.status-available {
+        background-color: #d4edda;
+        color: #155724;
+      }
 
-    .status-section {
-      margin: 12px 0;
-    }
+      &.status-blocked {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
 
-    mat-chip-set {
-      margin: 8px 0;
-    }
-
-    mat-card-actions {
-      padding-top: 8px;
+      &.status-error {
+        background-color: #fff3cd;
+        color: #856404;
+      }
     }
   `]
 })

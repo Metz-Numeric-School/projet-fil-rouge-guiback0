@@ -1,20 +1,5 @@
-// Brand Colors
-$primary-orange: #ff5d2d;
-$secondary-blue: #25176e;
-$light-blue: #4a3a9b; // Lighter blue instead of sass function
-$light-orange: #ff7a51; // Lighter orange instead of sass function
-$dark-blue: #1a0f5c; // Darker blue instead of sass function
-
-$light-gray: #f5f5f5;
-$dark-gray: #333;
-$white: #ffffff;
-$error-red: #f44336;
-$success-green: #4caf50;
-
-// Responsive Breakpoints
-$mobile: 480px;
-$tablet: 768px;
-$desktop: 1024px;
+// Import centralized variables
+@use '../../../styles/variables' as *;
 
 // Animations
 @keyframes float {
@@ -61,7 +46,7 @@ $desktop: 1024px;
   overflow: hidden;
   padding: 20px;
 
-  @media (max-width: $mobile) {
+  @include mobile {
     padding: 10px;
   }
 }
@@ -101,7 +86,7 @@ $desktop: 1024px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     letter-spacing: 2px;
 
-    @media (max-width: $mobile) {
+    @include mobile {
       font-size: 2rem;
     }
   }
@@ -113,7 +98,7 @@ $desktop: 1024px;
     font-weight: 300;
     letter-spacing: 1px;
 
-    @media (max-width: $mobile) {
+    @include mobile {
       font-size: 0.9rem;
     }
   }
@@ -150,7 +135,7 @@ $desktop: 1024px;
   align-items: center;
   margin: 0.5rem 0;
 
-  @media (max-width: $mobile) {
+  @include mobile {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
@@ -163,7 +148,7 @@ $desktop: 1024px;
     transition: color 0.3s ease;
 
     &:hover {
-      color: #e04a22; // Darker orange without sass function
+      color: $dark-orange;
       text-decoration: underline;
     }
   }
@@ -239,13 +224,13 @@ $desktop: 1024px;
 }
 
 // Responsive Design
-@media (max-width: $tablet) {
+@include tablet {
   .login-wrapper {
     max-width: 90%;
   }
 }
 
-@media (max-width: $mobile) {
+@include mobile {
   .login-container {
     padding: 15px;
   }

@@ -1,49 +1,14 @@
-// Variables couleurs matching navbar and dashboard
-$primary-blue: #25176e;
-$light-blue: #4a3a9b;
-$primary-orange: #ff5d2d;
-$light-orange: #ff7a51;
-$text-primary: #2c3e50;
-$text-secondary: #7f8c8d;
-$text-muted: #5a6c7d;
-$background-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-$coffee-color: #8B4513;
-$coffee-color-light: #A0522D;
+// Import centralized variables
+@use '../../../styles/variables' as *;
 
 .pay-coffee-container {
-  padding: 2rem;
-  min-height: calc(100vh - 200px);
+  padding: $spacing-xl;
+  min-height: $min-height-content;
   background: $background-gradient;
 }
 
 .dashboard-header {
-  text-align: center;
-  margin-bottom: 3rem;
-
-  h1 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-size: 2.5rem;
-    font-weight: 300;
-    color: $text-primary;
-    margin-bottom: 0.5rem;
-
-    .dashboard-icon {
-      font-size: 2.5rem;
-      width: 2.5rem;
-      height: 2.5rem;
-      color: $coffee-color;
-    }
-  }
-
-  .dashboard-subtitle {
-    font-size: 1.1rem;
-    color: $text-secondary;
-    font-weight: 300;
-    margin: 0;
-  }
+  @include standard-header;
 }
 
 // Loading container (standardized across application)
@@ -91,70 +56,52 @@ $coffee-color-light: #A0522D;
       font-size: 1.5rem;
       width: 1.5rem;
       height: 1.5rem;
-      color: $coffee-color;
     }
   }
 }
 
 .coffee-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
 }
 
-.coffee-card {
-  margin-bottom: 16px;
+.dashboard-card {
   transition: all 0.3s ease;
   cursor: pointer;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
   background: white;
 
   &:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
 
   mat-card-header {
     padding: 1.5rem 1.5rem 0.5rem;
-  }
 
-  mat-card-title {
-    font-size: 1.3rem;
-    font-weight: 500;
-    color: $text-primary;
-  }
+    mat-card-title {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: $text-primary;
+    }
 
-  mat-card-subtitle {
-    color: $coffee-color;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-top: 0.25rem;
+    mat-card-subtitle {
+      color: $text-secondary;
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
   }
 
   mat-card-content {
     padding: 0.5rem 1.5rem 1rem;
-    color: $text-muted;
-    line-height: 1.5;
 
     p {
-      margin-bottom: 1rem;
-    }
-
-    .coffee-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.9rem;
-      color: $text-secondary;
-
-      .coffee-frequency {
-        font-style: italic;
-      }
-
-      .coffee-date {
-        font-weight: 500;
-      }
+      color: $text-muted;
+      line-height: 1.5;
+      margin: 0;
     }
   }
 
@@ -187,7 +134,7 @@ $coffee-color-light: #A0522D;
   }
 
   &.coffee-avatar {
-    background: linear-gradient(135deg, $coffee-color 0%, $coffee-color-light 100%);
+    background: $primary-orange;
   }
 }
 
@@ -242,19 +189,9 @@ $coffee-color-light: #A0522D;
 }
 
 // Responsive design
-@media (max-width: 768px) {
+@include tablet {
   .pay-coffee-container {
     padding: 1rem;
-  }
-
-  .dashboard-header h1 {
-    font-size: 2rem;
-
-    .dashboard-icon {
-      font-size: 2rem;
-      width: 2rem;
-      height: 2rem;
-    }
   }
 
   .coffee-grid {
@@ -263,21 +200,9 @@ $coffee-color-light: #A0522D;
   }
 }
 
-@media (max-width: 480px) {
+@include mobile {
   .pay-coffee-container {
     padding: 0.5rem;
-  }
-
-  .dashboard-header {
-    margin-bottom: 2rem;
-
-    h1 {
-      font-size: 1.8rem;
-    }
-
-    .dashboard-subtitle {
-      font-size: 1rem;
-    }
   }
 
   .empty-content {

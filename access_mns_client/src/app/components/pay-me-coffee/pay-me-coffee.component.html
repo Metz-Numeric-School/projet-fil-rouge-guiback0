@@ -23,29 +23,22 @@
           Produits disponibles ({{ coffees.length }})
         </h2>
         <div class="coffee-grid">
-          <mat-card class="coffee-card" *ngFor="let coffee of coffees">
+          <mat-card class="dashboard-card" *ngFor="let coffee of coffees" (click)="buyCoffee(coffee)">
             <mat-card-header>
               <div mat-card-avatar class="card-avatar coffee-avatar">
                 <mat-icon>local_cafe</mat-icon>
               </div>
               <mat-card-title>{{ coffee.name }}</mat-card-title>
-              <mat-card-subtitle>{{ coffee.price?.formatted_amount }}</mat-card-subtitle>
+              <mat-card-subtitle>{{ coffee.price.formatted_amount }}</mat-card-subtitle>
             </mat-card-header>
             
             <mat-card-content>
-              <p *ngIf="coffee.description">{{ coffee.description }}</p>
-              <div class="coffee-meta">
-                <span class="coffee-frequency">Par mois</span>
-                <span class="coffee-date">{{ coffee.created }}</span>
-              </div>
+              <p>{{ coffee.description || 'Un délicieux café pour nous soutenir' }}</p>
             </mat-card-content>
             
-            <mat-card-actions align="end">
-              <button 
-                mat-raised-button 
-                color="primary"
-                (click)="buyCoffee(coffee)">
-                <mat-icon>payment</mat-icon>
+            <mat-card-actions>
+              <button mat-button color="primary">
+                <mat-icon>arrow_forward</mat-icon>
                 Offrir ce café
               </button>
             </mat-card-actions>
