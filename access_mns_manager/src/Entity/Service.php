@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
 class Service
@@ -17,9 +18,22 @@ class Service
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom du service est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom du service doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom du service ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $nom_service = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Le niveau de service est obligatoire')]
+    #[Assert\Range(
+        min: 1,
+        max: 10,
+        notInRangeMessage: 'Le niveau de service doit être entre {{ min }} et {{ max }}'
+    )]
     private ?int $niveau_service = null;
 
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
@@ -27,6 +41,7 @@ class Service
 
     #[ORM\ManyToOne(inversedBy: 'services')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'L\'organisation est obligatoire')]
     private ?Organisation $organisation = null;
 
     /**

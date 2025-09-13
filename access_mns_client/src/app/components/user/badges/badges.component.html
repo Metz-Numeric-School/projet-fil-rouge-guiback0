@@ -4,7 +4,7 @@
       <mat-icon class="dashboard-icon">badge</mat-icon>
       Badges
     </h1>
-    <p class="dashboard-subtitle">Gérez vos badges d'accès actifs et consultez l'historique</p>
+    <p class="dashboard-subtitle">Consultez vos badges d'accès actifs et leurs informations</p>
   </div>
 
   <div class="dashboard-grid">
@@ -35,12 +35,13 @@
                 <span>{{ formatDate(badge.date_expiration) }}</span>
               </div>
             </div>
-            <div class="badge-status">
-              <mat-chip [color]="getBadgeStatusColor(badge)">
-                {{ badge.is_active ? 'ACTIF' : 'INACTIF' }}
-              </mat-chip>
-            </div>
           </mat-card-content>
+          <mat-card-actions>
+            <mat-chip [color]="getBadgeStatusColor(badge)">
+              <mat-icon>{{ badge.is_active ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ badge.is_active ? 'ACTIF' : 'INACTIF' }}
+            </mat-chip>
+          </mat-card-actions>
         </mat-card>
       </div>
 
@@ -56,63 +57,15 @@
           <mat-card-content>
             <p>Aucun badge actif n'est actuellement disponible sur votre profil.</p>
           </mat-card-content>
+          <mat-card-actions>
+            <button mat-button disabled>
+              <mat-icon>block</mat-icon>
+              Non disponible
+            </button>
+          </mat-card-actions>
         </mat-card>
       </ng-template>
     </div>
 
-    <!-- All Badges History Section -->
-    <div *ngIf="hasAllBadges()" class="all-badges-section">
-      <h2 class="section-title">
-        <mat-icon>list</mat-icon>
-        Historique des Badges
-      </h2>
-
-      <div class="badges-grid">
-        <mat-card *ngFor="let badge of getAllBadges()" class="dashboard-card badge-history-card"
-          [class.inactive-badge-card]="!badge.is_active">
-          <mat-card-header>
-            <div mat-card-avatar class="card-avatar" [class.badge-history-avatar]="badge.is_active"
-              [class.inactive-badge-avatar]="!badge.is_active">
-              <mat-icon>credit_card</mat-icon>
-            </div>
-            <mat-card-title>{{ badge.numero_badge }}</mat-card-title>
-            <mat-card-subtitle>{{ badge.type_badge }}</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="info-grid">
-              <div class="info-item">
-                <strong>Créé le:</strong>
-                <span>{{ formatDate(badge.date_creation) }}</span>
-              </div>
-              <div class="info-item" *ngIf="badge.date_expiration">
-                <strong>Expire le:</strong>
-                <span>{{ formatDate(badge.date_expiration) }}</span>
-              </div>
-            </div>
-            <div class="badge-status">
-              <mat-chip [color]="getBadgeStatusColor(badge)">
-                {{ badge.is_active ? 'ACTIF' : 'EXPIRÉ' }}
-              </mat-chip>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </div>
-
-    <!-- No Badges at All -->
-    <div *ngIf="!hasAllBadges()" class="no-badges-section">
-      <mat-card class="dashboard-card no-badges-card">
-        <mat-card-header>
-          <div mat-card-avatar class="card-avatar no-badges-avatar">
-            <mat-icon>credit_card_off</mat-icon>
-          </div>
-          <mat-card-title>Aucun Badge</mat-card-title>
-          <mat-card-subtitle>Pas de badge configuré</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Aucun badge n'est disponible sur votre profil pour le moment.</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
   </div>
 </div>

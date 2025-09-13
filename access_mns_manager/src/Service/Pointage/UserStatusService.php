@@ -10,7 +10,8 @@ class UserStatusService
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private ZoneAccessService $zoneAccessService
+        private ZoneAccessService $zoneAccessService,
+        private WorkTimeCalculatorService $workTimeCalculator
     ) {}
 
     public function getCurrentUserStatus(User $user): array
@@ -30,9 +31,10 @@ class UserStatusService
         if ($lastGlobalPointage) {
             $isPrincipalService = $this->zoneAccessService->isBadgeuseInPrincipalZone($lastGlobalPointage->getBadgeuse(), $user);
             $serviceType = $isPrincipalService ? 'principal' : 'secondaire';
-            
+
             $lastAction = [
-                'heure' => $lastGlobalPointage->getHeure()->format('Y-m-d H:i:s'),
+                'heure' => $lastGlobalPointage->getHeure()->format(\DateTime::ATOM),
+                'timestamp' => $lastGlobalPointage->getHeure()->format(\DateTime::ATOM),
                 'type' => $lastGlobalPointage->getType(),
                 'badgeuse' => $lastGlobalPointage->getBadgeuse()->getReference(),
                 'zone' => implode(', ', $this->zoneAccessService->getBadgeuseZoneNames($lastGlobalPointage->getBadgeuse())),
@@ -53,16 +55,16 @@ class UserStatusService
     public function getUserWorkingStatus(User $user): array
     {
         $currentStatus = $this->getCurrentUserStatus($user);
-        
+
         $today = new \DateTime();
         $today->setTime(0, 0, 0);
 
         $lastPrincipalPointage = $this->getLastPrincipalPointage($user);
-        
+
         $status = $currentStatus['status'];
         $isInPrincipalZone = false;
         $currentWorkStart = null;
-        
+
         if ($lastPrincipalPointage) {
             $isInPrincipalZone = $this->zoneAccessService->isBadgeuseInPrincipalZone($lastPrincipalPointage->getBadgeuse(), $user);
 
@@ -73,12 +75,16 @@ class UserStatusService
 
         $lastAction = $currentStatus['last_action'];
 
+        // Calculate today's total working time (in minutes) across principal zone sessions
+        $workingTimeToday = $this->workTimeCalculator->calculateTodayWorkingTime($user);
+
         return [
             'status' => $status,
             'is_in_principal_zone' => $isInPrincipalZone,
-            'current_work_start' => $currentWorkStart ? $currentWorkStart->format('Y-m-d H:i:s') : null,
+            'current_work_start' => $currentWorkStart ? $currentWorkStart->format(\DateTime::ATOM) : null,
             'last_action' => $lastAction,
-            'date' => $today->format('Y-m-d')
+            'date' => $today->format('Y-m-d'),
+            'working_time_today' => $workingTimeToday
         ];
     }
 

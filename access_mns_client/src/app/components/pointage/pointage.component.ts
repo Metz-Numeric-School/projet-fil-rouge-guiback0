@@ -3,21 +3,28 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
-import { Subscription, timer } from 'rxjs';
-import { PointageService } from '../../services/pointage.service';
+import { Subscription } from 'rxjs';
+
+import { BadgeuseApiService } from '../../services/pointage/badgeuse-api.service';
+import { BadgeuseManagerService } from '../../services/pointage/badgeuse-manager.service';
+import { WorkingTimeService } from '../../services/pointage/working-time.service';
+
 import {
   BadgeuseAccess,
-  UserWorkingStatus,
   PointagePageState,
   PointageActionResponse,
   PointageRequest
 } from '../../interfaces/pointage.interface';
+
+// Import sub-components
+import { WorkingTimeStatusComponent } from './working-time-status/working-time-status.component';
+import { BadgeuseCardComponent } from './badgeuse-card/badgeuse-card.component';
+
+// Import pipes (si nécessaire dans le futur)
+// import { WorkingTimeFormatPipe } from '../../pipes/working-time-format.pipe';
+// import { CountdownFormatPipe } from '../../pipes/countdown-format.pipe';
 
 @Component({
   selector: 'app-pointage',
@@ -27,12 +34,11 @@ import {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatBadgeModule,
-    MatTooltipModule,
-    MatDividerModule
+    // Sub-components
+    WorkingTimeStatusComponent,
+    BadgeuseCardComponent
   ],
   templateUrl: './pointage.component.html',
   styleUrls: ['./pointage.component.scss']
@@ -47,16 +53,16 @@ export class PointageComponent implements OnInit, OnDestroy {
     lastError: null,
     workingTimeToday: 0,
     workingStartTime: null,
-    autoRefreshInterval: 30,
-    countdownSeconds: 0
+    autoRefreshInterval: 30
   };
 
   private subscriptions = new Subscription();
   private autoRefreshSubscription?: Subscription;
-  private countdownSubscription?: Subscription;
 
   constructor(
-    private pointageService: PointageService,
+    private badgeuseApiService: BadgeuseApiService,
+    private badgeuseManagerService: BadgeuseManagerService,
+    private workingTimeService: WorkingTimeService,
     private snackBar: MatSnackBar
   ) {}
 
@@ -69,7 +75,6 @@ export class PointageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
     this.stopAutoRefresh();
-    this.pointageService.stopAutoRefresh();
   }
 
   /**
@@ -79,12 +84,17 @@ export class PointageComponent implements OnInit, OnDestroy {
     this.state.isLoading = true;
     this.state.lastError = null;
 
-    const loadSub = this.pointageService.getBadgeuses().subscribe({
+    const loadSub = this.badgeuseManagerService.loadBadgeuses().subscribe({
       next: (data) => {
         this.state.badgeuses = data.badgeuses;
         this.state.userStatus = data.userStatus;
+        
+        // Update the working time service with the current user status
+        if (data.userStatus) {
+          this.workingTimeService.updateUserStatus(data.userStatus);
+        }
+        
         this.updateWorkingTime();
-        this.updateCountdown();
         this.state.isLoading = false;
       },
       error: (error) => {
@@ -101,19 +111,18 @@ export class PointageComponent implements OnInit, OnDestroy {
    * Subscribe to real-time status updates
    */
   private subscribeToStatusUpdates(): void {
-    const statusSub = this.pointageService.userStatus$.subscribe(status => {
+    const statusSub = this.workingTimeService.userStatus$.subscribe(status => {
       if (status) {
         this.state.userStatus = status;
         this.updateWorkingTime();
-        this.updateCountdown();
       }
     });
 
-    const badgeusesSub = this.pointageService.badgeuses$.subscribe(badgeuses => {
+    const badgeusesSub = this.badgeuseManagerService.badgeuses$.subscribe(badgeuses => {
       this.state.badgeuses = badgeuses;
     });
 
-    const workingTimeSub = this.pointageService.workingTime$.subscribe(minutes => {
+    const workingTimeSub = this.workingTimeService.workingTime$.subscribe(minutes => {
       this.state.workingTimeToday = minutes;
     });
 
@@ -123,18 +132,24 @@ export class PointageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Start auto-refresh every 30 seconds
+   * Start auto-refresh
    */
   private startAutoRefresh(): void {
-    this.autoRefreshSubscription = this.pointageService.startAutoRefresh().subscribe({
+    this.autoRefreshSubscription = this.badgeuseManagerService.startAutoRefresh().subscribe({
       next: (data) => {
         this.state.badgeuses = data.badgeuses;
         this.state.userStatus = data.userStatus;
+        
+        // Update the working time service with the current user status
+        if (data.userStatus) {
+          this.workingTimeService.updateUserStatus(data.userStatus);
+        }
+        
         this.updateWorkingTime();
-        this.updateCountdown();
+        this.state.lastError = null;
       },
       error: (error) => {
-        console.error('Auto-refresh failed:', error);
+        this.state.lastError = error.message;
       }
     });
   }
@@ -149,121 +164,64 @@ export class PointageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Update countdown timer for next allowed pointage
-   */
-  private updateCountdown(): void {
-    if (this.countdownSubscription) {
-      this.countdownSubscription.unsubscribe();
-    }
-
-    if (this.state.userStatus?.last_action?.heure) {
-      const countdownSub = this.pointageService.getTimeUntilNextPointage(
-        this.state.userStatus.last_action.heure
-      ).subscribe(seconds => {
-        this.state.countdownSeconds = seconds;
-      });
-
-      this.subscriptions.add(countdownSub);
-      this.countdownSubscription = countdownSub;
-    } else {
-      this.state.countdownSeconds = 0;
-    }
-  }
-
-  /**
-   * Update working time display
+   * Update working time and session info
    */
   private updateWorkingTime(): void {
     if (this.state.userStatus) {
-      this.state.workingTimeToday = this.state.userStatus.working_time_today || 0;
-      
-      if (this.state.userStatus.current_work_start) {
-        this.state.workingStartTime = new Date(this.state.userStatus.current_work_start);
-      } else {
-        this.state.workingStartTime = null;
+      this.state.workingStartTime = this.state.userStatus.current_work_start || null;
+      // Note: workingTimeToday is now updated via the workingTime$ subscription
+      // to ensure real-time updates from the WorkingTimeService
+    }
+  }
+
+
+  /**
+   * Perform direct pointage on badgeuse click
+   */
+  performDirectPointage(badgeuse: BadgeuseAccess): void {
+    if (!badgeuse || this.state.isProcessingPointage) return;
+
+    // Determine action type based on user status and badgeuse type
+    let actionType = 'acces'; // Default action
+    
+    if (this.state.userStatus) {
+      if (this.state.userStatus.status === 'absent') {
+        actionType = 'entree';
+      } else if (this.state.userStatus.status === 'present') {
+        // Check if it's a principal service badgeuse for entry/exit
+        const isMainService = badgeuse.zones?.some(zone => zone.is_principal);
+        actionType = isMainService ? 'sortie' : 'acces';
       }
     }
+
+    this.performPointage({ badgeuse, actionType });
   }
 
   /**
    * Perform pointage action
    */
-  performPointage(badgeuse: BadgeuseAccess, force: boolean = false): void {
-    if (this.state.isProcessingPointage) return;
-
-    if (!this.canUseBadgeuse(badgeuse) && !force) {
-      this.showWarning('Cette badgeuse n\'est pas disponible');
-      return;
-    }
-
-    if (this.state.countdownSeconds > 0 && !force) {
-      this.showWarning(`Veuillez attendre ${this.state.countdownSeconds} secondes avant de pointer à nouveau`);
-      return;
-    }
+  performPointage(event: { badgeuse: BadgeuseAccess; actionType: string }): void {
+    if (!event.badgeuse || this.state.isProcessingPointage) return;
 
     this.state.isProcessingPointage = true;
-    this.state.selectedBadgeuse = badgeuse;
+    this.state.lastError = null;
+    this.state.selectedBadgeuse = event.badgeuse; // Set for loading indicator
 
     const request: PointageRequest = {
-      badgeuse_id: badgeuse.id,
-      force: force
+      badgeuse_id: event.badgeuse.id,
+      action_type: event.actionType
     };
 
-    const pointageSub = this.pointageService.performPointage(request).subscribe({
+    const pointageSub = this.badgeuseApiService.performPointage(request).subscribe({
       next: (response: PointageActionResponse) => {
+        this.handlePointageSuccess(response, event.actionType);
         this.state.isProcessingPointage = false;
         this.state.selectedBadgeuse = null;
-
-        if (response.success && response.data) {
-          this.showSuccess(response.data.message);
-          this.state.userStatus = response.data.new_status;
-          this.updateWorkingTime();
-          this.updateCountdown();
-          
-          // Refresh badgeuses status
-          this.loadData();
-        } else {
-          this.showError(response.message || 'Erreur lors du pointage');
-        }
       },
-      error: (error: PointageActionResponse) => {
+      error: (response: PointageActionResponse) => {
+        this.handlePointageError(response);
         this.state.isProcessingPointage = false;
         this.state.selectedBadgeuse = null;
-
-        if (error.warning) {
-          // Show warning with option to force
-          this.showWarningWithAction(
-            error.message || 'Avertissement lors du pointage',
-            'Forcer',
-            () => this.performPointage(badgeuse, true)
-          );
-        } else {
-          // Handle specific error cases
-          let errorMessage = error.message || 'Erreur lors du pointage';
-          
-          switch (error.error) {
-            case 'ZONE_ACCESS_DENIED':
-              errorMessage = 'Vous n\'avez pas accès à cette zone';
-              break;
-            case 'NO_ACTIVE_BADGE':
-              errorMessage = 'Aucun badge actif disponible';
-              break;
-            case 'ACCESS_DENIED':
-              errorMessage = 'Accès refusé - vérifiez votre organisation';
-              break;
-            case 'NO_PRINCIPAL_SERVICE':
-              errorMessage = 'Aucun service principal configuré pour votre compte';
-              break;
-            case 'SECONDARY_ACCESS_DENIED':
-              errorMessage = 'Vous devez d\'abord pointer dans votre service principal';
-              break;
-            case 'NO_ZONES_CONFIGURED':
-              errorMessage = 'Cette badgeuse n\'a aucune zone configurée';
-              break;
-          }
-          
-          this.showError(errorMessage);
-        }
       }
     });
 
@@ -271,194 +229,61 @@ export class PointageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Check if badgeuse can be used
+   * Handle successful pointage
    */
-  canUseBadgeuse(badgeuse: BadgeuseAccess): boolean {
-    if (!this.state.userStatus) return false;
+  private handlePointageSuccess(response: PointageActionResponse, actionType: string): void {
+    const actionText = this.getActionText(actionType);
+    let message = `${actionText} enregistré avec succès`;
     
-    return this.pointageService.isBadgeuseAvailable(badgeuse, this.state.userStatus);
-  }
-
-  /**
-   * Get the next action type for a badgeuse
-   * SERVICES PRINCIPAUX : Alternent entre "entrée" et "sortie" selon le statut
-   * SERVICES SECONDAIRES : Toujours "accès" - ne changent pas le statut
-   */
-  getNextActionType(badgeuse: BadgeuseAccess): 'entree' | 'sortie' | 'acces' {
-    // Si c'est une badgeuse avec accès au service principal
-    if (badgeuse.service_type === 'principal' || badgeuse.service_type === 'mixed') {
-      return this.state.userStatus?.status === 'present' ? 'sortie' : 'entree';
+    if (response.warning) {
+      message += ` (${response.warning})`;
     }
-    // Sinon, c'est un accès aux services secondaires
-    return 'acces';
+
+    this.snackBar.open(message, 'Fermer', {
+      duration: 4000,
+      panelClass: ['success-snackbar']
+    });
+
+    // Force immediate refresh of user status and working time
+    this.refreshDataAfterPointage();
   }
 
   /**
-   * Get principal badgeuse (Zone principale du service principal)
+   * Handle pointage error
    */
-  getPrincipalBadgeuse(): BadgeuseAccess | null {
-    return this.pointageService.getPrincipalBadgeuse(this.state.badgeuses);
-  }
-
-  /**
-   * Get secondary badgeuses (Zones secondaires et autres zones)
-   */
-  getSecondaryBadgeuses(): BadgeuseAccess[] {
-    return this.pointageService.getSecondaryBadgeuses(this.state.badgeuses);
-  }
-
-  /**
-   * Get badgeuses by service type for enhanced separation
-   */
-  getPrincipalServiceBadgeuses(): BadgeuseAccess[] {
-    return this.state.badgeuses.filter(badgeuse => 
-      badgeuse.zones.some(zone => zone.is_principal)
-    );
-  }
-
-  /**
-   * Get secondary service badgeuses (zones that are not principal)
-   */
-  getSecondaryServiceBadgeuses(): BadgeuseAccess[] {
-    return this.state.badgeuses.filter(badgeuse => 
-      !badgeuse.zones.some(zone => zone.is_principal) &&
-      badgeuse.zones.length > 0
-    );
-  }
-
-  /**
-   * Get mixed service badgeuses (badgeuses that have both principal and secondary zones)
-   */
-  getMixedServiceBadgeuses(): BadgeuseAccess[] {
-    return this.state.badgeuses.filter(badgeuse => {
-      const hasPrincipal = badgeuse.zones.some(zone => zone.is_principal);
-      const hasSecondary = badgeuse.zones.some(zone => !zone.is_principal);
-      return hasPrincipal && hasSecondary;
+  private handlePointageError(response: PointageActionResponse): void {
+    this.state.lastError = response.message || 'Erreur lors du pointage';
+    
+    this.snackBar.open(response.message || 'Erreur lors du pointage', 'Fermer', {
+      duration: 6000,
+      panelClass: ['error-snackbar']
     });
   }
 
   /**
-   * Format working time for display
+   * Get action text for display
    */
-  getFormattedWorkingTime(): string {
-    return this.pointageService.formatWorkingTime(this.state.workingTimeToday);
-  }
-
-  /**
-   * Format countdown for display
-   */
-  getFormattedCountdown(): string {
-    if (this.state.countdownSeconds <= 0) return '';
-    
-    const minutes = Math.floor(this.state.countdownSeconds / 60);
-    const seconds = this.state.countdownSeconds % 60;
-    
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  }
-
-  /**
-   * Get status color
-   */
-  getStatusColor(): string {
-    if (!this.state.userStatus) return 'warn';
-    
-    switch (this.state.userStatus.status) {
-      case 'present':
-        return this.state.userStatus.is_in_principal_zone ? 'primary' : 'accent';
-      case 'absent':
-        return 'warn';
-      default:
-        return 'warn';
+  private getActionText(actionType: string): string {
+    switch (actionType) {
+      case 'entree': return 'Entrée';
+      case 'sortie': return 'Sortie';
+      case 'acces': return 'Accès';
+      default: return 'Action';
     }
   }
 
   /**
-   * Get status icon
+   * Retry loading data
    */
-  getStatusIcon(): string {
-    if (!this.state.userStatus) return 'help';
-    
-    switch (this.state.userStatus.status) {
-      case 'present':
-        return this.state.userStatus.is_in_principal_zone ? 'work' : 'location_on';
-      case 'absent':
-        return 'work_off';
-      default:
-        return 'help';
-    }
-  }
-
-  /**
-   * Get status text with enhanced service information
-   */
-  getStatusText(): string {
-    if (!this.state.userStatus) return 'Statut inconnu';
-    
-    switch (this.state.userStatus.status) {
-      case 'present':
-        const lastAction = this.state.userStatus.last_action;
-        if (lastAction?.affects_status) {
-          return `Présent - Service Principal`;
-        } else if (lastAction?.service_type === 'secondaire') {
-          return `Présent - Accès Service Secondaire`;
-        } else {
-          return 'Présent';
-        }
-      case 'absent':
-        return 'Absent';
-      default:
-        return 'Statut inconnu';
-    }
-  }
-
-  /**
-   * Get badge access information for a badgeuse
-   */
-  getBadgeuseAccessInfo(badgeuse: BadgeuseAccess): string {
-    const principalZones = badgeuse.zones.filter(z => z.is_principal);
-    const secondaryZones = badgeuse.zones.filter(z => !z.is_principal);
-    
-    switch (badgeuse.service_type) {
-      case 'principal':
-        return `Service principal (${principalZones.length} zone(s))`;
-      case 'secondaire':
-        return `Service secondaire (${secondaryZones.length} zone(s))`;
-      case 'mixed':
-        return `Accès mixte (${principalZones.length} principale(s), ${secondaryZones.length} secondaire(s))`;
-      default:
-        return `${badgeuse.zones.length} zone(s) disponible(s)`;
-    }
-  }
-
-  /**
-   * Check if badgeuse provides access to principal service
-   */
-  hasPrincipalAccess(badgeuse: BadgeuseAccess): boolean {
-    return badgeuse.zones.some(zone => zone.is_principal);
-  }
-
-  /**
-   * Check if badgeuse provides access to secondary services only
-   */
-  hasSecondaryAccessOnly(badgeuse: BadgeuseAccess): boolean {
-    return badgeuse.zones.length > 0 && !badgeuse.zones.some(zone => zone.is_principal);
-  }
-
-  /**
-   * Refresh data manually
-   */
-  refresh(): void {
+  retryLoad(): void {
     this.loadData();
   }
 
   /**
-   * Show success message
+   * Dismiss error message
    */
-  private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Fermer', {
-      duration: 5000,
-      panelClass: ['success-snackbar']
-    });
+  dismissError(): void {
+    this.state.lastError = null;
   }
 
   /**
@@ -466,30 +291,56 @@ export class PointageComponent implements OnInit, OnDestroy {
    */
   private showError(message: string): void {
     this.snackBar.open(message, 'Fermer', {
-      duration: 7000,
+      duration: 5000,
       panelClass: ['error-snackbar']
     });
   }
 
   /**
-   * Show warning message
+   * Force refresh of data after successful pointage
    */
-  private showWarning(message: string): void {
-    this.snackBar.open(message, 'Fermer', {
-      duration: 5000,
-      panelClass: ['warning-snackbar']
+  private refreshDataAfterPointage(): void {
+    // Force refresh from BadgeuseManagerService
+    const refreshSub = this.badgeuseManagerService.loadBadgeuses().subscribe({
+      next: (data) => {
+        this.state.badgeuses = data.badgeuses;
+        this.state.userStatus = data.userStatus;
+        
+        // Update the working time service with the fresh user status
+        if (data.userStatus) {
+          this.workingTimeService.updateUserStatus(data.userStatus);
+        }
+        
+        this.updateWorkingTime();
+      },
+      error: (error) => {
+        console.warn('Failed to refresh data after pointage:', error);
+      }
     });
+
+    this.subscriptions.add(refreshSub);
+  }
+
+  // Template helper methods
+  
+  /**
+   * Get principal badgeuses
+   */
+  getPrincipalBadgeuses(): BadgeuseAccess[] {
+    return this.badgeuseManagerService.getPrincipalServiceBadgeuses(this.state.badgeuses);
   }
 
   /**
-   * Show warning with action button
+   * Get secondary badgeuses
    */
-  private showWarningWithAction(message: string, actionText: string, action: () => void): void {
-    const snackBarRef = this.snackBar.open(message, actionText, {
-      duration: 10000,
-      panelClass: ['warning-snackbar']
-    });
+  getSecondaryBadgeuses(): BadgeuseAccess[] {
+    return this.badgeuseManagerService.getSecondaryServiceBadgeuses(this.state.badgeuses);
+  }
 
-    snackBarRef.onAction().subscribe(action);
+  /**
+   * TrackBy function for badgeuses list
+   */
+  trackByBadgeuseId(_index: number, badgeuse: BadgeuseAccess): number {
+    return badgeuse.id;
   }
 }

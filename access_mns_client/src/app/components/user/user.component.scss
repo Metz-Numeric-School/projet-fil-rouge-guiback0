@@ -1,6 +1,9 @@
+// Import centralized variables
+@use '../../../styles/variables' as *;
+
 .user-dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: $background-gradient;
   padding: 0;
 
   // Loading container
@@ -20,40 +23,18 @@
 
   // Dashboard content
   .dashboard-content {
-    padding: 2rem;
-    max-width: 1200px;
+    padding: $spacing-xl;
+    max-width: $container-lg;
     margin: 0 auto;
   }
 
   // Header styling
   .dashboard-header {
-    text-align: center;
-    margin-bottom: 3rem;
-
-    h1 {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      font-size: 2.5rem;
-      font-weight: 300;
-      color: #2c3e50;
-      margin-bottom: 0.5rem;
-
-      .dashboard-icon {
-        font-size: 2.5rem;
-        width: 2.5rem;
-        height: 2.5rem;
-      }
-    }
-
+    @include standard-header;
+    
     .dashboard-subtitle {
-      font-size: 1.1rem;
-      color: #7f8c8d;
-      font-weight: 300;
-      margin: 0 0 1rem 0;
+      margin-bottom: 1rem;
     }
-
   }
 
   // Dashboard grid layout
@@ -93,11 +74,11 @@
       mat-card-title {
         font-size: 1.3rem;
         font-weight: 500;
-        color: #2c3e50;
+        color: $text-primary;
       }
 
       mat-card-subtitle {
-        color: #7f8c8d;
+        color: $text-secondary;
         font-size: 0.9rem;
         margin-top: 0.25rem;
       }
@@ -107,7 +88,7 @@
       padding: 0.5rem 1.5rem 1rem;
 
       p {
-        color: #5a6c7d;
+        color: $text-muted;
         line-height: 1.5;
         margin: 0;
       }
@@ -142,48 +123,28 @@
     }
 
     &.personal-avatar {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: $secondary-blue;
     }
 
     &.organisation-avatar {
-      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      background: $primary-orange;
     }
 
-    &.services-avatar {
-      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-    }
 
     &.access-avatar {
-      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      background: $light-orange;
     }
 
     &.badges-avatar {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      background: $primary-orange;
     }
 
     &.dashboard-avatar {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      background: $light-blue;
     }
 
     &.disabled-avatar {
-      background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
-    }
-  }
-
-  // Component content
-  .component-content {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  .back-button-container {
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: flex-start;
-
-    button {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      background: $medium-gray;
     }
   }
 
@@ -217,19 +178,9 @@
   }
 
   // Responsive design
-  @media (max-width: 768px) {
+  @include tablet {
     .dashboard-content {
       padding: 1rem;
-    }
-
-    .dashboard-header h1 {
-      font-size: 2rem;
-
-      .dashboard-icon {
-        font-size: 2rem;
-        width: 2rem;
-        height: 2rem;
-      }
     }
 
     .dashboard-grid {
@@ -238,26 +189,38 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @include mobile {
     .dashboard-content {
       padding: 0.5rem;
     }
+  }
+}
 
-    .dashboard-header {
-      margin-bottom: 2rem;
+// Component content - Full page display
+.component-content {
+  min-height: 100vh;
+  background: $background-gradient;
+  animation: fadeIn 0.3s ease-in-out;
+  padding: $spacing-xl;
 
-      h1 {
-        font-size: 1.8rem;
-      }
+  .back-button-container {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: flex-start;
 
-      .dashboard-subtitle {
-        font-size: 1rem;
-      }
-
-      .user-welcome h2 {
-        font-size: 1.3rem;
-      }
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
+  }
+
+  @include tablet {
+    padding: $spacing-lg;
+  }
+
+  @include mobile {
+    padding: $spacing-md;
   }
 }
 

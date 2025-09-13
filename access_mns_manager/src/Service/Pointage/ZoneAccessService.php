@@ -8,14 +8,14 @@ use App\Entity\Badgeuse;
 use App\Entity\Acces;
 use App\Entity\ServiceZone;
 use App\Exception\BadgeException;
-use App\Service\User\UserService;
+use App\Service\User\UserOrganisationService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ZoneAccessService
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private UserService $userService
+        private UserOrganisationService $userOrganisationService
     ) {}
 
     public function getBadgeuseZones(Badgeuse $badgeuse): array
@@ -94,8 +94,8 @@ class ZoneAccessService
 
     public function validateUserZoneAccess(User $user, Badgeuse $badgeuse): void
     {
-        $userOrganisation = $this->userService->getUserOrganisation($user);
-        $currentOrganisation = $this->userService->getCurrentUserOrganisation();
+        $userOrganisation = $this->userOrganisationService->getUserOrganisation($user);
+        $currentOrganisation = $this->userOrganisationService->getCurrentUserOrganisation();
 
         if (!$userOrganisation || !$currentOrganisation || 
             $userOrganisation->getId() !== $currentOrganisation->getId()) {

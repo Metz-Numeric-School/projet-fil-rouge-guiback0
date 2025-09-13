@@ -1,0 +1,11 @@
+services:
+    # Make PresenceService public for testing
+    App\Service\User\PresenceService:
+        public: true
+        
+    # Make other User services public for testing as well
+    App\Service\User\UserService:
+        public: true
+        
+    App\Service\User\GDPRService:
+        public: true

@@ -7,7 +7,7 @@ nelmio_cors:
         expose_headers: ["Link"]
         max_age: 3600
     paths:
-        "^/api":
+        "^/manager/api":
             allow_origin:
                 [
                     "http://localhost",
