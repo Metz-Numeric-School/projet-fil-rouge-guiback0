@@ -18,8 +18,9 @@ export interface LoginSuccessResponse {
 
 export interface LoginErrorResponse {
   success: false;
-  error: 'INVALID_CREDENTIALS' | 'MISSING_CREDENTIALS' | string;
+  error: 'INVALID_CREDENTIALS' | 'MISSING_CREDENTIALS' | 'VALIDATION_FAILED' | 'TOO_MANY_ATTEMPTS' | 'INVALID_JSON' | string;
   message: string;
+  details?: string[]; // Array of validation error messages
 }
 
 export type LoginResponse = LoginSuccessResponse | LoginErrorResponse;
@@ -33,10 +34,17 @@ export interface RefreshResponse {
   message: string;
 }
 
+// Validation error interface
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
 // Generic API Response interface
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
   message: string;
+  details?: string[]; // Array of detailed error messages
 }

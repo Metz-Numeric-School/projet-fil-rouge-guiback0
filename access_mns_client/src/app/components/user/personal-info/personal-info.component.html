@@ -4,7 +4,7 @@
       <mat-icon class="dashboard-icon">person</mat-icon>
       Informations Personnelles
     </h1>
-    <p class="dashboard-subtitle">Consultez vos informations personnelles et vos horaires de travail</p>
+    <p class="dashboard-subtitle">Consultez vos informations de base, vos horaires de travail et vos rôles dans le système</p>
   </div>
 
   <div class="dashboard-grid" *ngIf="currentUser">
@@ -37,6 +37,12 @@
           </div>
         </div>
       </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="editProfile()">
+          <mat-icon>edit</mat-icon>
+          Modifier mon profil
+        </button>
+      </mat-card-actions>
     </mat-card>
 
     <!-- Contact Information Card -->
@@ -151,7 +157,7 @@
           mat-raised-button 
           color="warn" 
           (click)="deactivateAccount()"
-          *ngIf="userService.isAccountActive(currentUser)"
+          *ngIf="gdprService.isAccountActive(currentUser)"
           [disabled]="isDeactivating">
           <mat-icon>block</mat-icon>
           Désactiver le compte

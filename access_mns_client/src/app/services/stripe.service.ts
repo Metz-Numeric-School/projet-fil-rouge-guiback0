@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
-import { AuthService } from './auth.service';
+import { TokenService } from './auth/token.service';
 
 export interface StripeProduct {
   id: string;
@@ -33,6 +33,20 @@ export interface CheckoutSessionResponse {
   message: string;
 }
 
+export interface StripeVerificationResponse {
+  success: boolean;
+  data: {
+    session_id: string;
+    status: string;
+    payment_status: string;
+    paid: boolean;
+    amount_total: number;
+    currency: string;
+    customer_email?: string;
+  };
+  message: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -41,7 +55,7 @@ export class StripeService {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private tokenService: TokenService
   ) {}
 
   /**
@@ -125,10 +139,47 @@ export class StripeService {
   }
 
   /**
+   * Vérifier une session de checkout Stripe
+   */
+  verifySession(sessionId: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    const params = { session_id: sessionId };
+
+    return this.http
+      .get<StripeVerificationResponse>(`${this.API_BASE_URL}/stripe/verify`, { headers, params })
+      .pipe(
+        map((response) => {
+          if (response.success && response.data) {
+            return response.data;
+          }
+          throw new Error(response.message || 'Erreur lors de la vérification de la session');
+        }),
+        catchError((error) => {
+          let errorMessage = 'Erreur lors de la vérification de la session de paiement';
+
+          if (error.error) {
+            switch (error.error.error) {
+              case 'MISSING_SESSION_ID':
+                errorMessage = 'ID de session manquant';
+                break;
+              case 'INVALID_SESSION':
+                errorMessage = 'Session introuvable ou invalide';
+                break;
+              default:
+                errorMessage = error.error.message || errorMessage;
+            }
+          }
+
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+
+  /**
    * Get authorization headers with JWT token
    */
   private getAuthHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
+    const token = this.tokenService.getToken();
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',

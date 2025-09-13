@@ -8,17 +8,59 @@ parameters:
 services:
     # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
+        autowire: true # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../src/'
+        resource: "../src/"
         exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+            - "../src/DependencyInjection/"
+            - "../src/Entity/"
+            - "../src/Kernel.php"
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    
+    # Test environment - make specialized services public for testing
+    App\Service\User\Presence\DailyPresenceService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\Presence\WeeklyPresenceService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\Presence\MonthlyPresenceService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\Presence\PresenceAnalyzerService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\Presence\OrganisationPresenceService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\Presence\PresenceReportService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\UserOrganisationService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\UserAccessService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\UserServiceDataService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\OrganisationFormatterService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\GDPR\AccountDeactivationService:
+        public: '%kernel.debug%'
+        
+    App\Service\User\GDPR\UserDataExporterService:
+        public: '%kernel.debug%'
+        
+    # Security services
+    App\Service\Security\LoginAttemptService:
+        arguments:
+            $loginAttemptLimiter: '@limiter.login_attempt'

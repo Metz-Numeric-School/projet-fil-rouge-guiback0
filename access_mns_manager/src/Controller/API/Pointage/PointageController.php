@@ -3,7 +3,13 @@
 namespace App\Controller\API\Pointage;
 
 use App\Entity\User;
-use App\Service\Pointage\BadgeService;
+use App\Service\Pointage\BadgeuseAccessService;
+use App\Service\Pointage\PointageValidationService;
+use App\Service\Pointage\PointageService;
+use App\Service\Pointage\UserStatusService;
+use App\Service\Pointage\WorkTimeCalculatorService;
+use App\Service\Pointage\BadgeValidatorService;
+use App\Service\Database\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +22,13 @@ class PointageController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private BadgeService $badgeService
+        private BadgeuseAccessService $badgeuseAccessService,
+        private PointageValidationService $pointageValidationService,
+        private PointageService $pointageService,
+        private UserStatusService $userStatusService,
+        private WorkTimeCalculatorService $workTimeCalculator,
+        private BadgeValidatorService $badgeValidator,
+        private TransactionService $transactionService
     ) {}
 
     /**
@@ -27,79 +39,13 @@ class PointageController extends AbstractController
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function getBadgeuses(): JsonResponse
     {
-        $user = $this->getUser();
+        $user = $this->validateAuthenticatedUser();
+        if ($user instanceof JsonResponse) return $user;
 
-        if (!$user instanceof User) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'INVALID_USER',
-                'message' => 'Utilisateur invalide'
-            ], 401);
-        }
-
-        if (!$user->isCompteActif()) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'ACCOUNT_DEACTIVATED',
-                'message' => 'Votre compte est désactivé'
-            ], 403);
-        }
-
-        try {
-            $this->entityManager->beginTransaction();
-
-            // Get user badgeuses with access status
-            $badgeusesResult = $this->badgeService->getUserBadgeusesWithStatus($user);
-            
-            // Check if badgeuses retrieval failed
-            if (isset($badgeusesResult['success']) && !$badgeusesResult['success']) {
-                $this->entityManager->rollback();
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => $badgeusesResult['error'] ?? 'BADGEUSES_ERROR',
-                    'message' => $badgeusesResult['message'] ?? 'Erreur lors de la récupération des badgeuses',
-                    'debug_info' => [
-                        'user_id' => $user->getId(),
-                        'user_email' => $user->getEmail(),
-                        'has_principal_service' => $user->getPrincipalService() !== null,
-                        'principal_service_id' => $user->getPrincipalService()?->getId(),
-                        'principal_service_name' => $user->getPrincipalService()?->getNomService()
-                    ]
-                ], 400);
-            }
-            
-            // Get current user working status
-            $userStatus = $this->badgeService->getUserWorkingStatus($user);
-            
-            // Get user active badges
-            $userBadges = $this->badgeService->getUserActiveBadges($user);
-
-            $this->entityManager->commit();
-
-            return new JsonResponse([
-                'success' => true,
-                'data' => [
-                    'badgeuses' => $badgeusesResult['data'] ?? [],
-                    'user_status' => $userStatus,
-                    'user_badges' => $userBadges
-                ],
-                'message' => 'Badgeuses récupérées avec succès'
-            ]);
-
-        } catch (\Exception $e) {
-            $this->entityManager->rollback();
-            
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'INTERNAL_ERROR',
-                'message' => 'Erreur lors de la récupération des badgeuses',
-                'debug_info' => [
-                    'exception_message' => $e->getMessage(),
-                    'user_id' => $user->getId(),
-                    'user_email' => $user->getEmail()
-                ]
-            ], 500);
-        }
+        return $this->transactionService->executeAndRespond(
+            fn() => $this->getBadgeusesData($user),
+            'Badgeuses récupérées avec succès'
+        );
     }
 
     /**
@@ -110,93 +56,16 @@ class PointageController extends AbstractController
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function performPointage(Request $request): JsonResponse
     {
-        $user = $this->getUser();
+        $user = $this->validateAuthenticatedUser();
+        if ($user instanceof JsonResponse) return $user;
 
-        if (!$user instanceof User) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'INVALID_USER',
-                'message' => 'Utilisateur invalide'
-            ], 401);
-        }
+        $data = $this->validatePointageRequest($request);
+        if ($data instanceof JsonResponse) return $data;
 
-        if (!$user->isCompteActif()) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'ACCOUNT_DEACTIVATED',
-                'message' => 'Votre compte est désactivé'
-            ], 403);
-        }
-
-        $data = json_decode($request->getContent(), true);
-
-        // Validate request data
-        if (!isset($data['badgeuse_id']) || !is_numeric($data['badgeuse_id'])) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'INVALID_REQUEST',
-                'message' => 'ID de badgeuse requis et doit être numérique'
-            ], 400);
-        }
-
-        $badgeuseId = (int)$data['badgeuse_id'];
-        $force = $data['force'] ?? false;
-
-        try {
-            $this->entityManager->beginTransaction();
-
-            // Perform pointage with business logic validation
-            $result = $this->badgeService->performPointageWithValidation($user, $badgeuseId, $force);
-
-            if (!$result['success']) {
-                if ($this->entityManager->getConnection()->isTransactionActive()) {
-                    $this->entityManager->rollback();
-                }
-                
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => $result['error'] ?? 'POINTAGE_FAILED',
-                    'message' => $result['message'],
-                    'warning' => $result['warning'] ?? null,
-                    'debug_info' => [
-                        'user_id' => $user->getId(),
-                        'badgeuse_id' => $badgeuseId,
-                        'force' => $force,
-                        'has_principal_service' => $user->getPrincipalService() !== null,
-                        'principal_service_id' => $user->getPrincipalService()?->getId()
-                    ]
-                ], 400);
-            }
-
-            $this->entityManager->commit();
-
-            return new JsonResponse([
-                'success' => true,
-                'data' => [
-                    'pointage' => $result['data']['pointage'],
-                    'new_status' => $result['data']['new_status'],
-                    'work_session' => $result['data']['work_session'] ?? null,
-                    'message' => $result['data']['message']
-                ],
-                'message' => 'Pointage effectué avec succès'
-            ]);
-
-        } catch (\Exception $e) {
-            if ($this->entityManager->getConnection()->isTransactionActive()) {
-                $this->entityManager->rollback();
-            }
-            
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'INTERNAL_ERROR',
-                'message' => 'Erreur lors du pointage',
-                'debug_info' => [
-                    'exception_message' => $e->getMessage(),
-                    'user_id' => $user->getId(),
-                    'badgeuse_id' => $badgeuseId
-                ]
-            ], 500);
-        }
+        return $this->transactionService->executeAndRespond(
+            fn() => $this->executePointage($user, $data['badgeuse_id'], $data['force']),
+            'Pointage effectué avec succès'
+        );
     }
 
     /**
@@ -228,8 +97,8 @@ class PointageController extends AbstractController
         try {
             $this->entityManager->beginTransaction();
 
-            $userStatus = $this->badgeService->getUserWorkingStatus($user);
-            
+            $userStatus = $this->userStatusService->getUserWorkingStatus($user);
+
             // Ajouter la clé is_working pour compatibilité
             $userStatus['is_working'] = ($userStatus['status'] ?? 'absent') === 'present';
             $userStatus['last_pointage'] = $userStatus['last_action'];
@@ -241,10 +110,9 @@ class PointageController extends AbstractController
                 'data' => $userStatus,
                 'message' => 'Statut utilisateur récupéré avec succès'
             ]);
-
         } catch (\Exception $e) {
             $this->entityManager->rollback();
-            
+
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INTERNAL_ERROR',
@@ -302,7 +170,7 @@ class PointageController extends AbstractController
         try {
             $this->entityManager->beginTransaction();
 
-            $workingTime = $this->badgeService->calculateWorkingTimeForPeriod($user, $startDate, $endDate);
+            $workingTime = $this->workTimeCalculator->calculateWorkingTimeForPeriod($user, $startDate, $endDate);
 
             $this->entityManager->commit();
 
@@ -311,10 +179,9 @@ class PointageController extends AbstractController
                 'data' => $workingTime,
                 'message' => 'Temps de travail calculé avec succès'
             ]);
-
         } catch (\Exception $e) {
             $this->entityManager->rollback();
-            
+
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INTERNAL_ERROR',
@@ -364,7 +231,7 @@ class PointageController extends AbstractController
         try {
             $this->entityManager->beginTransaction();
 
-            $validation = $this->badgeService->validatePointageAction($user, $badgeuseId);
+            $validation = $this->pointageValidationService->validatePointageAction($user, $badgeuseId);
 
             $this->entityManager->commit();
 
@@ -373,10 +240,9 @@ class PointageController extends AbstractController
                 'data' => $validation,
                 'message' => 'Validation effectuée'
             ]);
-
         } catch (\Exception $e) {
             $this->entityManager->rollback();
-            
+
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INTERNAL_ERROR',
@@ -427,18 +293,18 @@ class PointageController extends AbstractController
             $this->entityManager->beginTransaction();
 
             // Get previous status for response
-            $previousStatus = $this->badgeService->getUserWorkingStatus($user);
+            $previousStatus = $this->userStatusService->getUserWorkingStatus($user);
             $wasWorking = ($previousStatus['status'] ?? 'absent') === 'present';
 
-            // BadgeService determines the correct type (entree/sortie/acces)
+            // PointageService determines the correct type (entree/sortie/acces)
             // based on whether the badgeuse provides access to principal or secondary services
-            $result = $this->badgeService->performPointageWithValidation($user, $badgeuseId, false);
+            $result = $this->pointageService->performPointageWithValidation($user, $badgeuseId, false);
 
             if (!$result['success']) {
                 if ($this->entityManager->getConnection()->isTransactionActive()) {
                     $this->entityManager->rollback();
                 }
-                
+
                 return new JsonResponse([
                     'success' => false,
                     'error' => $result['error'] ?? 'POINTAGE_FAILED',
@@ -468,12 +334,11 @@ class PointageController extends AbstractController
                 ],
                 'message' => 'Pointage automatique effectué avec succès'
             ]);
-
         } catch (\Exception $e) {
             if ($this->entityManager->getConnection()->isTransactionActive()) {
                 $this->entityManager->rollback();
             }
-            
+
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INTERNAL_ERROR',
@@ -485,5 +350,92 @@ class PointageController extends AbstractController
                 ]
             ], 500);
         }
+    }
+
+    /**
+     * Valide l'utilisateur authentifié et son état
+     */
+    private function validateAuthenticatedUser(): User|JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'INVALID_USER',
+                'message' => 'Utilisateur invalide'
+            ], 401);
+        }
+
+        if (!$user->isCompteActif()) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'ACCOUNT_DEACTIVATED',
+                'message' => 'Votre compte est désactivé'
+            ], 403);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Valide les données de requête de pointage
+     */
+    private function validatePointageRequest(Request $request): array|JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['badgeuse_id']) || !is_numeric($data['badgeuse_id'])) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'INVALID_REQUEST',
+                'message' => 'ID de badgeuse requis et doit être numérique'
+            ], 400);
+        }
+
+        return [
+            'badgeuse_id' => (int)$data['badgeuse_id'],
+            'force' => $data['force'] ?? false
+        ];
+    }
+
+    /**
+     * Récupère les données des badgeuses pour un utilisateur
+     */
+    private function getBadgeusesData(User $user): array
+    {
+        $badgeusesResult = $this->badgeuseAccessService->getUserBadgeusesWithStatus($user);
+
+        if (isset($badgeusesResult['success']) && !$badgeusesResult['success']) {
+            throw new \Exception($badgeusesResult['message'] ?? 'Erreur lors de la récupération des badgeuses');
+        }
+
+        $userStatus = $this->userStatusService->getUserWorkingStatus($user);
+        $userBadges = $this->badgeValidator->getUserActiveBadges($user);
+
+        return [
+            'badgeuses' => $badgeusesResult['data'] ?? [],
+            'user_status' => $userStatus,
+            'user_badges' => $userBadges
+        ];
+    }
+
+    /**
+     * Exécute l'action de pointage
+     */
+    private function executePointage(User $user, int $badgeuseId, bool $force): array
+    {
+        $result = $this->pointageService->performPointageWithValidation($user, $badgeuseId, $force);
+
+        if (!$result['success']) {
+            throw new \Exception($result['message']);
+        }
+
+        return [
+            'pointage' => $result['data']['pointage'],
+            'new_status' => $result['data']['new_status'],
+            'work_session' => $result['data']['work_session'] ?? null,
+            'message' => $result['data']['message']
+        ];
     }
 }

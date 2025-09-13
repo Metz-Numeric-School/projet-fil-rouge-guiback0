@@ -8,7 +8,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { User } from '../../../interfaces/user.interface';
-import { UserService } from '../../../services/user.service';
+import { UserHelperService } from '../../../services/user/user-helper.service';
+import { GdprService } from '../../../services/user/gdpr.service';
 
 @Component({
   selector: 'app-personal-info',
@@ -28,9 +29,11 @@ import { UserService } from '../../../services/user.service';
 export class PersonalInfoComponent {
   @Input() currentUser: User | null = null;
   isDeactivating = false;
+  isEditing = false;
 
   constructor(
-    public userService: UserService,
+    public userHelperService: UserHelperService,
+    public gdprService: GdprService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
   ) {}
@@ -39,14 +42,14 @@ export class PersonalInfoComponent {
    * Get user's full name
    */
   getFullName(user: User): string {
-    return this.userService.getFullName(user);
+    return this.userHelperService.getFullName(user);
   }
 
   /**
    * Get working days as array
    */
   getWorkingDays(): string[] {
-    return this.userService.getWorkingDaysArray(
+    return this.userHelperService.getWorkingDaysArray(
       this.currentUser?.jours_semaine_travaille
     );
   }
@@ -55,7 +58,7 @@ export class PersonalInfoComponent {
    * Get formatted working hours
    */
   getWorkingHours(): string {
-    return this.userService.formatWorkingHours(
+    return this.userHelperService.formatWorkingHours(
       this.currentUser?.heure_debut,
       this.currentUser?.horraire
     );
@@ -89,8 +92,8 @@ export class PersonalInfoComponent {
       return { label: 'Inconnu', color: 'basic', icon: 'help' };
     }
 
-    const isActive = this.userService.isAccountActive(this.currentUser);
-    const isScheduled = this.userService.isScheduledForDeletion(this.currentUser);
+    const isActive = this.gdprService.isAccountActive(this.currentUser);
+    const isScheduled = this.gdprService.isScheduledForDeletion(this.currentUser);
 
     if (isActive) {
       return { label: 'Actif', color: 'primary', icon: 'check_circle' };
@@ -106,14 +109,14 @@ export class PersonalInfoComponent {
    */
   getDeletionNotice(): string {
     if (!this.currentUser) return '';
-    return this.userService.formatDeletionNotice(this.currentUser);
+    return this.gdprService.formatDeletionNotice(this.currentUser);
   }
 
   /**
    * Export user data (GDPR)
    */
   exportUserData(): void {
-    this.userService.exportUserData().subscribe({
+    this.gdprService.exportUserData().subscribe({
       next: (response) => {
         if (response.data && response.export_timestamp) {
           // Create and download JSON file
@@ -169,7 +172,7 @@ export class PersonalInfoComponent {
   private performAccountDeactivation(): void {
     this.isDeactivating = true;
 
-    this.userService.deactivateAccount().subscribe({
+    this.gdprService.deactivateAccount().subscribe({
       next: (response) => {
         this.snackBar.open(
           response.message,
@@ -192,6 +195,30 @@ export class PersonalInfoComponent {
           { duration: 5000 }
         );
         this.isDeactivating = false;
+      }
+    });
+  }
+
+  /**
+   * Open edit profile dialog
+   */
+  editProfile(): void {
+    const dialogRef = this.dialog.open(EditProfileDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: { currentUser: this.currentUser },
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.updated) {
+        // Update the current user data
+        this.currentUser = result.user;
+        this.snackBar.open('Profil mis à jour avec succès', 'Fermer', {
+          duration: 3000,
+          panelClass: ['success-snackbar'],
+        });
       }
     });
   }
@@ -256,4 +283,43 @@ export class AccountDeactivationDialogComponent {
     public dialogRef: MatDialogRef<AccountDeactivationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { userName: string }
   ) {}
+}
+
+// Edit Profile Dialog Component
+@Component({
+  selector: 'app-edit-profile-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
+  template: `
+    <div class="edit-profile-dialog">
+      <p>Edit profile functionality coming soon...</p>
+      <button mat-button (click)="onCancel()">Close</button>
+    </div>
+  `,
+  styles: [`
+    .edit-profile-dialog {
+      max-width: 100%;
+      max-height: 100%;
+      overflow: auto;
+    }
+  `]
+})
+export class EditProfileDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<EditProfileDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { currentUser: User }
+  ) {}
+
+  onProfileUpdated(updatedUser: User): void {
+    this.dialogRef.close({ updated: true, user: updatedUser });
+  }
+
+  onCancel(): void {
+    this.dialogRef.close({ updated: false });
+  }
 }

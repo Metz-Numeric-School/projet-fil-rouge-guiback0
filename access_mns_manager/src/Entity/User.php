@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -23,6 +24,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'L\'email est obligatoire')]
+    #[Assert\Email(
+        message: 'L\'email {{ value }} n\'est pas valide',
+        mode: 'strict'
+    )]
+    #[Assert\Length(
+        min: 5,
+        max: 180,
+        minMessage: 'L\'email doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'L\'email ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $email = null;
 
     /**
@@ -35,34 +47,90 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire')]
+    #[Assert\Length(
+        min: 8,
+        minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères'
+    )]
+    #[Assert\Regex(
+        pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
+        message: 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial'
+    )]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom ne peut pas contenir plus de {{ limit }} caractères'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-ZàâäéèêëïîôùûüÿçÀÂÄÉÈÊËÏÎÔÙÛÜŸÇ\s\'-]+$/',
+        message: 'Le nom ne peut contenir que des lettres, espaces, apostrophes et tirets'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le prénom doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le prénom ne peut pas contenir plus de {{ limit }} caractères'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-ZàâäéèêëïîôùûüÿçÀÂÄÉÈÊËÏÎÔÙÛÜŸÇ\s\'-]+$/',
+        message: 'Le prénom ne peut contenir que des lettres, espaces, apostrophes et tirets'
+    )]
     private ?string $prenom = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\Date(message: 'La date de naissance doit être une date valide')]
+    #[Assert\LessThan(
+        value: 'today',
+        message: 'La date de naissance doit être antérieure à aujourd\'hui'
+    )]
+    #[Assert\GreaterThan(
+        value: '-120 years',
+        message: 'La date de naissance ne peut pas être antérieure à 120 ans'
+    )]
     private ?\DateTimeInterface $date_naissance = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Regex(
+        pattern: '/^(\+33|0)[1-9]([0-9]{8})$/',
+        message: 'Le numéro de téléphone doit être au format français valide (ex: 0123456789 ou +33123456789)'
+    )]
     private ?string $telephone = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotNull(message: 'La date d\'inscription est obligatoire')]
+    #[Assert\Date(message: 'La date d\'inscription doit être une date valide')]
     private ?\DateTimeInterface $date_inscription = null;
 
-
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
+    #[Assert\Time(message: 'L\'horaire doit être une heure valide')]
     private ?\DateTimeInterface $horraire = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
+    #[Assert\Time(message: 'L\'heure de début doit être une heure valide')]
     private ?\DateTimeInterface $heure_debut = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(
+        min: 1,
+        max: 7,
+        notInRangeMessage: 'Le nombre de jours de travail par semaine doit être entre {{ min }} et {{ max }}'
+    )]
     private ?int $jours_semaine_travaille = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le poste ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $poste = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -420,7 +488,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         foreach ($this->travail as $travail) {
             $service = $travail->getService();
-            if ($service && $service->isIsPrincipal()) {
+            if ($service && $service->isIsPrincipal() && $travail->getDateFin() === null) {
                 return $service;
             }
         }
@@ -431,7 +499,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         foreach ($this->travail as $travail) {
             $service = $travail->getService();
-            if ($service && $service->isIsPrincipal()) {
+            if ($service && $service->isIsPrincipal() && $travail->getDateFin() === null) {
                 return $travail;
             }
         }

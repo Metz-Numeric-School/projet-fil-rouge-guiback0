@@ -5,11 +5,9 @@ import { map, catchError } from 'rxjs/operators';
 import {
   CompleteUserProfile,
   CompleteProfileResponse,
-  UserByIdResponse,
   User,
   GDPRDataExport,
   AccountDeactivationResponse,
-  DeletionStatusResponse,
 } from '../interfaces/user.interface';
 
 @Injectable({
@@ -82,47 +80,6 @@ export class UserService {
       );
   }
 
-  /**
-   * Get user profile by ID (admin only)
-   * Uses: GET /api/user/profile/{id}
-   */
-  getUserById(userId: number): Observable<User> {
-    const headers = this.getAuthHeaders();
-
-    return this.http
-      .get<UserByIdResponse>(`${this.API_BASE_URL}/profile/${userId}`, {
-        headers,
-      })
-      .pipe(
-        map((response) => {
-          if (response.success && response.data) {
-            return response.data.user;
-          }
-          throw new Error(
-            response.message || "Erreur lors du chargement de l'utilisateur"
-          );
-        }),
-        catchError((error) => {
-          let errorMessage = "Erreur lors du chargement de l'utilisateur";
-
-          if (error.error) {
-            switch (error.error.error) {
-              case 'USER_NOT_FOUND':
-                errorMessage = 'Utilisateur non trouvé';
-                break;
-              case 'SERVER_ERROR':
-                errorMessage =
-                  "Erreur serveur lors du chargement de l'utilisateur";
-                break;
-              default:
-                errorMessage = error.error.message || errorMessage;
-            }
-          }
-
-          return throwError(() => new Error(errorMessage));
-        })
-      );
-  }
 
   /**
    * Check if current user has admin role
@@ -219,6 +176,52 @@ export class UserService {
     if (heureDebut) return `À partir de ${heureDebut}`;
     if (horraire) return `Jusqu'à ${horraire}`;
     return 'Non défini';
+  }
+
+  /**
+   * Update user profile
+   * Uses: PUT /api/user/profile
+   */
+  updateProfile(profileData: any): Observable<User> {
+    const headers = this.getAuthHeaders();
+
+    return this.http
+      .put<any>(`${this.API_BASE_URL}/profile`, profileData, { headers })
+      .pipe(
+        map((response) => {
+          if (response.success && response.data) {
+            return response.data;
+          }
+          throw new Error(response.message || 'Erreur lors de la mise à jour du profil');
+        }),
+        catchError((error) => {
+          let errorMessage = 'Erreur lors de la mise à jour du profil';
+          
+          if (error.error) {
+            switch (error.error.error) {
+              case 'VALIDATION_FAILED':
+                const customError = new Error(errorMessage) as any;
+                customError.type = 'VALIDATION_FAILED';
+                customError.details = error.error.details || [];
+                throw customError;
+              case 'INVALID_PASSWORD':
+                const passwordError = new Error('Mot de passe actuel incorrect') as any;
+                passwordError.type = 'INVALID_PASSWORD';
+                throw passwordError;
+              case 'INVALID_USER':
+                errorMessage = 'Utilisateur invalide';
+                break;
+              case 'SERVER_ERROR':
+                errorMessage = 'Erreur serveur lors de la mise à jour';
+                break;
+              default:
+                errorMessage = error.error.message || errorMessage;
+            }
+          }
+
+          return throwError(() => new Error(errorMessage));
+        })
+      );
   }
 
   // GDPR-related methods
@@ -320,42 +323,6 @@ export class UserService {
       );
   }
 
-  /**
-   * Check deletion status of a user (admin only)
-   * Uses: GET /api/user/check-deletion-status/{id}
-   */
-  checkDeletionStatus(userId: number): Observable<DeletionStatusResponse> {
-    const headers = this.getAuthHeaders();
-
-    return this.http
-      .get<DeletionStatusResponse>(`${this.API_BASE_URL}/check-deletion-status/${userId}`, { headers })
-      .pipe(
-        map((response) => {
-          if (response.success) {
-            return response;
-          }
-          throw new Error(response.message || 'Erreur lors de la vérification du statut de suppression');
-        }),
-        catchError((error) => {
-          let errorMessage = 'Erreur lors de la vérification du statut de suppression';
-          
-          if (error.error) {
-            switch (error.error.error) {
-              case 'USER_NOT_FOUND':
-                errorMessage = 'Utilisateur non trouvé';
-                break;
-              case 'SERVER_ERROR':
-                errorMessage = 'Erreur serveur lors de la vérification';
-                break;
-              default:
-                errorMessage = error.error.message || errorMessage;
-            }
-          }
-
-          return throwError(() => new Error(errorMessage));
-        })
-      );
-  }
 
   /**
    * Check if account is active

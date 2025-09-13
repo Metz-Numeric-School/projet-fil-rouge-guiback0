@@ -29,6 +29,8 @@ docker exec -it access_mns_manager php bin/console assets:install
 
 # Testing
 docker exec -it access_mns_manager php bin/phpunit
+docker exec -it access_mns_manager php bin/phpunit tests/  # Run specific test directory
+docker exec -it access_mns_manager php bin/phpunit --filter=TestClassName  # Run specific test
 
 # Code generation (using MakerBundle)
 docker exec -it access_mns_manager php bin/console make:entity
@@ -81,7 +83,11 @@ docker-compose down
 - **Entities**: Doctrine ORM entities for User, Organisation, Badge, Service, Zone, Pointage
 - **Security**: Role-based access (ROLE_USER, ROLE_ADMIN, ROLE_SUPER_ADMIN)
 - **Database**: PostgreSQL with Doctrine migrations
-- **Services**: Custom business logic in `src/Service/` (BadgeService, OrganisationService, PresenceService)
+- **Services**: Custom business logic in `src/Service/` organized by domain:
+  - `Pointage/`: Badge validation, time tracking, zone access, work time calculation
+  - `User/`: User management, presence tracking, GDPR compliance
+  - `Payment/`: Stripe payment integration
+  - `Database/`: Transaction management
 
 ### Frontend (Angular)
 - **Architecture**: Standalone components with Angular 19
@@ -101,8 +107,9 @@ docker-compose down
 Core entities include User, Organisation, Service, Badge, Zone, Pointage (time tracking), with relationships managed through junction tables like Travailler, UserBadge, ServiceZone.
 
 ### API Endpoints Structure
-- Authentication: `/api/auth/*`
-- User management: `/api/user/*`
+- Authentication: `/api/auth/*` (login, refresh, profile)
+- User management: `/api/user/*` (CRUD, GDPR exports)
+- Pointage: `/api/pointage/*` (time tracking, badge scanning)
 - Core business logic accessible through standard CRUD controllers
 
 ## Environment Configuration
@@ -117,3 +124,75 @@ Core entities include User, Organisation, Service, Badge, Zone, Pointage (time t
 - `backend`: Symfony with FrankenPHP
 - `frontend`: Angular development server
 - `proxy`: Nginx reverse proxy (optional)
+
+## Key Features & Integrations
+
+### Payment Integration
+- **Stripe**: Payment processing with Symfony StripeService (`src/Service/Payment/StripeService.php`)
+
+### Access Control System
+- **Badge-based Access**: Physical badge scanning for zone access and time tracking
+- **Zone Management**: Configurable access zones with permissions per service level
+- **Time Tracking**: Automated pointage (clocking) system with presence validation
+
+### GDPR Compliance
+- **Data Portability**: Export user data via GDPRService (`src/Service/User/GDPRService.php`)
+- **Account Deactivation**: GDPR-compliant account deactivation with scheduled deletion
+- **Data Export**: Structured export of personal, account, organization, service, and badge data
+
+## Frontend Services Architecture
+
+Les services Angular ont été refactorisés selon le principe de responsabilité unique pour améliorer la maintenabilité et la testabilité. Tous les services facade ont été supprimés au profit d'une utilisation directe des services spécialisés.
+
+### Services d'authentification (`access_mns_client/src/app/services/auth/`)
+
+- **`authentication.service.ts`** - Gestion des opérations de connexion/déconnexion
+- **`token.service.ts`** - Gestion des tokens JWT (stockage, récupération, refresh)
+- **`user-state.service.ts`** - Gestion de l'état utilisateur (BehaviorSubjects, profils)
+
+### Services de pointage (`access_mns_client/src/app/services/pointage/`)
+
+- **`badgeuse-api.service.ts`** - Appels API pour les badgeuses et actions de pointage
+- **`badgeuse-manager.service.ts`** - Gestion et logique métier des badgeuses
+- **`working-time.service.ts`** - Calcul et gestion du temps de travail
+
+### Services utilisateur (`access_mns_client/src/app/services/user/`)
+
+- **`user-api.service.ts`** - Appels API utilisateur (profil, mise à jour)
+- **`gdpr.service.ts`** - Fonctionnalités RGPD (export, désactivation, suppression)
+- **`user-helper.service.ts`** - Fonctions utilitaires utilisateur (formatage, validation rôles)
+
+### Import recommandé
+
+```typescript
+// Import depuis l'index pour une organisation claire
+import { 
+  AuthenticationService, 
+  TokenService, 
+  UserStateService 
+} from '../services';
+
+// Ou import direct par domaine
+import { AuthenticationService } from '../services/auth/authentication.service';
+import { BadgeuseApiService } from '../services/pointage/badgeuse-api.service';
+import { GdprService } from '../services/user/gdpr.service';
+```
+
+### Responsabilités par service
+
+#### Authentication
+- **AuthenticationService**: Login/logout, validation authentification
+- **TokenService**: Gestion tokens JWT, headers auth, refresh
+- **UserStateService**: État global utilisateur, observables, profils
+
+#### Pointage  
+- **BadgeuseApiService**: API calls (getBadgeuses, performPointage, validate)
+- **BadgeuseManagerService**: Logique métier, auto-refresh, catégorisation
+- **WorkingTimeService**: Calcul temps, statuts présence, formatage
+
+#### User
+- **UserApiService**: API calls profil, mise à jour
+- **GdprService**: Export données, désactivation compte, notices RGPD
+- **UserHelperService**: Formatage noms/adresses, rôles, zones, badges
+
+**Avantages**: Responsabilité unique, testabilité, réutilisabilité, maintenance simplifiée

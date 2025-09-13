@@ -45,7 +45,7 @@ class WorkTimeCalculatorService
         try {
             $start = new \DateTime($startDate . ' 00:00:00');
             $end = new \DateTime($endDate . ' 23:59:59');
-            
+
             return $this->calculateWorkingTime($user, $start, $end);
         } catch (\Exception $e) {
             throw new PresenceException(PresenceException::INVALID_DATE_FORMAT);
@@ -102,8 +102,8 @@ class WorkTimeCalculatorService
         $durationMinutes = ($endTime->getTimestamp() - $startPointage->getHeure()->getTimestamp()) / 60;
 
         return [
-            'start_time' => $startPointage->getHeure()->format('Y-m-d H:i:s'),
-            'end_time' => $endTime->format('Y-m-d H:i:s'),
+            'start_time' => $startPointage->getHeure()->format(\DateTime::ATOM),
+            'end_time' => $endTime->format(\DateTime::ATOM),
             'duration_minutes' => (int)$durationMinutes
         ];
     }
@@ -131,7 +131,7 @@ class WorkTimeCalculatorService
         foreach ($allPointages as $pointage) {
             $badgeuse = $pointage->getBadgeuse();
             $isPrincipalZone = $this->zoneAccessService->isBadgeuseInPrincipalZone($badgeuse, $user);
-            
+
             if ($isPrincipalZone) {
                 $workTimePointages[] = $pointage;
             }
@@ -193,14 +193,14 @@ class WorkTimeCalculatorService
     {
         $now = new \DateTime();
         $today = $now->format('Y-m-d');
-        
+
         foreach ($currentEntries as $date => $currentEntry) {
             if ($currentEntry instanceof \DateTime) {
                 if ($date === $today && $endDate >= $now) {
                     $minutesSinceEntry = ($now->getTimestamp() - $currentEntry->getTimestamp()) / 60;
                     $workingDays[$date]['total_minutes'] += $minutesSinceEntry;
                     $totalMinutes += $minutesSinceEntry;
-                    
+
                     $workingDays[$date]['entries'][] = [
                         'time' => 'En cours',
                         'type' => 'session_active',

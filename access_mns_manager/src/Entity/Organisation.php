@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrganisationRepository::class)]
 class Organisation
@@ -17,42 +18,89 @@ class Organisation
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom de l\'organisation est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom de l\'organisation doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom de l\'organisation ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $nom_organisation = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Regex(
+        pattern: '/^(\+33|0)[1-9]([0-9]{8})$/',
+        message: 'Le numéro de téléphone doit être au format français valide'
+    )]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'L\'email est obligatoire')]
+    #[Assert\Email(
+        message: 'L\'email {{ value }} n\'est pas valide',
+        mode: 'strict'
+    )]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Url(message: 'L\'URL du site web n\'est pas valide')]
     private ?string $site_web = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotNull(message: 'La date de création est obligatoire')]
+    #[Assert\Date(message: 'La date de création doit être une date valide')]
     private ?\DateTimeInterface $date_creation = null;
 
     #[ORM\Column(length: 14, nullable: true)]
+    #[Assert\Regex(
+        pattern: '/^[0-9]{14}$/',
+        message: 'Le numéro SIRET doit contenir exactement 14 chiffres'
+    )]
     private ?string $siret = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\PositiveOrZero(message: 'Le chiffre d\'affaires doit être positif ou zéro')]
     private ?float $ca = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Positive(message: 'Le numéro de rue doit être positif')]
     private ?int $numero_rue = null;
 
     #[ORM\Column(length: 10, nullable: true)]
+    #[Assert\Length(
+        max: 10,
+        maxMessage: 'Le suffixe de rue ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $suffix_rue = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom de rue est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom de rue doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom de rue ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $nom_rue = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Regex(
+        pattern: '/^[0-9]{5}$/',
+        message: 'Le code postal doit contenir exactement 5 chiffres'
+    )]
     private ?string $code_postal = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom de ville doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom de ville ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $ville = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Country(message: 'Le pays doit être un code pays ISO valide')]
     private ?string $pays = null;
 
     /**

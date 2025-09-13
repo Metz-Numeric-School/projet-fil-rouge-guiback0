@@ -88,8 +88,8 @@ class StripeController extends AbstractController
             }
 
             $priceId = $data['priceId'];
-            $successUrl = 'http://localhost/coffee?success=true';
-            $cancelUrl = 'http://localhost/coffee?canceled=true';
+            $successUrl = 'http://localhost/coffee';
+            $cancelUrl = 'http://localhost/coffee';
 
             $session = $this->stripeService->createCheckoutSession($priceId, $successUrl, $cancelUrl);
 
@@ -98,7 +98,7 @@ class StripeController extends AbstractController
                     'success' => false,
                     'error' => 'STRIPE_SESSION_ERROR',
                     'message' => 'Erreur lors de la création de la session de paiement'
-                ], 500);
+                ], 400);
             }
 
             return new JsonResponse([
@@ -117,5 +117,35 @@ class StripeController extends AbstractController
                 'message' => 'Erreur lors de la création de la session : ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Vérification d'une session de checkout Stripe
+     */
+    #[Route('/verify', name: 'verify', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function verify(Request $request): JsonResponse
+    {
+        $sessionId = $request->query->get('session_id');
+        if (!$sessionId) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'MISSING_SESSION_ID',
+                'message' => 'session_id requis'
+            ], 400);
+        }
+        $data = $this->stripeService->verifySession($sessionId);
+        if (!$data) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'INVALID_SESSION',
+                'message' => 'Session introuvable ou invalide'
+            ], 404);
+        }
+        return new JsonResponse([
+            'success' => true,
+            'data' => $data,
+            'message' => $data['paid'] ? 'Paiement confirmé' : 'Paiement non complété'
+        ]);
     }
 }

@@ -43,7 +43,8 @@ ENV PHP_INI_SCAN_DIR=":$PHP_INI_DIR/app.conf.d"
 
 ###> recipes ###
 ###> doctrine/doctrine-bundle ###
-RUN install-php-extensions pdo_pgsql
+# Ajout de pdo_sqlite pour les tests avec SQLite
+RUN install-php-extensions pdo_pgsql pdo_sqlite
 ###< doctrine/doctrine-bundle ###
 ###< recipes ###
 

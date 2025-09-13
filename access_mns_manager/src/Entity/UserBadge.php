@@ -19,6 +19,9 @@ class UserBadge
     #[ORM\ManyToOne(inversedBy: 'userBadges')]
     private ?Badge $badge = null;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateAttribution = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -44,6 +47,18 @@ class UserBadge
     public function setBadge(?Badge $badge): static
     {
         $this->badge = $badge;
+
+        return $this;
+    }
+
+    public function getDateAttribution(): ?\DateTimeInterface
+    {
+        return $this->dateAttribution;
+    }
+
+    public function setDateAttribution(?\DateTimeInterface $dateAttribution): static
+    {
+        $this->dateAttribution = $dateAttribution;
 
         return $this;
     }

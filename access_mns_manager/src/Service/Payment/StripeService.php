@@ -17,10 +17,15 @@ class StripeService
    }
 
    
+   protected function getStripeClient(): StripeClient
+   {
+        return $this->stripeClient;
+   }
+
    public function getCoffees(): array
    {
         return $this
-        ->stripeClient
+        ->getStripeClient()
         ->products
         ->all(['active' => true])
         ->data;
@@ -29,7 +34,7 @@ class StripeService
    public function getPrice(string $priceId): ?\Stripe\Price
    {
         try {
-            return $this->stripeClient->prices->retrieve($priceId);
+            return $this->getStripeClient()->prices->retrieve($priceId);
         } catch (\Exception) {
             return null;
         }
@@ -39,15 +44,15 @@ class StripeService
    {
         try {
             // Essayer d'abord en mode payment (pour les achats uniques)
-            return $this->stripeClient->checkout->sessions->create([
+            return $this->getStripeClient()->checkout->sessions->create([
                 'payment_method_types' => ['card'],
                 'line_items' => [[
                     'price' => $priceId,
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => $successUrl,
-                'cancel_url' => $cancelUrl,
+                'success_url' => rtrim($successUrl, '/') . '?success=true&session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => rtrim($cancelUrl, '/') . '?canceled=true',
                 'metadata' => [
                     'type' => 'buy_me_coffee'
                 ]
@@ -56,15 +61,15 @@ class StripeService
             // Si ça échoue car c'est un prix récurrent, essayer en mode subscription
             if (strpos($e->getMessage(), 'recurring price') !== false) {
                 try {
-                    return $this->stripeClient->checkout->sessions->create([
+                    return $this->getStripeClient()->checkout->sessions->create([
                         'payment_method_types' => ['card'],
                         'line_items' => [[
                             'price' => $priceId,
                             'quantity' => 1,
                         ]],
                         'mode' => 'subscription',
-                        'success_url' => $successUrl,
-                        'cancel_url' => $cancelUrl,
+                        'success_url' => rtrim($successUrl, '/') . '?success=true&session_id={CHECKOUT_SESSION_ID}',
+                        'cancel_url' => rtrim($cancelUrl, '/') . '?canceled=true',
                         'metadata' => [
                             'type' => 'buy_me_coffee'
                         ]
@@ -73,6 +78,22 @@ class StripeService
                     return null;
                 }
             }
+            return null;
+        }
+   }
+
+   public function verifySession(string $sessionId): ?array
+   {
+        try {
+            $session = $this->getStripeClient()->checkout->sessions->retrieve($sessionId, []);
+            return [
+                'id' => $session->id,
+                'payment_status' => $session->payment_status,
+                'amount_total' => $session->amount_total,
+                'currency' => $session->currency,
+                'paid' => $session->payment_status === 'paid'
+            ];
+        } catch (\Exception) {
             return null;
         }
    }
