@@ -8,7 +8,7 @@ use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class SuperAdminFixtures extends Fixture implements FixtureGroupInterface
+class ProductionFixtures extends Fixture implements FixtureGroupInterface
 {
     private UserPasswordHasherInterface $hasher;
 
