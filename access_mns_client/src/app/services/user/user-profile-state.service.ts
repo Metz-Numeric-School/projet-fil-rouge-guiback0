@@ -3,7 +3,6 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, switchMap, map } from 'rxjs/operators';
 import { User, CompleteUserProfile } from '../../interfaces/user.interface';
 import { UserApiService } from './user-api.service';
-import { GdprService } from './gdpr.service';
 
 // Interface pour l'état du profil utilisateur
 interface UserProfileState {
@@ -11,8 +10,6 @@ interface UserProfileState {
   completeProfile: CompleteUserProfile | null;
   selectedTabIndex: number;
   isLoading: boolean;
-  isExporting: boolean;
-  isDeactivating: boolean;
   error: string | null;
 }
 
@@ -26,8 +23,6 @@ export class UserProfileStateService {
     completeProfile: null,
     selectedTabIndex: 0,
     isLoading: false,
-    isExporting: false,
-    isDeactivating: false,
     error: null
   };
 
@@ -48,19 +43,12 @@ export class UserProfileStateService {
   public isLoading$ = this.state$.pipe(
     map(state => state.isLoading)
   );
-  public isExporting$ = this.state$.pipe(
-    map(state => state.isExporting)
-  );
-  public isDeactivating$ = this.state$.pipe(
-    map(state => state.isDeactivating)
-  );
   public error$ = this.state$.pipe(
     map(state => state.error)
   );
 
   constructor(
-    private userApiService: UserApiService,
-    private gdprService: GdprService
+    private userApiService: UserApiService
   ) {}
 
   // Getters pour l'état actuel
@@ -141,48 +129,7 @@ export class UserProfileStateService {
     );
   }
 
-  // Exporter les données utilisateur
-  exportUserData(): Observable<any> {
-    this.updateState({ isExporting: true, error: null });
 
-    return this.gdprService.exportUserData().pipe(
-      tap(() => {
-        this.updateState({ isExporting: false });
-      }),
-      catchError(error => {
-        this.updateState({
-          isExporting: false,
-          error: error.message || 'Erreur lors de l\'export des données'
-        });
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // Désactiver le compte utilisateur
-  deactivateAccount(): Observable<any> {
-    this.updateState({ isDeactivating: true, error: null });
-
-    return this.gdprService.deactivateAccount().pipe(
-      tap(() => {
-        this.updateState({ isDeactivating: false });
-        
-        // Mettre à jour le statut de l'utilisateur
-        if (this.currentUser) {
-          this.updateState({
-            currentUser: { ...this.currentUser, compte_actif: false }
-          });
-        }
-      }),
-      catchError(error => {
-        this.updateState({
-          isDeactivating: false,
-          error: error.message || 'Erreur lors de la désactivation du compte'
-        });
-        return throwError(() => error);
-      })
-    );
-  }
 
   // Vérifier si l'organisation existe
   hasOrganization(): boolean {

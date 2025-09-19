@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, finalize, map } from 'rxjs/operators';
-import { StripeService, StripeProduct } from '../stripe.service';
+import { StripeService } from './stripe.service';
+import { StripeProduct } from '../../interfaces/coffee.interface';
 import { Coffee, CoffeeState } from '../../interfaces/coffee.interface';
 
 @Injectable({
