@@ -135,37 +135,6 @@ export interface UserProfileResponse {
 }
 
 // GDPR-related interfaces
-export interface GDPRDataExport {
-  success: boolean;
-  data?: {
-    personal_information: {
-      email: string;
-      nom: string;
-      prenom: string;
-      telephone?: string;
-      date_naissance?: string;
-      date_inscription: string;
-      poste?: string;
-      horraire?: string;
-      heure_debut?: string;
-      jours_semaine_travaille?: string;
-    };
-    account_information: {
-      compte_actif: boolean;
-      date_derniere_connexion?: string;
-      date_derniere_modification?: string;
-      date_suppression_prevue?: string;
-      roles: string[];
-    };
-    organisation?: any;
-    services: any[];
-    badges: any[];
-  };
-  export_timestamp?: string;
-  gdpr_notice?: string;
-  error?: string;
-  message?: string;
-}
 
 export interface AccountDeactivationResponse {
   success: boolean;

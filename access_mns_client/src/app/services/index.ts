@@ -13,5 +13,6 @@ export { UserApiService } from './user/user-api.service';
 export { GdprService } from './user/gdpr.service';
 export { UserHelperService } from './user/user-helper.service';
 
-// Stripe service (unchanged)
-export { StripeService } from './stripe.service';
+// Coffee services
+export { CoffeeStateService } from './coffee/coffee-state.service';
+export { StripeService } from './coffee/stripe.service';

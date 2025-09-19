@@ -37,12 +37,6 @@
           </div>
         </div>
       </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button color="primary" (click)="editProfile()">
-          <mat-icon>edit</mat-icon>
-          Modifier mon profil
-        </button>
-      </mat-card-actions>
     </mat-card>
 
     <!-- Contact Information Card -->
@@ -116,53 +110,5 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- GDPR Account Information Card -->
-    <mat-card class="dashboard-card">
-      <mat-card-header>
-        <div mat-card-avatar class="card-avatar gdpr-avatar">
-          <mat-icon>privacy_tip</mat-icon>
-        </div>
-        <mat-card-title>Informations Compte (RGPD)</mat-card-title>
-        <mat-card-subtitle>Statut du compte et données de conformité</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="info-grid">
-          <div class="info-item">
-            <strong>Statut du compte:</strong>
-            <mat-chip [color]="getAccountStatus().color">
-              <mat-icon>{{ getAccountStatus().icon }}</mat-icon>
-              {{ getAccountStatus().label }}
-            </mat-chip>
-          </div>
-          <div class="info-item" *ngIf="currentUser.date_derniere_connexion">
-            <strong>Dernière connexion:</strong>
-            <span>{{ formatDateTime(currentUser.date_derniere_connexion) }}</span>
-          </div>
-          <div class="info-item" *ngIf="currentUser.date_derniere_modification">
-            <strong>Dernière modification:</strong>
-            <span>{{ formatDateTime(currentUser.date_derniere_modification) }}</span>
-          </div>
-          <div class="info-item gdpr-warning" *ngIf="getDeletionNotice()">
-            <mat-icon color="warn">warning</mat-icon>
-            <span>{{ getDeletionNotice() }}</span>
-          </div>
-        </div>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button color="primary" (click)="exportUserData()">
-          <mat-icon>file_download</mat-icon>
-          Exporter mes données
-        </button>
-        <button 
-          mat-raised-button 
-          color="warn" 
-          (click)="deactivateAccount()"
-          *ngIf="gdprService.isAccountActive(currentUser)"
-          [disabled]="isDeactivating">
-          <mat-icon>block</mat-icon>
-          Désactiver le compte
-        </button>
-      </mat-card-actions>
-    </mat-card>
   </div>
 </div>

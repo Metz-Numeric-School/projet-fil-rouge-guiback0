@@ -4,7 +4,6 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import {
   User,
-  GDPRDataExport,
   AccountDeactivationResponse,
 } from '../../interfaces/user.interface';
 import { TokenService } from '../auth/token.service';
@@ -57,42 +56,6 @@ export class GdprService {
       );
   }
 
-  /**
-   * Export user's personal data (GDPR data portability)
-   * Uses: GET /api/user/export-data
-   */
-  exportUserData(): Observable<GDPRDataExport> {
-    const headers = this.tokenService.getAuthHeaders();
-
-    return this.http
-      .get<GDPRDataExport>(`${this.API_BASE_URL}/export-data`, { headers })
-      .pipe(
-        map((response) => {
-          if (response.success) {
-            return response;
-          }
-          throw new Error(response.message || 'Erreur lors de l\'exportation des données');
-        }),
-        catchError((error) => {
-          let errorMessage = 'Erreur lors de l\'exportation des données';
-          
-          if (error.error) {
-            switch (error.error.error) {
-              case 'INVALID_USER':
-                errorMessage = 'Utilisateur invalide';
-                break;
-              case 'SERVER_ERROR':
-                errorMessage = 'Erreur serveur lors de l\'exportation';
-                break;
-              default:
-                errorMessage = error.error.message || errorMessage;
-            }
-          }
-
-          return throwError(() => new Error(errorMessage));
-        })
-      );
-  }
 
   /**
    * Check if account is active
