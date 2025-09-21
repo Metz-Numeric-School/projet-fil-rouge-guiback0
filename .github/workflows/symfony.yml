@@ -65,6 +65,7 @@ jobs:
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
         APP_ENV: test
+        SYMFONY_DEPRECATIONS_HELPER: weak
       run: |
         cd access_mns_manager
         php bin/phpunit
