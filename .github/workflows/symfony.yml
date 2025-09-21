@@ -1,0 +1,76 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: ACCESS MNS Backend CI
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+    paths: [ 'access_mns_manager/**' ]
+  pull_request:
+    branches: [ "main", "dev" ]
+    paths: [ 'access_mns_manager/**' ]
+
+permissions:
+  contents: read
+
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: pdo, pdo_sqlite, intl, opcache
+        
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      working-directory: access_mns_manager
+      
+    - name: Cache Composer packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('access_mns_manager/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+          
+    - name: Setup environment files
+      run: |
+        cd access_mns_manager
+        # Use existing .env.test as base and copy to .env.test.local
+        cp .env.test .env.test.local
+        # Also create .env from .env.test for compatibility
+        cp .env.test .env
+        
+    - name: Install Dependencies
+      run: |
+        cd access_mns_manager
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        
+    - name: Generate JWT keys for tests
+      run: |
+        cd access_mns_manager
+        mkdir -p config/jwt
+        openssl genpkey -algorithm RSA -out config/jwt/test_private.pem
+        openssl rsa -pubout -in config/jwt/test_private.pem -out config/jwt/test_public.pem
+        
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
+      env:
+        APP_ENV: test
+        SYMFONY_DEPRECATIONS_HELPER: weak
+      run: |
+        cd access_mns_manager
+        php bin/phpunit
+        
+    - name: Symfony Security Check
+      run: |
+        cd access_mns_manager
+        symfony check:security || echo "Security check completed"

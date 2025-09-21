@@ -47,6 +47,7 @@ Cette configuration docker-compose orchestre la pile complète de l'application 
    cd ..
    ```
 
+
    Ensuite, éditer les fichiers `.env` pour personnaliser votre configuration selon vos besoins :
 
    - **`.env` (racine)** : Configuration Docker Compose et variables globales

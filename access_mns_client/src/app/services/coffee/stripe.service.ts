@@ -1,51 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
-import { TokenService } from './auth/token.service';
-
-export interface StripeProduct {
-  id: string;
-  name: string;
-  description: string;
-  images: string[];
-  price: {
-    id: string;
-    amount: number;
-    currency: string;
-    formatted_amount: string;
-  } | null;
-  created: string;
-}
-
-export interface StripeProductsResponse {
-  success: boolean;
-  data: StripeProduct[];
-  count: number;
-  message: string;
-}
-
-export interface CheckoutSessionResponse {
-  success: boolean;
-  data: {
-    sessionId: string;
-    url: string;
-  };
-  message: string;
-}
-
-export interface StripeVerificationResponse {
-  success: boolean;
-  data: {
-    session_id: string;
-    status: string;
-    payment_status: string;
-    paid: boolean;
-    amount_total: number;
-    currency: string;
-    customer_email?: string;
-  };
-  message: string;
-}
+import { TokenService } from '../auth/token.service';
+import {
+  StripeProduct,
+  StripeProductsResponse,
+  CheckoutSessionResponse,
+  StripeVerificationResponse
+} from '../../interfaces/coffee.interface';
 
 @Injectable({
   providedIn: 'root'
