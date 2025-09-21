@@ -55,6 +55,13 @@ jobs:
         cd access_mns_manager
         composer install --no-interaction --prefer-dist --optimize-autoloader
         
+    - name: Generate JWT keys for tests
+      run: |
+        cd access_mns_manager
+        mkdir -p config/jwt
+        openssl genpkey -algorithm RSA -out config/jwt/test_private.pem -pkcs8
+        openssl rsa -pubout -in config/jwt/test_private.pem -out config/jwt/test_public.pem
+        
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
         APP_ENV: test
