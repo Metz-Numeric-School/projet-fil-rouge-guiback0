@@ -41,10 +41,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-composer-
           
-    - name: Copy .env.test
+    - name: Setup environment files
       run: |
         cd access_mns_manager
-        cp .env .env.test.local || echo "No .env file found, using defaults"
+        # Use existing .env.test as base and copy to .env.test.local
+        cp .env.test .env.test.local
+        # Also create .env from .env.test for compatibility
+        cp .env.test .env
         
     - name: Install Dependencies
       run: |
