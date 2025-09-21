@@ -6,12 +6,11 @@ name: ACCESS MNS Frontend CI
 on:
   push:
     branches: [ "main", "dev" ]
-    paths:
-      - 'access_mns_client/**'
+    paths: [ 'access_mns_client/**' ]
   pull_request:
     branches: [ "main", "dev" ]
-    paths:
-      - 'access_mns_client/**'
+    paths: [ 'access_mns_client/**' ]
+
 
 jobs:
   test:
