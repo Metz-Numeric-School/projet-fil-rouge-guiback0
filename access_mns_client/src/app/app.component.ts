@@ -65,7 +65,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * Check if we should show the navigation bar
    */
   get shouldShowNavbar(): boolean {
-    return !this.currentRoute.includes('/login');
+    return !this.currentRoute?.includes('/login');
   }
 
   /**
