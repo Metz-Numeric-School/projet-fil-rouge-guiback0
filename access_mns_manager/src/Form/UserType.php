@@ -18,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class UserType extends AbstractType
 {
@@ -30,9 +31,22 @@ class UserType extends AbstractType
             ])
             ->add('password', PasswordType::class, [
                 'label' => 'Mot de passe',
-                'help' => $options['is_edit'] ? 'Laissez vide pour conserver le mot de passe actuel' : 'Minimum 6 caractères',
+                'help' => $options['is_edit'] ? 'Laissez vide pour conserver le mot de passe actuel' : 'Minimum 8 caractères',
                 'required' => !$options['is_edit'],
                 'mapped' => false,
+                'constraints' => array_filter([
+                    !$options['is_edit'] ? new Assert\NotBlank([
+                        'message' => 'Le mot de passe est obligatoire'
+                    ]) : null,
+                    new Assert\Length([
+                        'min' => 8,
+                        'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères'
+                    ]),
+                    new Assert\Regex([
+                        'pattern' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
+                        'message' => 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial'
+                    ])
+                ]),
                 'attr' => [
                     'autocomplete' => 'new-password'
                 ]

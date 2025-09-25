@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/organisation')]
 #[IsGranted('ROLE_SUPER_ADMIN')]
@@ -211,7 +212,7 @@ final class OrganisationController extends AbstractController
     }
 
     #[Route('/{id}/user/new', name: 'app_organisation_user_new', methods: ['GET', 'POST'])]
-    public function newUser(Request $request, Organisation $organisation, EntityManagerInterface $entityManager): Response
+    public function newUser(Request $request, Organisation $organisation, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
 
@@ -233,8 +234,15 @@ final class OrganisationController extends AbstractController
         ]);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($user);
+        if ($form->isSubmitted()) {
+            // Handle password hashing
+            $plainPassword = $form->get('password')->getData();
+            if (!empty($plainPassword)) {
+                $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            }
+            
+            if ($form->isValid()) {
+                $entityManager->persist($user);
 
             // Auto-assign to principal service (mandatory and immutable)
             if ($principalService) {
@@ -245,15 +253,17 @@ final class OrganisationController extends AbstractController
                 $entityManager->persist($principalTravail);
             }
 
-            // Handle secondary services if selected
-            $secondaryServices = $form->get('secondary_services')->getData();
-            if ($secondaryServices) {
-                foreach ($secondaryServices as $service) {
-                    $secondaryTravail = new Travailler();
-                    $secondaryTravail->setUtilisateur($user);
-                    $secondaryTravail->setService($service);
-                    $secondaryTravail->setDateDebut(new \DateTime());
-                    $entityManager->persist($secondaryTravail);
+            // Handle secondary services if selected (only if the field exists)
+            if ($form->has('secondary_services')) {
+                $secondaryServices = $form->get('secondary_services')->getData();
+                if ($secondaryServices) {
+                    foreach ($secondaryServices as $service) {
+                        $secondaryTravail = new Travailler();
+                        $secondaryTravail->setUtilisateur($user);
+                        $secondaryTravail->setService($service);
+                        $secondaryTravail->setDateDebut(new \DateTime());
+                        $entityManager->persist($secondaryTravail);
+                    }
                 }
             }
 
@@ -261,6 +271,7 @@ final class OrganisationController extends AbstractController
 
             $this->addFlash('success', 'Utilisateur créé avec succès et assigné à l\'organisation.');
             return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+            }
         }
 
         return $this->render('organisation/new_user.html.twig', [

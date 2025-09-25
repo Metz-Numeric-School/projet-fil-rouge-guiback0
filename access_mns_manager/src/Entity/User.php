@@ -47,14 +47,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire')]
+    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire', groups: ['password_required'])]
     #[Assert\Length(
         min: 8,
-        minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères'
+        minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères',
+        groups: ['password_required']
     )]
     #[Assert\Regex(
         pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
-        message: 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial'
+        message: 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial',
+        groups: ['password_required']
     )]
     private ?string $password = null;
 
@@ -87,7 +89,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $prenom = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    #[Assert\Date(message: 'La date de naissance doit être une date valide')]
     #[Assert\LessThan(
         value: 'today',
         message: 'La date de naissance doit être antérieure à aujourd\'hui'
@@ -107,15 +108,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotNull(message: 'La date d\'inscription est obligatoire')]
-    #[Assert\Date(message: 'La date d\'inscription doit être une date valide')]
     private ?\DateTimeInterface $date_inscription = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
-    #[Assert\Time(message: 'L\'horaire doit être une heure valide')]
     private ?\DateTimeInterface $horraire = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
-    #[Assert\Time(message: 'L\'heure de début doit être une heure valide')]
     private ?\DateTimeInterface $heure_debut = null;
 
     #[ORM\Column(nullable: true)]

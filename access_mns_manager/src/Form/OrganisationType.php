@@ -11,7 +11,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class OrganisationType extends AbstractType
 {
@@ -19,80 +18,84 @@ class OrganisationType extends AbstractType
     {
         $builder
             ->add('nom_organisation', TextType::class, [
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'Le nom de l\'organisation est obligatoire.']),
-                    new Assert\Length(['max' => 255])
+                'label' => 'Nom de l\'organisation',
+                'attr' => [
+                    'placeholder' => 'Nom de votre organisation'
                 ]
             ])
             ->add('telephone', TextType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255])
+                'label' => 'Téléphone',
+                'attr' => [
+                    'placeholder' => '01 23 45 67 89'
                 ]
             ])
             ->add('email', EmailType::class, [
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'L\'email est obligatoire.']),
-                    new Assert\Email(['message' => 'Veuillez saisir un email valide.']),
-                    new Assert\Length(['max' => 255])
+                'label' => 'Email',
+                'attr' => [
+                    'placeholder' => 'contact@organisation.com'
                 ]
             ])
             ->add('site_web', UrlType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Url(['message' => 'Veuillez saisir une URL valide.']),
-                    new Assert\Length(['max' => 255])
+                'label' => 'Site web',
+                'attr' => [
+                    'placeholder' => 'https://www.organisation.com'
                 ]
             ])
             ->add('siret', TextType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 14])
+                'label' => 'SIRET',
+                'attr' => [
+                    'placeholder' => '12345678901234'
                 ]
             ])
             ->add('ca', NumberType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\PositiveOrZero(['message' => 'Le chiffre d\'affaires doit être positif.'])
+                'label' => 'Chiffre d\'affaires (€)',
+                'attr' => [
+                    'placeholder' => '1000000'
                 ]
             ])
             ->add('numero_rue', IntegerType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Positive(['message' => 'Le numéro de rue doit être positif.'])
+                'label' => 'N°',
+                'attr' => [
+                    'placeholder' => '123'
                 ]
             ])
             ->add('suffix_rue', TextType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 10])
+                'label' => 'Suffixe',
+                'attr' => [
+                    'placeholder' => 'bis'
                 ]
             ])
             ->add('nom_rue', TextType::class, [
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'Le nom de rue est obligatoire.']),
-                    new Assert\Length(['max' => 255])
-                ],
+                'label' => 'Nom de la rue',
                 'attr' => [
                     'placeholder' => 'Ex: rue de la République'
                 ]
             ])
             ->add('code_postal', TextType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255])
+                'label' => 'Code postal',
+                'attr' => [
+                    'placeholder' => '75001'
                 ]
             ])
             ->add('ville', TextType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255])
+                'label' => 'Ville',
+                'attr' => [
+                    'placeholder' => 'Paris'
                 ]
             ])
             ->add('pays', TextType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255])
+                'label' => 'Pays',
+                'attr' => [
+                    'placeholder' => 'France'
                 ]
             ])
         ;

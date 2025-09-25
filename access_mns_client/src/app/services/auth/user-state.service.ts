@@ -7,12 +7,13 @@ import {
   UserProfileResponse,
 } from '../../interfaces/user.interface';
 import { TokenService } from './token.service';
+import { environment } from '../../../environments';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserStateService {
-  private readonly API_BASE_URL = 'http://localhost:8000/manager/api';
+  private readonly API_BASE_URL = environment.apiBaseUrl;
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private completeProfileSubject = new BehaviorSubject<CompleteUserProfile | null>(null);

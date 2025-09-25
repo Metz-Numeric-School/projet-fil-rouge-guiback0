@@ -1,4 +1,56 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'id': 'badgeForm', 'class': 'needs-validation'}}) }}
+    <div class="row g-4">
+        <!-- Informations du badge -->
+        <div class="col-12">
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-credit-card"></i>
+                Informations du badge
+            </h6>
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.numero_badge) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.type_badge) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.date_creation) }}
+        </div>
+        
+        <div class="col-md-6">
+            {{ form_row(form.date_expiration) }}
+        </div>
+        
+        {{ form_rest(form) }}
+        
+        <div class="col-12">
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{{ path('app_badge_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Annuler
+                </a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <i class="bi bi-check-circle"></i> {{ button_label|default('Enregistrer') }}
+                </button>
+            </div>
+        </div>
+    </div>
 {{ form_end(form) }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('badgeForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    
+    // Form submission with loading state
+    form.addEventListener('submit', function(e) {
+        // Show loading state
+        submitBtn.disabled = true;
+        spinner.classList.remove('d-none');
+    });
+});
+</script>

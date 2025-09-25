@@ -50,14 +50,10 @@ final class AccesController extends AbstractController
         // Handle form submission
         if ($request->isMethod('POST') && $selectedOrganisation) {
             $selectedZone = $request->request->get('zone');
-            $nomAcces = trim($request->request->get('nom_acces'));
-            $referenceBadgeuse = trim($request->request->get('reference_badgeuse'));
+            $nomAcces = $request->request->get('nom_acces');
+            $referenceBadgeuse = $request->request->get('reference_badgeuse');
 
-            if (!$selectedZone) {
-                $this->addFlash('error', 'Veuillez sélectionner une zone.');
-            } elseif (empty($nomAcces) || empty($referenceBadgeuse)) {
-                $this->addFlash('error', 'Veuillez renseigner le nom d\'accès et la référence de la badgeuse.');
-            } else {
+            if ($selectedZone && $nomAcces && $referenceBadgeuse) {
                 try {
                     $entityManager->beginTransaction();
 
@@ -103,6 +99,8 @@ final class AccesController extends AbstractController
                     $entityManager->rollback();
                     $this->addFlash('error', 'Erreur lors de la création des accès. Veuillez réessayer.');
                 }
+            } else {
+                $this->addFlash('error', 'Veuillez remplir tous les champs requis.');
             }
         }
 

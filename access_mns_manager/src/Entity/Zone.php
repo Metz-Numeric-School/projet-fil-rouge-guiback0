@@ -6,6 +6,7 @@ use App\Repository\ZoneRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ZoneRepository::class)]
 class Zone
@@ -16,12 +17,29 @@ class Zone
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom de la zone est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom de la zone doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom de la zone ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $nom_zone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 500,
+        maxMessage: 'La description ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Positive(message: 'La capacité doit être un nombre positif')]
+    #[Assert\Range(
+        min: 1,
+        max: 10000,
+        notInRangeMessage: 'La capacité doit être entre {{ min }} et {{ max }} personnes'
+    )]
     private ?int $capacite = null;
 
     /**

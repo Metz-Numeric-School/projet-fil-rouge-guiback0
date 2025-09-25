@@ -1,4 +1,4 @@
-{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'userForm', 'class': 'needs-validation'}}) }}
+{{ form_start(form, {'attr': {'id': 'userForm', 'class': 'needs-validation'}}) }}
     <div class="row g-4">
         <!-- Informations personnelles -->
         <div class="col-12">
@@ -9,62 +9,27 @@
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.prenom, {
-                'label': 'Prénom *',
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': 'Jean'
-                }
-            }) }}
+            {{ form_row(form.prenom) }}
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.nom, {
-                'label': 'Nom *',
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': 'Dupont'
-                }
-            }) }}
+            {{ form_row(form.nom) }}
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.email, {
-                'label': 'Email *',
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': 'jean.dupont@example.com'
-                }
-            }) }}
+            {{ form_row(form.email) }}
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.password, {
-                'label': 'Mot de passe *',
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': 'Mot de passe sécurisé'
-                }
-            }) }}
+            {{ form_row(form.password) }}
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.date_naissance, {
-                'label': 'Date de naissance',
-                'attr': {
-                    'class': 'form-control'
-                }
-            }) }}
+            {{ form_row(form.date_naissance) }}
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.telephone, {
-                'label': 'Téléphone',
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': '01 23 45 67 89'
-                }
-            }) }}
+            {{ form_row(form.telephone) }}
         </div>
         
         
@@ -78,43 +43,19 @@
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.poste, {
-                'label': 'Poste',
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': 'Développeur Senior'
-                }
-            }) }}
+            {{ form_row(form.poste) }}
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.jours_semaine_travaille, {
-                'label': 'Jours de travail/semaine',
-                'attr': {
-                    'class': 'form-control',
-                    'min': '1',
-                    'max': '7',
-                    'placeholder': '5'
-                }
-            }) }}
+            {{ form_row(form.jours_semaine_travaille) }}
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.heure_debut, {
-                'label': 'Heure de début',
-                'attr': {
-                    'class': 'form-control'
-                }
-            }) }}
+            {{ form_row(form.heure_debut) }}
         </div>
         
         <div class="col-md-6">
-            {{ form_row(form.horraire, {
-                'label': 'Durée journalière',
-                'attr': {
-                    'class': 'form-control'
-                }
-            }) }}
+            {{ form_row(form.horraire) }}
         </div>
         
         <!-- Séparateur -->
@@ -205,12 +146,7 @@
 
         {% if form.date_inscription is defined %}
         <div class="col-md-6">
-            {{ form_row(form.date_inscription, {
-                'label': 'Date d\'inscription',
-                'attr': {
-                    'class': 'form-control'
-                }
-            }) }}
+            {{ form_row(form.date_inscription) }}
         </div>
         {% endif %}
 
@@ -247,25 +183,13 @@
 
         {% if form.date_derniere_connexion is defined %}
         <div class="col-md-6">
-            {{ form_row(form.date_derniere_connexion, {
-                'label': 'Dernière connexion',
-                'attr': {
-                    'class': 'form-control',
-                    'disabled': true
-                }
-            }) }}
+            {{ form_row(form.date_derniere_connexion) }}
         </div>
         {% endif %}
 
         {% if form.date_suppression_prevue is defined %}
         <div class="col-md-6">
-            {{ form_row(form.date_suppression_prevue, {
-                'label': 'Suppression prévue (RGPD)',
-                'help': 'Date automatique de suppression après désactivation (5 ans)',
-                'attr': {
-                    'class': 'form-control'
-                }
-            }) }}
+            {{ form_row(form.date_suppression_prevue) }}
         </div>
         {% endif %}
         {% endif %}
@@ -302,115 +226,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     const spinner = submitBtn.querySelector('.spinner-border');
     
-    // Real-time validation
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            validateField(this);
-        });
-        
-        input.addEventListener('input', function() {
-            if (this.classList.contains('is-invalid')) {
-                validateField(this);
-            }
-        });
-    });
-    
-    // Form submission
+    // Form submission with loading state
     form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        let isValid = true;
-        inputs.forEach(input => {
-            if (!validateField(input)) {
-                isValid = false;
-            }
-        });
-        
-        if (isValid) {
-            // Show loading state
-            submitBtn.disabled = true;
-            spinner.classList.remove('d-none');
-            
-            // Submit form
-            this.submit();
-        } else {
-            // Scroll to first error
-            const firstError = form.querySelector('.is-invalid');
-            if (firstError) {
-                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                firstError.focus();
-            }
-        }
+        // Show loading state
+        submitBtn.disabled = true;
+        spinner.classList.remove('d-none');
     });
-    
-    function validateField(field) {
-        const value = field.value.trim();
-        const fieldName = field.name;
-        let isValid = true;
-        let errorMessage = '';
-        
-        // Clear previous validation states
-        field.classList.remove('is-valid', 'is-invalid');
-        const feedback = field.parentNode.querySelector('.invalid-feedback');
-        if (feedback) feedback.remove();
-        
-        // Required field validation
-        if (field.hasAttribute('required') && !value) {
-            isValid = false;
-            errorMessage = 'Ce champ est obligatoire.';
-        }
-        
-        // Email validation
-        else if (fieldName.includes('email') && value) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(value)) {
-                isValid = false;
-                errorMessage = 'Veuillez saisir un email valide.';
-            }
-        }
-        
-        // Password validation
-        else if (fieldName.includes('password') && value) {
-            if (value.length < 6) {
-                isValid = false;
-                errorMessage = 'Le mot de passe doit contenir au moins 6 caractères.';
-            }
-        }
-        
-        // Phone validation
-        else if (fieldName.includes('telephone') && value) {
-            const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
-            if (!phoneRegex.test(value.replace(/\s/g, ''))) {
-                isValid = false;
-                errorMessage = 'Veuillez saisir un numéro de téléphone français valide.';
-            }
-        }
-        
-        // Days of work validation
-        else if (fieldName.includes('jours_semaine_travaille') && value) {
-            const days = parseInt(value);
-            if (isNaN(days) || days < 1 || days > 7) {
-                isValid = false;
-                errorMessage = 'Le nombre de jours doit être entre 1 et 7.';
-            }
-        }
-        
-        // Apply validation result
-        if (isValid && value) {
-            field.classList.add('is-valid');
-        } else if (!isValid) {
-            field.classList.add('is-invalid');
-            
-            // Add error message
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback';
-            errorDiv.textContent = errorMessage;
-            field.parentNode.appendChild(errorDiv);
-        }
-        
-        return isValid;
-    }
 });
 </script>
 

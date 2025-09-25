@@ -48,7 +48,6 @@ class Organisation
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotNull(message: 'La date de création est obligatoire')]
-    #[Assert\Date(message: 'La date de création doit être une date valide')]
     private ?\DateTimeInterface $date_creation = null;
 
     #[ORM\Column(length: 14, nullable: true)]
@@ -100,7 +99,6 @@ class Organisation
     private ?string $ville = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Country(message: 'Le pays doit être un code pays ISO valide')]
     private ?string $pays = null;
 
     /**

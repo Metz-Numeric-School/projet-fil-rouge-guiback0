@@ -6,12 +6,13 @@ import {
   WorkingTimePeriod,
 } from '../../interfaces/pointage.interface';
 import { TokenService } from '../auth/token.service';
+import { environment } from '../../../environments';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WorkingTimeService {
-  private readonly API_BASE_URL = 'http://localhost:8000/manager/api/pointage';
+  private readonly API_BASE_URL = `${environment.apiBaseUrl}/pointage`;
   
   private userStatusSubject = new BehaviorSubject<UserWorkingStatus | null>(null);
   private workingTimeSubject = new BehaviorSubject<number>(0);

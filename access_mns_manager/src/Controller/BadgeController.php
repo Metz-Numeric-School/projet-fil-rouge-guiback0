@@ -50,7 +50,7 @@ final class BadgeController extends AbstractController{
                             ->leftJoin('u.travail', 't')
                             ->leftJoin('t.service', 's')
                             ->where('s.organisation = :organisation')
-                            ->andWhere('t.is_principal = true')
+                            ->andWhere('s.is_principal = true')
                             ->setParameter('organisation', $selectedOrganisation)
                             ->getQuery()
                             ->getResult();

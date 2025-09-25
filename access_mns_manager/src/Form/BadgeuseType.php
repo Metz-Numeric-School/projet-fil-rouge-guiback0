@@ -12,9 +12,17 @@ class BadgeuseType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('reference')
+            ->add('reference', null, [
+                'label' => 'Référence de la badgeuse',
+                'help' => 'Identifiant unique (lettres majuscules, chiffres, tirets et underscores uniquement)',
+                'attr' => [
+                    'placeholder' => 'Ex: BADGE_001, READER-A1...'
+                ]
+            ])
             ->add('date_installation', null, [
-                'widget' => 'single_text'
+                'widget' => 'single_text',
+                'label' => 'Date d\'installation',
+                'data' => new \DateTime()
             ])
         ;
     }

@@ -53,8 +53,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     ports:
-      - "${MANAGER_PORT:-8000}:80"   # HTTP backend
-      - "8443:443"  # HTTPS backend
+      - "${MANAGER_PORT:-8000}:80"   # HTTP backend for direct access (dev only)
     depends_on:
       - database
     networks:
@@ -68,6 +67,8 @@ services:
     build:
       context: ./access_mns_client
       dockerfile: Dockerfile
+      args:
+        - APP_ENV=${APP_ENV_FRONTEND:-docker}
     container_name: ${CLIENT_CONTAINER_NAME:-access_mns_client}
     restart: unless-stopped
     ports:
@@ -77,7 +78,7 @@ services:
     networks:
       - app-network
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
 
   # Nginx Reverse Proxy (optional - for production-like setup)
   proxy:

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AccesRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AccesRepository::class)]
 class Acces
@@ -15,15 +16,29 @@ class Acces
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: 'Le nom d\'accès est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom d\'accès doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom d\'accès ne peut pas contenir plus de {{ limit }} caractères'
+    )]
     private ?string $nom_acces = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\NotNull(message: 'La date d\'installation est obligatoire')]
+    #[Assert\LessThanOrEqual(
+        value: 'now',
+        message: 'La date d\'installation ne peut pas être dans le futur'
+    )]
     private ?\DateTimeInterface $date_installation = null;
 
     #[ORM\ManyToOne(inversedBy: 'acces')]
+    #[Assert\NotNull(message: 'La zone est obligatoire')]
     private ?Zone $zone = null;
 
     #[ORM\ManyToOne(inversedBy: 'acces')]
+    #[Assert\NotNull(message: 'La badgeuse est obligatoire')]
     private ?Badgeuse $badgeuse = null;
 
     public function getId(): ?int

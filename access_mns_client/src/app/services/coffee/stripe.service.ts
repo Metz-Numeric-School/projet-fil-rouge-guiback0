@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { TokenService } from '../auth/token.service';
+import { environment } from '../../../environments';
 import {
   StripeProduct,
   StripeProductsResponse,
@@ -13,7 +14,7 @@ import {
   providedIn: 'root'
 })
 export class StripeService {
-  private readonly API_BASE_URL = 'http://localhost:8000/manager/api';
+  private readonly API_BASE_URL = environment.apiBaseUrl;
 
   constructor(
     private http: HttpClient,

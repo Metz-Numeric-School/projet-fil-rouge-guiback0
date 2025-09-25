@@ -11,12 +11,13 @@ import {
   BadgeuseAccess,
 } from '../../interfaces/pointage.interface';
 import { TokenService } from '../auth/token.service';
+import { environment } from '../../../environments';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BadgeuseApiService {
-  private readonly API_BASE_URL = 'http://localhost:8000/manager/api/pointage';
+  private readonly API_BASE_URL = `${environment.apiBaseUrl}/pointage`;
 
   constructor(
     private http: HttpClient,

@@ -30,3 +30,9 @@
 ###< symfony/asset-mapper ###
 
 .history
+
+# SSL certificates and private keys
+*.key
+*.crt
+*.pem
+ssl/

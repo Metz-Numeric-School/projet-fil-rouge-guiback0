@@ -78,6 +78,8 @@ CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--watch" ]
 FROM frankenphp_base AS frankenphp_prod
 
 ENV APP_ENV=prod
+ENV APP_DEBUG=0
+ENV PORT=8000
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
@@ -86,11 +88,14 @@ COPY --link frankenphp/conf.d/20-app.prod.ini $PHP_INI_DIR/app.conf.d/
 # prevent the reinstallation of vendors at every changes in the source code
 COPY --link composer.* symfony.* ./
 RUN set -eux; \
-	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
+	composer install --no-cache --prefer-dist --no-autoloader --no-scripts --no-progress
 
 # copy sources
 COPY --link . ./
 RUN rm -Rf frankenphp/
+
+
+
 
 # Handle environment configuration based on deployment context
 RUN if [ -n "${RAILWAY_ENVIRONMENT:-}" ]; then \
@@ -100,8 +105,18 @@ RUN if [ -n "${RAILWAY_ENVIRONMENT:-}" ]; then \
         echo "Running locally - keeping .env file"; \
     fi
 
+
 RUN set -eux; \
+	GENERATED_SECRET=$(openssl rand -hex 32); \
+	echo "APP_ENV=${APP_ENV}" > .env; \
+	echo "APP_DEBUG=false" >> .env; \
+	echo "APP_SECRET=${GENERATED_SECRET}" >> .env; \
+	echo "DATABASE_URL=${DATABASE_URL}" >> .env; \
+	echo "TRUSTED_PROXIES=100.64.0.0/16" >> .env; \
+	echo "TRUSTED_HOSTS=^access-mns-manager-qa\.up\.railway\.app$" >> .env; \
 	mkdir -p var/cache var/log; \
-	composer dump-autoload --classmap-authoritative --no-dev; \
-	composer run-script --no-dev post-install-cmd; \
-	chmod +x bin/console; sync;
+	composer dump-autoload --classmap-authoritative; \
+	chmod +x bin/console; sync
+
+# Finaliser le stage de production  
+CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile" ]

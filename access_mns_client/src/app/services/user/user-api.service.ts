@@ -7,12 +7,13 @@ import {
   CompleteProfileResponse,
 } from '../../interfaces/user.interface';
 import { TokenService } from '../auth/token.service';
+import { environment } from '../../../environments';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserApiService {
-  private readonly API_BASE_URL = 'http://localhost:8000/manager/api/user';
+  private readonly API_BASE_URL = `${environment.apiBaseUrl}/user`;
 
   constructor(
     private http: HttpClient,

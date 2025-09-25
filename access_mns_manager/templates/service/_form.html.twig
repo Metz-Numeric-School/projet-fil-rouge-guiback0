@@ -1,4 +1,4 @@
-{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'serviceForm', 'class': 'needs-validation'}}) }}
+{{ form_start(form, {'attr': {'id': 'serviceForm', 'class': 'needs-validation'}}) }}
     <div class="row g-4">
         <!-- Informations générales -->
         <div class="col-12">
@@ -9,35 +9,16 @@
         </div>
         
         <div class="col-md-8">
-            {{ form_row(form.nom_service, {
-                'label': 'Nom du service *',
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': 'Nom du service'
-                }
-            }) }}
+            {{ form_row(form.nom_service) }}
         </div>
         
         <div class="col-md-4">
-            {{ form_row(form.niveau_service, {
-                'label': 'Niveau du service',
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': 'Niveau (1-5)',
-                    'min': '1',
-                    'max': '5'
-                }
-            }) }}
+            {{ form_row(form.niveau_service) }}
         </div>
 
         {% if form.organisation is defined %}
         <div class="col-12">
-            {{ form_row(form.organisation, {
-                'label': 'Organisation *',
-                'attr': {
-                    'class': 'form-select'
-                }
-            }) }}
+            {{ form_row(form.organisation) }}
         </div>
         {% endif %}
 
@@ -73,96 +54,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     const spinner = submitBtn.querySelector('.spinner-border');
     
-    // Real-time validation
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            validateField(this);
-        });
-        
-        input.addEventListener('input', function() {
-            if (this.classList.contains('is-invalid')) {
-                validateField(this);
-            }
-        });
-    });
-    
-    // Form submission
+    // Form submission with loading state
     form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        let isValid = true;
-        inputs.forEach(input => {
-            if (!validateField(input)) {
-                isValid = false;
-            }
-        });
-        
-        if (isValid) {
-            // Show loading state
-            submitBtn.disabled = true;
-            spinner.classList.remove('d-none');
-            
-            // Submit form
-            this.submit();
-        } else {
-            // Scroll to first error
-            const firstError = form.querySelector('.is-invalid');
-            if (firstError) {
-                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                firstError.focus();
-            }
-        }
+        // Show loading state
+        submitBtn.disabled = true;
+        spinner.classList.remove('d-none');
     });
-    
-    function validateField(field) {
-        const value = field.value.trim();
-        const fieldName = field.name;
-        let isValid = true;
-        let errorMessage = '';
-        
-        // Clear previous validation states
-        field.classList.remove('is-valid', 'is-invalid');
-        const feedback = field.parentNode.querySelector('.invalid-feedback');
-        if (feedback) feedback.remove();
-        
-        // Required field validation
-        if (field.hasAttribute('required') && !value) {
-            isValid = false;
-            errorMessage = 'Ce champ est obligatoire.';
-        }
-        
-        // Service name validation
-        else if (fieldName.includes('nom_service') && value) {
-            if (value.length < 2) {
-                isValid = false;
-                errorMessage = 'Le nom du service doit contenir au moins 2 caractères.';
-            }
-        }
-        
-        // Service level validation
-        else if (fieldName.includes('niveau_service') && value) {
-            const level = parseInt(value);
-            if (isNaN(level) || level < 1 || level > 5) {
-                isValid = false;
-                errorMessage = 'Le niveau doit être un nombre entre 1 et 5.';
-            }
-        }
-        
-        // Apply validation result
-        if (isValid && value) {
-            field.classList.add('is-valid');
-        } else if (!isValid) {
-            field.classList.add('is-invalid');
-            
-            // Add error message
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback';
-            errorDiv.textContent = errorMessage;
-            field.parentNode.appendChild(errorDiv);
-        }
-        
-        return isValid;
-    }
 });
 </script>

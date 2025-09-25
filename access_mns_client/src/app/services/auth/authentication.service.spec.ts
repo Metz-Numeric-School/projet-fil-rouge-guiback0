@@ -7,6 +7,7 @@ import { TokenService } from './token.service';
 import { LoginCredentials, LoginResponse } from '../../interfaces/auth.interface';
 import { User } from '../../interfaces/user.interface';
 import { TestBedConfig, TestHelpers } from '../../testing';
+import { environment } from '../../../environments';
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
@@ -60,7 +61,7 @@ describe('AuthenticationService', () => {
         TestHelpers.expectServiceCall(tokenServiceSpy.setRememberMe, 'setRememberMe', true);
       });
 
-      const req = httpMock.expectOne('http://localhost:8000/manager/api/auth/login');
+      const req = httpMock.expectOne(`${environment.apiBaseUrl}/auth/login`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(credentials);
       req.flush(mockLoginResponse);
@@ -86,7 +87,7 @@ describe('AuthenticationService', () => {
         }
       });
 
-      const req = httpMock.expectOne('http://localhost:8000/manager/api/auth/login');
+      const req = httpMock.expectOne(`${environment.apiBaseUrl}/auth/login`);
       req.flush(errorResponse, { status: 401, statusText: 'Unauthorized' });
     });
   });
@@ -101,7 +102,7 @@ describe('AuthenticationService', () => {
         TestHelpers.expectNavigation(routerSpy, ['/login']);
       });
 
-      const req = httpMock.expectOne('http://localhost:8000/manager/api/auth/logout');
+      const req = httpMock.expectOne(`${environment.apiBaseUrl}/auth/logout`);
       expect(req.request.method).toBe('POST');
       expect(req.request.headers.get('Authorization')).toBe('Bearer mock-token');
       req.flush({});
@@ -132,7 +133,7 @@ describe('AuthenticationService', () => {
 
       service.login(credentials).subscribe();
 
-      const req = httpMock.expectOne('http://localhost:8000/manager/api/auth/login');
+      const req = httpMock.expectOne(`${environment.apiBaseUrl}/auth/login`);
       
       // Le chargement devrait être true pendant la requête
       expect(loadingStates).toContain(true);

@@ -17,7 +17,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install project dependencies using npm ci (ensures a clean, reproducible install)
-RUN --mount=type=cache,target=/root/.npm npm ci
+RUN npm ci
 
 # Install Angular CLI globally to build the application
 RUN npm install -g @angular/cli
@@ -25,8 +25,24 @@ RUN npm install -g @angular/cli
 # Copy the rest of the application source code into the container
 COPY . .
 
-# Build the Angular application
-RUN npm run build --configuration=production
+# Declare build-time variables from Railway
+ARG RAILWAY_ENVIRONMENT
+ARG APP_ENV
+
+# Build the Angular application with appropriate configuration
+RUN if [ "$APP_ENV" = "prod" ]; then \
+        echo "Building for production environment (APP_ENV=$APP_ENV)"; \
+        npm run build --configuration=production; \
+    elif [ "$APP_ENV" = "qa" ]; then \
+        echo "Building for QA environment (APP_ENV=$APP_ENV)"; \
+        npm run build --configuration=qa; \
+    elif [ "$APP_ENV" = "docker" ]; then \
+        echo "Building for Docker local development environment (APP_ENV=$APP_ENV)"; \
+        npm run build --configuration=docker; \
+    else \
+        echo "Building for default development environment (APP_ENV=$APP_ENV)"; \
+        npm run build --configuration=development; \
+    fi
 
 # =========================================
 # Stage 2: Prepare Nginx to Serve Static Files

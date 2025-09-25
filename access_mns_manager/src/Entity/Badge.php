@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BadgeRepository::class)]
 class Badge
@@ -17,6 +18,8 @@ class Badge
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Le numéro de badge est obligatoire')]
+    #[Assert\Positive(message: 'Le numéro de badge doit être positif')]
     private ?int $numero_badge = null;
 
     /**
@@ -24,12 +27,32 @@ class Badge
      * N'INFLUENCE PAS les permissions d'accès aux zones/badgeuses
      */
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le type de badge est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le type de badge doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le type de badge ne peut pas contenir plus de {{ limit }} caractères'
+    )]
+    #[Assert\Choice(
+        choices: ['RFID', 'NFC', 'MIFARE', 'HID', 'Prox', 'iCLASS'],
+        message: 'Le type de badge doit être: {{ choices }}'
+    )]
     private ?string $type_badge = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotNull(message: 'La date de création est obligatoire')]
+    #[Assert\LessThanOrEqual(
+        value: 'today',
+        message: 'La date de création ne peut pas être dans le futur'
+    )]
     private ?\DateTimeInterface $date_creation = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\GreaterThan(
+        propertyPath: 'date_creation',
+        message: 'La date d\'expiration doit être postérieure à la date de création'
+    )]
     private ?\DateTimeInterface $date_expiration = null;
 
     /**

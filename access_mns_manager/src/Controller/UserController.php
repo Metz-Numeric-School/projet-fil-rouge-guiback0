@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Form\FormError;
 
 #[Route('/user')]
 #[IsGranted('ROLE_SUPER_ADMIN')]
@@ -67,30 +68,34 @@ final class UserController extends AbstractController
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Hash the password
+        if ($form->isSubmitted()) {
+            // Handle password since it's unmapped
             $plainPassword = $form->get('password')->getData();
-            if ($plainPassword) {
+            if (!empty($plainPassword)) {
                 $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            } elseif (!$user->getId()) {
+                // Only require password for new users
+                $form->get('password')->addError(new FormError('Le mot de passe est obligatoire'));
             }
             
-            $entityManager->persist($user);
+            if ($form->isValid()) {
+                $entityManager->persist($user);
 
-            // Auto-assign user to the first principal service found
-            $principalService = $serviceRepository->findOneBy(['nom_service' => 'Service principal']);
-            if ($principalService) {
-                $travailler = new Travailler();
-                $travailler->setUtilisateur($user);
-                $travailler->setService($principalService);
-                $travailler->setDateDebut(new \DateTime());
-                $travailler->setIsPrincipal(true);
-                $entityManager->persist($travailler);
+                // Auto-assign user to the first principal service found
+                $principalService = $serviceRepository->findOneBy(['is_principal' => true]);
+                if ($principalService) {
+                    $travailler = new Travailler();
+                    $travailler->setUtilisateur($user);
+                    $travailler->setService($principalService);
+                    $travailler->setDateDebut(new \DateTime());
+                    $entityManager->persist($travailler);
+                }
+
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Utilisateur créé avec succès et assigné au service principal.');
+                return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
             }
-
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Utilisateur créé avec succès et assigné au service principal.');
-            return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('user/new.html.twig', [
@@ -116,18 +121,20 @@ final class UserController extends AbstractController
         ]);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
             // Handle password update only if a new password was provided
             $newPassword = $form->get('password')->getData();
             if (!empty($newPassword)) {
                 $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
             }
             
-            $user->updateLastModification();
-            $entityManager->flush();
+            if ($form->isValid()) {
+                $user->updateLastModification();
+                $entityManager->flush();
 
-            $this->addFlash('success', 'Utilisateur modifié avec succès.');
-            return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', 'Utilisateur modifié avec succès.');
+                return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+            }
         }
 
         return $this->render('user/edit.html.twig', [
@@ -260,7 +267,7 @@ final class UserController extends AbstractController
                 ->join('u.travail', 't')
                 ->join('t.service', 's')
                 ->where('s.organisation = :organisation')
-                ->andWhere('t.is_principal = true')
+                ->andWhere('s.is_principal = true')
                 ->setParameter('organisation', $organisation)
                 ->getQuery()
                 ->getResult();

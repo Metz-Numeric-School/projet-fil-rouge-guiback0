@@ -8,12 +8,13 @@ import {
 } from '../../interfaces/auth.interface';
 import { User } from '../../interfaces/user.interface';
 import { TokenService } from './token.service';
+import { environment } from '../../../environments';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  private readonly API_BASE_URL = 'http://localhost:8000/manager/api';
+  private readonly API_BASE_URL = environment.apiBaseUrl;
   
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   public isLoading$ = this.isLoadingSubject.asObservable();

@@ -53,20 +53,6 @@ final class ZoneController extends AbstractController{
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Check if a zone with the same name already exists
-            $existingZone = $entityManager->getRepository(Zone::class)
-                ->findOneBy([
-                    'nom_zone' => $zone->getNomZone()
-                ]);
-            
-            if ($existingZone) {
-                $this->addFlash('warning', 'Une zone avec ce nom existe déjà.');
-                return $this->render('zone/new.html.twig', [
-                    'zone' => $zone,
-                    'form' => $form,
-                    'service' => $service,
-                ]);
-            }
             
             try {
                 // Start transaction

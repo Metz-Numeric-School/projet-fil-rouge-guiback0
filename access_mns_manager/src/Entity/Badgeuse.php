@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BadgeuseRepository::class)]
 class Badgeuse
@@ -17,9 +18,25 @@ class Badgeuse
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'La référence de la badgeuse est obligatoire')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'La référence doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'La référence ne peut pas contenir plus de {{ limit }} caractères'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[A-Z0-9_-]+$/',
+        message: 'La référence ne peut contenir que des lettres majuscules, chiffres, tirets et underscores'
+    )]
     private ?string $reference = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotNull(message: 'La date d\'installation est obligatoire')]
+    #[Assert\LessThanOrEqual(
+        value: 'today',
+        message: 'La date d\'installation ne peut pas être dans le futur'
+    )]
     private ?\DateTimeInterface $date_installation = null;
 
     /**

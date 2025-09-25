@@ -58,14 +58,25 @@ class AuthController extends AbstractController
             return $response;
         }
 
-        $data = json_decode($request->getContent(), true);
+        $rawContent = $request->getContent();
+        
+        // FIX TEMPORAIRE: Corriger l'échappement du ! dans les mots de passe
+        $fixedContent = str_replace('\\!', '!', $rawContent);
+        $data = json_decode($fixedContent, true);
 
-        // Validation des données avec DTO
+        // DEBUG TEMPORAIRE
         if (!is_array($data)) {
             return new JsonResponse([
                 'success' => false,
                 'error' => 'INVALID_JSON',
-                'message' => 'Format JSON invalide'
+                'message' => 'Format JSON invalide',
+                'debug' => [
+                    'raw_content' => $rawContent,
+                    'fixed_content' => $fixedContent,
+                    'content_type' => $request->headers->get('Content-Type'),
+                    'json_error' => json_last_error_msg(),
+                    'decoded_data' => $data
+                ]
             ], 400);
         }
 
@@ -220,6 +231,7 @@ class AuthController extends AbstractController
             'message' => 'Profil utilisateur récupéré'
         ]);
     }
+
 
     /**
      * Déconnexion (côté client principalement)
