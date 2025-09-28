@@ -31,7 +31,7 @@ ARG APP_ENV
 ARG API_BASE_URL
 
 # Replace API_BASE_URL placeholder in environment.ts before build
-RUN sed -i "s|\${API_BASE_URL}|${API_BASE_URL:-https://localhost/manager/api}|g" src/environments/environment.ts
+RUN sed -i "s|\\\${API_BASE_URL}|${API_BASE_URL:-https://localhost/manager/api}|g" src/environments/environment.ts
 
 # Build the Angular application for production
 RUN npm run build
