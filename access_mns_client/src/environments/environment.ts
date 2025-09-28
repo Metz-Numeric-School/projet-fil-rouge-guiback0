@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'https://localhost/manager/api',
-  apiUrl: 'https://localhost/manager/api'
+  apiBaseUrl: '${API_BASE_URL}',
+  apiUrl: '${API_BASE_URL}'
 };

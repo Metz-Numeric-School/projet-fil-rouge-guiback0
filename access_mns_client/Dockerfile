@@ -28,21 +28,13 @@ COPY . .
 # Declare build-time variables from Railway
 ARG RAILWAY_ENVIRONMENT
 ARG APP_ENV
+ARG API_BASE_URL
 
-# Build the Angular application with appropriate configuration
-RUN if [ "$APP_ENV" = "prod" ]; then \
-        echo "Building for production environment (APP_ENV=$APP_ENV)"; \
-        npm run build --configuration=production; \
-    elif [ "$APP_ENV" = "qa" ]; then \
-        echo "Building for QA environment (APP_ENV=$APP_ENV)"; \
-        npm run build --configuration=qa; \
-    elif [ "$APP_ENV" = "docker" ]; then \
-        echo "Building for Docker local development environment (APP_ENV=$APP_ENV)"; \
-        npm run build --configuration=docker; \
-    else \
-        echo "Building for default development environment (APP_ENV=$APP_ENV)"; \
-        npm run build --configuration=development; \
-    fi
+# Replace API_BASE_URL placeholder in environment.ts before build
+RUN sed -i "s|\${API_BASE_URL}|${API_BASE_URL:-https://localhost/manager/api}|g" src/environments/environment.ts
+
+# Build the Angular application for production
+RUN npm run build
 
 # =========================================
 # Stage 2: Prepare Nginx to Serve Static Files
