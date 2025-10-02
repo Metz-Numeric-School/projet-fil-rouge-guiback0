@@ -141,17 +141,6 @@
     align-items: stretch;
   }
 
-  .forgot-password-link {
-    color: $primary-orange;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-
-    &:hover {
-      color: $dark-orange;
-      text-decoration: underline;
-    }
-  }
 }
 
 // Login Button

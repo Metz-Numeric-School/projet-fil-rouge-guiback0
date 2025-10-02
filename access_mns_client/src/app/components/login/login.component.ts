@@ -155,15 +155,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.hidePassword = !this.hidePassword;
   }
 
-  /**
-   * Handle forgot password (placeholder for future implementation)
-   */
-  onForgotPassword(): void {
-    this.snackBar.open('Fonctionnalité en cours de développement', 'Fermer', {
-      duration: 3000,
-      panelClass: ['info-snackbar'],
-    });
-  }
 
   /**
    * Mark all form fields as touched to show validation errors
