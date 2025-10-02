@@ -31,7 +31,6 @@ import { BadgesComponent } from './badges/badges.component';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTabsModule,
-    // New components
     PersonalInfoComponent,
     OrganisationComponent,
     BadgesComponent,

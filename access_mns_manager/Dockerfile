@@ -13,7 +13,7 @@ FROM frankenphp_upstream AS frankenphp_base
 
 WORKDIR /app
 
-# VOLUME /app/var/
+VOLUME /app/var/
 # persistent / runtime deps
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -94,17 +94,14 @@ RUN set -eux; \
 COPY --link . ./
 RUN rm -Rf frankenphp/
 
+# Declare Railway build-time variables
+ARG RAILWAY_ENVIRONMENT
+ARG APP_ENV=prod
+ARG APP_SECRET=temp-build-secret
+ARG DATABASE_URL=sqlite:///%kernel.project_dir%/var/build.db
 
-
-
-# Handle environment configuration based on deployment context
-RUN if [ -n "${RAILWAY_ENVIRONMENT:-}" ]; then \
-        echo "Running on Railway - using environment variables"; \
-        rm -f .env || true; \
-    else \
-        echo "Running locally - keeping .env file"; \
-    fi
-
+# Configure pour Railway - pas de gestion HTTPS automatique (Railway s'en charge)  
+ENV SERVER_NAME=:8000
 
 RUN set -eux; \
 	GENERATED_SECRET=$(openssl rand -hex 32); \
