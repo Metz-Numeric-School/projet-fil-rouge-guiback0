@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ACCESS MNS is a full-stack access management system with:
 - **Backend**: Symfony 7.2 API (access_mns_manager) with JWT authentication, PostgreSQL database
-- **Frontend**: Angular 19 client (access_mns_client) with Material UI components
+- **Frontend**: Angular 19 client (access_mns_client) with Material UI components  
 - **Infrastructure**: Docker Compose with PostgreSQL, Nginx reverse proxy
 
 ## Development Commands
